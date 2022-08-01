@@ -118,7 +118,6 @@ const handleLogin = () => {
         // TODO:登录后操作
       })
       .catch((err) => {
-        console.log('登录报错')
         console.log(err)
         loading.value = false
       })
