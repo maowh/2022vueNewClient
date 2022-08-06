@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import store from '@/store'
+import { isCheckTimeout } from '@/utils/auth'
 
 // 定义后台访问的基本地址和超时时间
 const service = axios.create({
@@ -13,13 +14,17 @@ service.interceptors.request.use(
   (config) => {
     // 在这个位置需要统一的去注入token
     if (store.getters.token) {
+      if (isCheckTimeout()) {
+        // 登出，根据客户端时效判断
+        store.dispatch('user/logout')
+        return Promise.reject(new Error('token失效'))
+      }
       // 如果token存在 注入token
       config.headers.Authorization = `Bearer ${store.getters.token}`
     }
     return config // 必须返回配置
   },
   (error) => {
-    console.log('请求拦截器报错！')
     return Promise.reject(error)
   }
 )
@@ -42,14 +47,14 @@ service.interceptors.response.use(
   },
   // 请求失败
   (error) => {
-    // token过期
-    // if (
-    //   error.response &&
-    //   error.response.data &&
-    //   error.response.data.code === 401
-    // ) {
-    //   store.dispatch('user/logout')
-    // }
+    // 处理服务器端token过期，服务器端判断token失效功能未作，暂时未实现
+    if (
+      error.response &&
+      error.response.data &&
+      error.response.data.code === 401
+    ) {
+      store.dispatch('user/logout')
+    }
     ElMessage.error(error.message)
     return Promise.reject(error)
   }

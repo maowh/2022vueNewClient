@@ -1,7 +1,8 @@
 import { login, getUserInfoApi } from '@/api/sys'
-import { setItem, getItem } from '@/utils/storage'
+import { setItem, getItem, removeAllItem } from '@/utils/storage'
 import { TOKEN } from '@/constant'
 import router from '@/router'
+import { setTimeStamp } from '@/utils/auth'
 
 // import md5 from 'md5'
 
@@ -39,6 +40,8 @@ export default {
             this.commit('user/setToken', data.token)
             // 跳转页面
             router.push('/')
+            // 保存登录时间
+            setTimeStamp()
             resolve()
           })
           .catch((err) => {
@@ -52,6 +55,14 @@ export default {
       // 触发mutations下的user模块的setUserInfo
       this.commit('user/setUserInfo', res)
       return res
+    },
+    logout() {
+      // 退出登录的时候清理路由
+      // resetRouter()
+      this.commit('user/setToken', '')
+      this.commit('user/setUserInfo', {})
+      removeAllItem()
+      router.push('/login')
     }
   }
 }

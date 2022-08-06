@@ -7,7 +7,8 @@
       :rules="loginRules"
     >
       <div class="title-container">
-        <h3 class="title">用户登录</h3>
+        <h3 class="title">{{ $t('msg.login.title') }}</h3>
+        <LangSelect class="lang-select" effect="light"></LangSelect>
       </div>
 
       <!-- el-form-item的属性，在定义了 validate、resetFields 的方法时，该属性是必填的 -->
@@ -54,8 +55,9 @@
         style="width: 100%; margin-bottom: 30px"
         :loading="loading"
         @click="handleLogin"
-        >登录</el-button
+        >{{ $t('msg.login.loginBtn') }}</el-button
       >
+      <div class="tips" v-html="$t('msg.login.desc')"></div>
     </el-form>
   </div>
 </template>
@@ -66,6 +68,11 @@
 import { ref } from 'vue'
 import { validatePassword } from './rules'
 import { useStore } from 'vuex'
+import LangSelect from '@/components/LangSelect/index'
+import { useI18n } from 'vue-i18n'
+
+// 验证规则
+const i18n = useI18n()
 
 // 数据源
 const loginForm = ref({
@@ -79,7 +86,7 @@ const loginRules = ref({
     {
       required: true,
       trigger: 'blur',
-      message: '用户名为必填项'
+      message: i18n.t('msg.login.usernameRule')
     }
   ],
   password: [
@@ -186,6 +193,16 @@ $cursor: #fff;
       margin: 0px auto 40px auto;
       text-align: center;
       font-weight: bold;
+    }
+    ::v-deep .lang-select {
+      position: absolute;
+      top: 4px;
+      right: 0;
+      background-color: #fff;
+      font-size: 22px;
+      padding: 4px;
+      border-radius: 4px;
+      cursor: pointer;
     }
   }
 
