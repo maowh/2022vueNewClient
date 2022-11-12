@@ -77,6 +77,7 @@ const getPermissionList = async () => {
         permissionDesc: allPermissionTmp[i].permissionDesc,
         children: []
       })
+      console.log(allPermissionTmp[i].children.length)
       for (let j = 0; j < allPermissionTmp[i].children.length; j++) {
         console.log(allPermissionTmp[i].children[j].permissionFunctionName)
         checkedKeysTmp[i].children.push({
@@ -84,12 +85,11 @@ const getPermissionList = async () => {
             allPermissionTmp[i].permissionId +
             '-' +
             allPermissionTmp[i].children[j].permissionFunctionId,
-          permissionFunctionName:
+          permissionName:
             allPermissionTmp[i].children[j].permissionFunctionName,
-          permissionFunctionMark:
+          permissionMark:
             allPermissionTmp[i].children[j].permissionFunctionMark,
-          permissionFunctionDesc:
-            allPermissionTmp[i].children[j].permissionFunctionDesc
+          permissionDesc: allPermissionTmp[i].children[j].permissionFunctionDesc
         })
       }
     } else {
@@ -112,9 +112,17 @@ const treeRef = ref()
 const getRolePermission = async () => {
   const checkedKeys = await findPermission(props.roleId)
   const checkedKeysTmp = []
+  const checkedTest = []
+  console.log(checkedKeys)
   checkedKeys.forEach((item) => {
     if (item.permissionfunctionId !== null) {
-      checkedKeysTmp.push(item.permissionId + '-' + item.permissionfunctionId)
+      if (checkedTest.permissionId !== item.permissionId) {
+        checkedTest.push(item.permissionId)
+        checkedKeysTmp.push(item.permissionId)
+        checkedKeysTmp.push(item.permissionId + '-' + item.permissionfunctionId)
+      } else {
+        checkedKeysTmp.push(item.permissionId + '-' + item.permissionfunctionId)
+      }
     } else {
       checkedKeysTmp.push(item.permissionId)
     }
