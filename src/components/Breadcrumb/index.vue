@@ -11,7 +11,7 @@
         }}</span>
         <!-- 可点击项 -->
         <a v-else class="redirect" @click.prevent="onLinkClick(item)">
-          {{ item.meta.title }}
+          {{ generateTitle(item.meta.title) }}
         </a>
       </el-breadcrumb-item>
     </transition-group>

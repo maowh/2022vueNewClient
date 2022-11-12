@@ -48,13 +48,13 @@ service.interceptors.response.use(
   // 请求失败
   (error) => {
     // 处理服务器端token过期，服务器端判断token失效功能未作，暂时未实现
-    if (
-      error.response &&
-      error.response.data &&
-      error.response.data.code === 401
-    ) {
-      store.dispatch('user/logout')
-    }
+    // if (
+    //   error.response &&
+    //   error.response.data &&
+    //   error.response.data.code === 401
+    // ) {
+    //   store.dispatch('user/logout')
+    // }
     ElMessage.error(error.message)
     return Promise.reject(error)
   }

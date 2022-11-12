@@ -48,7 +48,7 @@ const handleSetLanguage = (lang) => {
   store.commit('app/setLanguage', lang)
   ElMessage.success(i18n.t('msg.toast.switchLangSuccess'))
 }
-console.log(language)
+// console.log(language)
 </script>
 
 <style lang="scss" scoped></style>

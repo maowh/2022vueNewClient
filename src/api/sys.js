@@ -15,3 +15,59 @@ export const getUserInfoApi = () => {
     url: '/user/info'
   })
 }
+
+// 获取用户分页信息
+export const getUserList = (data) => {
+  return request({
+    url: '/user/userList',
+    params: data
+  })
+}
+// 获取所有用户信息
+export const getUserAll = () => {
+  return request({
+    url: '/user/userAll'
+  })
+}
+
+// 获取文章列表信息
+export const feature = () => {
+  return request({
+    url: '/user/feature'
+  })
+}
+
+export const chapter = () => {
+  return request({
+    url: '/user/chapter'
+  })
+}
+
+/**
+ * 批量导入
+ */
+export const userImport = (data) => {
+  return request({
+    url: '/user/import',
+    method: 'POST',
+    data
+  })
+}
+
+// 指定删除用户
+export const deleteUser = (id) => {
+  return request({
+    url: '/user/delete',
+    method: 'get',
+    params: { id }
+  })
+}
+
+// 查询指定用户信息
+export const userDetail = (id) => {
+  return request({
+    url: '/user/detail',
+    method: 'get',
+    params: { id }
+  })
+}

@@ -40,6 +40,8 @@ const privateRoutes = [
         path: '/user/info/:id',
         name: 'userInfo',
         component: () => import('@/views/user-info/index'),
+        // 路由传defineprop参数
+        props: true,
         meta: {
           title: 'userInfo'
         }

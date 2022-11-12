@@ -115,7 +115,6 @@ const store = useStore()
 const handleLogin = () => {
   loginFormRef.value.validate((valid) => {
     if (!valid) return
-
     loading.value = true
     store
       .dispatch('user/login', loginForm.value)
