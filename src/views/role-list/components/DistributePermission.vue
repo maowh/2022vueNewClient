@@ -10,7 +10,7 @@
       :props="defaultProps"
       node-key="id"
       show-checkbox
-      check-strictly
+      highlight-current
       default-expand-all
     >
     </el-tree>
@@ -27,7 +27,13 @@
 
 <script setup>
 import { defineProps, defineEmits, ref, watch } from 'vue'
-import { findPermission, permissionList } from '@/api/role'
+import {
+  findPermission,
+  permissionList,
+  distributePermission
+} from '@/api/role'
+import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   modelValue: {
@@ -50,8 +56,28 @@ const emits = defineEmits(['update:modelValue'])
 /**
     确定按钮点击事件
    */
+const i18n = useI18n()
 const onConfirm = async () => {
-  console.log(treeRef.value.getCheckedKeys())
+  const treeRefConfirm = []
+  const treeRefTmp = treeRef.value.getCheckedKeys()
+  for (let i = 1; i < treeRefTmp.length; i++) {
+    console.log(treeRefTmp[i])
+    if (treeRefTmp[i].toString().search('-') !== -1) {
+      treeRefConfirm.push({
+        roleId: props.roleId,
+        permissionId: treeRefTmp[i].split('-')[0],
+        permissionfunctionId: treeRefTmp[i].split('-')[1]
+      })
+    } else {
+      treeRefConfirm.push({
+        roleId: props.roleId,
+        permissionId: treeRefTmp[i],
+        permissionfunctionId: ''
+      })
+    }
+  }
+  await distributePermission(treeRefConfirm)
+  ElMessage.success(i18n.t('msg.role.updateRoleSuccess'))
   closed()
 }
 
@@ -101,7 +127,6 @@ const getPermissionList = async () => {
       })
     }
   }
-  console.log(checkedKeysTmp)
   allPermission.value = checkedKeysTmp
 }
 getPermissionList()
@@ -127,9 +152,7 @@ const getRolePermission = async () => {
       checkedKeysTmp.push(item.permissionId)
     }
   })
-  console.log(checkedKeysTmp)
   treeRef.value.setCheckedKeys(checkedKeysTmp)
-  console.log(treeRef.value.getCheckedKeys())
 }
 watch(
   () => props.roleId,

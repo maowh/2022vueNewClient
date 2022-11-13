@@ -40,3 +40,12 @@ export const findPermission = (id) => {
     params: { id }
   })
 }
+
+//
+export const distributePermission = (data) => {
+  return request({
+    url: '/role/distributepermission',
+    method: 'POST',
+    data: data
+  })
+}
