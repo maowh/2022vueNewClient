@@ -60,7 +60,8 @@ const i18n = useI18n()
 const onConfirm = async () => {
   const treeRefConfirm = []
   const treeRefTmp = treeRef.value.getCheckedKeys()
-  for (let i = 1; i < treeRefTmp.length; i++) {
+  console.log(treeRefTmp)
+  for (let i = 0; i < treeRefTmp.length; i++) {
     console.log(treeRefTmp[i])
     if (treeRefTmp[i].toString().search('-') !== -1) {
       treeRefConfirm.push({
@@ -72,10 +73,11 @@ const onConfirm = async () => {
       treeRefConfirm.push({
         roleId: props.roleId,
         permissionId: treeRefTmp[i],
-        permissionfunctionId: ''
+        permissionfunctionId: null
       })
     }
   }
+  console.log(treeRefConfirm)
   await distributePermission(treeRefConfirm)
   ElMessage.success(i18n.t('msg.role.updateRoleSuccess'))
   closed()
@@ -105,17 +107,15 @@ const getPermissionList = async () => {
       })
       console.log(allPermissionTmp[i].children.length)
       for (let j = 0; j < allPermissionTmp[i].children.length; j++) {
-        console.log(allPermissionTmp[i].children[j].permissionFunctionName)
+        console.log(allPermissionTmp[i].children[j].permissionName)
         checkedKeysTmp[i].children.push({
           id:
             allPermissionTmp[i].permissionId +
             '-' +
             allPermissionTmp[i].children[j].permissionFunctionId,
-          permissionName:
-            allPermissionTmp[i].children[j].permissionFunctionName,
-          permissionMark:
-            allPermissionTmp[i].children[j].permissionFunctionMark,
-          permissionDesc: allPermissionTmp[i].children[j].permissionFunctionDesc
+          permissionName: allPermissionTmp[i].children[j].permissionName,
+          permissionMark: allPermissionTmp[i].children[j].permissionMark,
+          permissionDesc: allPermissionTmp[i].children[j].permissionDesc
         })
       }
     } else {

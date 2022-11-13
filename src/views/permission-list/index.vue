@@ -41,6 +41,7 @@ import { permissionList } from '@/api/role'
 const allPermission = ref([])
 const getPermissionList = async () => {
   allPermission.value = await permissionList()
+  console.log(allPermission.value)
 }
 getPermissionList()
 </script>
