@@ -1,7 +1,7 @@
 import { login, getUserInfoApi } from '@/api/sys'
 import { setItem, getItem, removeAllItem } from '@/utils/storage'
 import { TOKEN } from '@/constant'
-import router from '@/router'
+import router, { resetRouter } from '@/router'
 import { setTimeStamp } from '@/utils/auth'
 
 // import md5 from 'md5'
@@ -58,7 +58,7 @@ export default {
     },
     logout() {
       // 退出登录的时候清理路由
-      // resetRouter()
+      resetRouter()
       this.commit('user/setToken', '')
       this.commit('user/setUserInfo', {})
       removeAllItem()

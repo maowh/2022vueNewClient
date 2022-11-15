@@ -78,7 +78,10 @@ const onConfirm = async () => {
     }
   }
   console.log(treeRefConfirm)
-  await distributePermission(treeRefConfirm)
+  await distributePermission({
+    roleId: props.roleId,
+    permissions: treeRefConfirm
+  })
   ElMessage.success(i18n.t('msg.role.updateRoleSuccess'))
   closed()
 }

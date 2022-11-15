@@ -86,7 +86,7 @@ const onConfirm = async () => {
     userRoles.push({ userId: props.userId, roleId: roleIds[i] })
   }
   // console.log(userRoles)
-  await updateRole(userRoles)
+  await updateRole({ userId: props.userId, userRoles: userRoles })
   ElMessage.success(i18n.t('msg.role.updateRoleSuccess'))
   // 角色更新成功
   emits('updateRole')
