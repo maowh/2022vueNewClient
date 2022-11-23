@@ -10,6 +10,7 @@
       :props="defaultProps"
       node-key="id"
       show-checkbox
+      check-strictly
       highlight-current
       default-expand-all
     >
@@ -60,9 +61,8 @@ const i18n = useI18n()
 const onConfirm = async () => {
   const treeRefConfirm = []
   const treeRefTmp = treeRef.value.getCheckedKeys()
-  console.log(treeRefTmp)
+  console.log(treeRef.value.getCheckedKeys())
   for (let i = 0; i < treeRefTmp.length; i++) {
-    console.log(treeRefTmp[i])
     if (treeRefTmp[i].toString().search('-') !== -1) {
       treeRefConfirm.push({
         roleId: props.roleId,
@@ -77,11 +77,11 @@ const onConfirm = async () => {
       })
     }
   }
-  console.log(treeRefConfirm)
   await distributePermission({
     roleId: props.roleId,
     permissions: treeRefConfirm
   })
+  console.log(treeRef.value.getCheckedKeys())
   ElMessage.success(i18n.t('msg.role.updateRoleSuccess'))
   closed()
 }
@@ -97,7 +97,6 @@ const closed = () => {
 const allPermission = ref([])
 const getPermissionList = async () => {
   const allPermissionTmp = await permissionList()
-  console.log(allPermissionTmp)
   const checkedKeysTmp = []
   for (let i = 0; i < allPermissionTmp.length; i++) {
     if (allPermissionTmp[i].children !== undefined) {
@@ -108,7 +107,6 @@ const getPermissionList = async () => {
         permissionDesc: allPermissionTmp[i].permissionDesc,
         children: []
       })
-      console.log(allPermissionTmp[i].children.length)
       for (let j = 0; j < allPermissionTmp[i].children.length; j++) {
         console.log(allPermissionTmp[i].children[j].permissionName)
         checkedKeysTmp[i].children.push({
@@ -139,9 +137,9 @@ getPermissionList()
 const treeRef = ref()
 const getRolePermission = async () => {
   const checkedKeys = await findPermission(props.roleId)
+  console.log(checkedKeys)
   const checkedKeysTmp = []
   const checkedTest = []
-  console.log(checkedKeys)
   checkedKeys.forEach((item) => {
     if (item.permissionfunctionId !== null) {
       if (checkedTest.permissionId !== item.permissionId) {
@@ -155,6 +153,7 @@ const getRolePermission = async () => {
       checkedKeysTmp.push(item.permissionId)
     }
   })
+  console.log(checkedKeysTmp)
   treeRef.value.setCheckedKeys(checkedKeysTmp)
 }
 watch(
