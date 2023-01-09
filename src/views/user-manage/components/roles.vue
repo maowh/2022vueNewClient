@@ -63,9 +63,7 @@ const userRoleTitleList = ref([])
 // 获取当前用户角色
 const getUserRoles = async () => {
   const res = await findRole(props.userId)
-  console.log(res)
   userRoleTitleList.value = res.map((item) => item.title)
-  // console.log(userRoleTitleList.value)
 }
 // 从父组件传值，当父组件传过来的userId不为空时候就获取数据库中该用户的角色
 watch(
@@ -85,7 +83,6 @@ const onConfirm = async () => {
   for (let i = 0; i < roleIds.length; i++) {
     userRoles.push({ userId: props.userId, roleId: roleIds[i] })
   }
-  // console.log(userRoles)
   await updateRole({ userId: props.userId, userRoles: userRoles })
   ElMessage.success(i18n.t('msg.role.updateRoleSuccess'))
   // 角色更新成功

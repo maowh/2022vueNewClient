@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import installElementPlus from './plugins/element'
+import * as Icons from '@element-plus/icons-vue'
 // 导入全局样式
 import '@/styles/index.scss'
 // 导入svgIcon
@@ -17,6 +18,9 @@ import installFilter from '@/filters'
 import installDirective from '@/directives'
 
 const app = createApp(App)
+Object.keys(Icons).forEach((key) => {
+  app.component(key, Icons[key])
+})
 installElementPlus(app)
 installIcons(app)
 installFilter(app)

@@ -48,5 +48,5 @@ const activeMenu = computed(() => {
   return path
 })
 
-console.log(JSON.stringify(routes.value))
+// console.log(JSON.stringify(routes.value))
 </script>

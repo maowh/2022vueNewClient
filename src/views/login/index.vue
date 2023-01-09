@@ -120,7 +120,7 @@ const handleLogin = () => {
       .dispatch('user/login', loginForm.value)
       .then(() => {
         loading.value = false
-        console.log('已登录')
+        // console.log('已登录')
         // TODO:登录后操作
       })
       .catch((err) => {

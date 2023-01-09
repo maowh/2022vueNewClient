@@ -15,6 +15,10 @@ export function isCheckTimeout() {
   var currentTime = Date.now()
   // 缓存时间戳
   var timeStamp = getTimeStamp()
+  console.log('当前时间', currentTime, '缓存时间', timeStamp)
+  console.log(currentTime - timeStamp)
+  console.log(TOKEN_TIMEOUT_VALUE)
+  console.log(currentTime - timeStamp > TOKEN_TIMEOUT_VALUE)
   // 判断当前时间减去登录时间是否超过token失效时间
   return currentTime - timeStamp > TOKEN_TIMEOUT_VALUE
 }

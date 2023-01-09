@@ -178,7 +178,6 @@ watch(roleDialogVisible, (val) => {
 })
 
 const onShowClick = (id) => {
-  console.log(id)
   router.push(`/user/info/${id}`)
 }
 // excel导出点击事件

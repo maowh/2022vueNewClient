@@ -5,6 +5,9 @@ import ArticleRouter from './modules/Article'
 import PermissionListRouter from './modules/PermissionList'
 import RoleListRouter from './modules/RoleList'
 import userManageRouter from './modules/userManage'
+import classificationInformationRouter from './modules/classificationInformation'
+import outsourcingCostsRouter from './modules/outsourcingCosts'
+import systemInfomationRouter from './modules/systemInfomation'
 import store from '../store'
 
 // 私有路由表
@@ -149,7 +152,10 @@ export const privateRoutes = [
   RoleListRouter,
   PermissionListRouter,
   ArticleCreateRouter,
-  ArticleRouter
+  ArticleRouter,
+  classificationInformationRouter,
+  systemInfomationRouter,
+  outsourcingCostsRouter
 ]
 
 // 初始化路由表

@@ -40,13 +40,10 @@ const emits = defineEmits(['update:modelValue '])
 const formatJson = (headers, rows) => {
   // 首先遍历数组
   return rows.map((item) => {
-    console.log(item)
     return Object.keys(headers).map((key) => {
-      console.log(headers[key])
       // 角色特殊处理
       if (headers[key] === 'title') {
         const roles = item[headers[key]]
-        console.log(roles)
         return JSON.stringify(roles)
         // return JSON.stringify(roles.map((role) => role.title))
       }
@@ -66,7 +63,6 @@ const onConfirm = async () => {
   // 导入工具包
   const excel = await import('@/utils/Export2Excel')
   const data = formatJson(USER_RELATIONS, allUser)
-  console.log(data)
   excel.export_json_to_excel({
     // excel 表头
     header: Object.keys(USER_RELATIONS),

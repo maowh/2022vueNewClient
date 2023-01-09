@@ -71,7 +71,7 @@ watchSwitchLang(() => {
 
 const router = useRouter()
 const onSubmitClick = async () => {
-  console.log(mkEditor.getHTML().replace(/<[^>]+>/g, ''))
+  // console.log(mkEditor.getHTML().replace(/<[^>]+>/g, ''))
   const user = await store.dispatch('user/getUserInfo')
   if (props.detail && props.detail.id) {
     await editArticle({
