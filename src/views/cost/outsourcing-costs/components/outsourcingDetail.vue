@@ -49,13 +49,19 @@
         <!-- 内容渲染表格 -->
         <el-descriptions direction="vertical" :column="3" border>
           <el-descriptions-item :label="$t('msg.cost.classificationName')">
-            {{ detailData.classificationName }}
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].classification }}
+            </div>
           </el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.totalAmount')">
-            {{ detailData.totalAmount }}
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].totalAmount }}
+            </div>
           </el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.totalManpower')">
-            {{ detailData.totalManpower }}
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].totalManpower }}
+            </div>
           </el-descriptions-item>
         </el-descriptions>
       </div>
@@ -63,28 +69,44 @@
         <!-- 内容渲染表格 -->
         <el-descriptions direction="vertical" :column="8" border>
           <el-descriptions-item :label="$t('msg.cost.systemEngineer')">
-            {{ detailData.systemEngineer }}
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].systemEngineer }}
+            </div>
           </el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.seniorSystemEngineer')">
-            {{ detailData.seniorSystemEngineer }}
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].seniorSystemEngineer }}
+            </div>
           </el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.softwareEngineer')">
-            {{ detailData.softwareEngineer }}
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].softwareEngineer }}
+            </div>
           </el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.seniorSoftwareEngineer')">
-            {{ detailData.seniorSoftwareEngineer }}
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].seniorSoftwareEngineer }}
+            </div>
           </el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.intermediateSap')">
-            {{ detailData.intermediateSap }}
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].intermediateSap }}
+            </div>
           </el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.seniorSap')">
-            {{ detailData.seniorSap }}
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].seniorSap }}
+            </div>
           </el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.dbaEngineer')">
-            {{ detailData.dbaEngineer }}
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].dbaEngineer }}
+            </div>
           </el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.seniorDbaEngineer')">
-            {{ detailData.seniorDbaEngineer }}
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].seniorDbaEngineer }}
+            </div>
           </el-descriptions-item>
         </el-descriptions>
       </div>
@@ -117,9 +139,23 @@ const getCostDisplay = async () => {
     table: 'outsourcingcosts',
     id: route.params.id
   })
+  detailData.value = detailData.value[0]
   console.log(detailData.value)
 }
 getCostDisplay()
+
+const moneyData = ref([])
+const getCostMoneyList = async () => {
+  moneyData.value = await costDisplay({
+    table: 'outsourcingcostsmoney',
+    id: route.params.id
+  })
+  console.log(moneyData.value)
+  // moneyData.value = moneyData.value[0]
+  // console.log(moneyData.value)
+  // console.log(moneyData.value[0].classification)
+}
+getCostMoneyList()
 
 const onBackClick = () => {
   router.push('/outsourcing/manage')

@@ -10,16 +10,20 @@
         <!-- <el-table-column label="#" type="index"></el-table-column> -->
         <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
         <el-table-column
-          prop="SystemName"
-          :label="$t('msg.cost.SystemName')"
+          prop="businessDivision"
+          :label="$t('msg.cost.businessDivision')"
         ></el-table-column>
         <el-table-column
-          prop="customerName"
-          :label="$t('msg.cost.customerName')"
+          prop="businessLines"
+          :label="$t('msg.cost.businessLines')"
         ></el-table-column>
         <el-table-column
-          prop="domainManagerName"
-          :label="$t('msg.cost.domainManagerName')"
+          prop="domain"
+          :label="$t('msg.cost.domain')"
+        ></el-table-column>
+        <el-table-column
+          prop="domainManager"
+          :label="$t('msg.cost.domainManager')"
         ></el-table-column>
         <el-table-column
           :label="$t('msg.cost.action')"
@@ -27,13 +31,7 @@
           width="260"
         >
           <template #default="{ row }">
-            <el-button
-              type="primary"
-              size="mini"
-              @click="onShowClick(row.id)"
-              >{{ $t('msg.cost.show') }}</el-button
-            >
-            <el-button type="info" size="mini" @click="onEditClick(row.id)">{{
+            <el-button type="info" size="mini" @click="onEditClick(row)">{{
               $t('msg.cost.edit')
             }}</el-button>
             <el-button type="danger" size="mini" @click="onRemoveClick(row)">{{
@@ -54,18 +52,24 @@
       >
       </el-pagination>
     </el-card>
+    <!-- v-model进行双向数据绑定，roleDialogVisible将值传给子组件同时也接收子组件传过来的数据 -->
+    <domainDialog
+      v-model="classificationDialogVisible"
+      :id="selectId"
+      @updateList="getListData"
+    ></domainDialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onActivated, watch, onMounted } from 'vue'
-import { costListDisplay, costDel } from '@/api/cost'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, onActivated, watch } from 'vue'
+import { costList, costDel } from '@/api/cost'
+// import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import domainDialog from './components/domainDialog.vue'
 
-const router = useRouter()
-const route = useRoute()
+// const router = useRouter()
 const i18n = useI18n()
 // 数据相关
 const tableData = ref([])
@@ -74,8 +78,8 @@ const page = ref(1)
 const size = ref(5)
 // 获取数据的方法
 const getListData = async () => {
-  const result = await costListDisplay({
-    table: 'systeminformation',
+  const result = await costList({
+    table: 'domaininformation',
     page: page.value,
     size: size.value
   })
@@ -100,28 +104,13 @@ const handleCurrentChange = (currentPage) => {
 // appmain 中使用 keepAlive 进行了组件缓存，需要监听 onActivated 事件，重新获取数据即可
 onActivated(getListData)
 
-// 监听当前路由
-watch(
-  () => router.currentRoute.value,
-  (newValue) => {
-    console.log('newValue', newValue)
-    console.log('routePath', route.path)
-    // location.reload()
-    // getListData()
-  },
-  { immediate: true }
-)
-onMounted(() => {
-  getListData()
-})
-
 const onRemoveClick = (row) => {
   ElMessageBox.confirm(
     i18n.t('msg.cost.dialogTitle1') + row.id + i18n.t('msg.cost.dialogTitle2'),
     { type: 'warning' }
   )
     .then(async () => {
-      await costDel({ table: 'systeminformation', id: row.id })
+      await costDel({ table: 'domaininformation', id: row.id })
       ElMessage.success(i18n.t('msg.excel.removeSuccess'))
       // 重新渲染数据
       getListData()
@@ -129,19 +118,29 @@ const onRemoveClick = (row) => {
     .catch((error) => error)
 }
 
-const onShowClick = (id) => {
-  router.push(`/basics/systemInfomationInfo/${id}`)
-}
+// 新增编辑记录
+const classificationDialogVisible = ref(false)
+const selectId = ref('')
+
+// 关闭dialog时重置selectId
+watch(classificationDialogVisible, (val) => {
+  if (!val) selectId.value = ''
+})
+
+// const onShowClick = (id) => {
+//   console.log(id)
+//   router.push(`/user/info/${id}`)
+// }
 
 // 新增记录
 const onAddClick = () => {
-  // const id = ''
-  // console.log(id)
-  router.push('/basics/systemInfomationCreate')
+  classificationDialogVisible.value = true
+  // console.log('selectId.value')
 }
 // 编辑记录
-const onEditClick = (id) => {
-  router.push(`/basics/systemInfomationCreateEdit/${id}`)
+const onEditClick = (row) => {
+  classificationDialogVisible.value = true
+  selectId.value = row.id
 }
 </script>
 

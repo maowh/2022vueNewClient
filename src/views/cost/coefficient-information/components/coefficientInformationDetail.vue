@@ -2,7 +2,7 @@
   <div class="user-info-container">
     <div class="user-info-box" id="userInfoBox">
       <!-- 标题 -->
-      <h2 class="title">{{ $t('msg.route.systemInfomationInfo') }}</h2>
+      <h2 class="title">{{ $t('msg.route.coefficientInformationInfo') }}</h2>
 
       <div class="header">
         <!-- 头部渲染表格 -->
@@ -10,14 +10,17 @@
           <el-descriptions-item :label="$t('msg.cost.id')">{{
             detailData.id
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.SystemName')">{{
-            detailData.SystemName
-          }}</el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.customerName')">{{
-            detailData.customerName
+            detailData.customer
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.domainManagerName')">{{
-            detailData.domainManagerName
+          <el-descriptions-item :label="$t('msg.cost.contractPrice')">{{
+            detailData.contractPrice
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.taxIncluded')">{{
+            detailData.taxIncluded
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.year')">{{
+            detailData.year
           }}</el-descriptions-item>
         </el-descriptions>
       </div>
@@ -47,7 +50,7 @@ const router = useRouter()
 const detailData = ref({})
 const getCostDisplay = async () => {
   detailData.value = await costDisplay({
-    table: 'systeminformation',
+    table: 'coefficientinformation',
     id: route.params.id
   })
   detailData.value = detailData.value[0]
@@ -55,10 +58,10 @@ const getCostDisplay = async () => {
 getCostDisplay()
 
 const onBackClick = () => {
-  router.push('/basics/systemInfomation')
+  router.push('/basics/coefficientInformation')
 }
 const onEditClick = () => {
-  router.push(`/basics/systemInfomationCreateEdit/${route.params.id}`)
+  router.push(`/basics/coefficientInformationCreateEdit/${route.params.id}`)
 }
 </script>
 

@@ -10,16 +10,20 @@
         <!-- <el-table-column label="#" type="index"></el-table-column> -->
         <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
         <el-table-column
-          prop="SystemName"
-          :label="$t('msg.cost.SystemName')"
-        ></el-table-column>
-        <el-table-column
-          prop="customerName"
+          prop="customer"
           :label="$t('msg.cost.customerName')"
         ></el-table-column>
         <el-table-column
-          prop="domainManagerName"
-          :label="$t('msg.cost.domainManagerName')"
+          prop="contractPrice"
+          :label="$t('msg.cost.contractPrice')"
+        ></el-table-column>
+        <el-table-column
+          prop="taxIncluded"
+          :label="$t('msg.cost.taxIncluded')"
+        ></el-table-column>
+        <el-table-column
+          prop="year"
+          :label="$t('msg.cost.year')"
         ></el-table-column>
         <el-table-column
           :label="$t('msg.cost.action')"
@@ -75,7 +79,7 @@ const size = ref(5)
 // 获取数据的方法
 const getListData = async () => {
   const result = await costListDisplay({
-    table: 'systeminformation',
+    table: 'coefficientinformation',
     page: page.value,
     size: size.value
   })
@@ -121,7 +125,7 @@ const onRemoveClick = (row) => {
     { type: 'warning' }
   )
     .then(async () => {
-      await costDel({ table: 'systeminformation', id: row.id })
+      await costDel({ table: 'coefficientinformation', id: row.id })
       ElMessage.success(i18n.t('msg.excel.removeSuccess'))
       // 重新渲染数据
       getListData()
@@ -130,18 +134,18 @@ const onRemoveClick = (row) => {
 }
 
 const onShowClick = (id) => {
-  router.push(`/basics/systemInfomationInfo/${id}`)
+  router.push(`/basics/coefficientInformationInfo/${id}`)
 }
 
 // 新增记录
 const onAddClick = () => {
   // const id = ''
   // console.log(id)
-  router.push('/basics/systemInfomationCreate')
+  router.push('/basics/coefficientInformationCreate')
 }
 // 编辑记录
 const onEditClick = (id) => {
-  router.push(`/basics/systemInfomationCreateEdit/${id}`)
+  router.push(`/basics/coefficientInformationCreateEdit/${id}`)
 }
 </script>
 

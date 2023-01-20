@@ -1,18 +1,18 @@
 <template>
   <el-dialog :title="title" :model-value="modelValue">
-    <!-- <div v-if="props.tableName === 'domaininformation'"> -->
-    <el-table
-      ref="singleTableRef"
-      :data="tableData"
-      highlight-current-row
-      @current-change="handleCurrentLine"
-    >
-      <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
-      <el-table-column
-        prop="SystemName"
-        :label="$t('msg.cost.SystemName')"
-      ></el-table-column>
-      <!-- <el-table-column
+    <div v-if="props.tableName === 'domaininformation'">
+      <el-table
+        ref="singleTableRef"
+        :data="tableData"
+        highlight-current-row
+        @current-change="handleCurrentLine"
+      >
+        <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
+        <el-table-column
+          prop="businessDivision"
+          :label="$t('msg.cost.businessDivision')"
+        ></el-table-column>
+        <el-table-column
           prop="businessLines"
           :label="$t('msg.cost.businessLines')"
         ></el-table-column>
@@ -23,10 +23,10 @@
         <el-table-column
           prop="domainManager"
           :label="$t('msg.cost.domainManager')"
-        ></el-table-column> -->
-    </el-table>
-    <!-- </div> -->
-    <!-- <div v-else-if="props.tableName === 'customerinformation'">
+        ></el-table-column>
+      </el-table>
+    </div>
+    <div v-else-if="props.tableName === 'customerinformation'">
       <el-table
         ref="singleTableRef"
         :data="tableData"
@@ -39,7 +39,7 @@
           :label="$t('msg.cost.customerName')"
         ></el-table-column>
       </el-table>
-    </div> -->
+    </div>
 
     <el-pagination
       class="pagination"
@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref } from 'vue'
+import { defineProps, defineEmits, ref, watch } from 'vue'
 import { costList } from '@/api/cost'
 import { ElTable, ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
@@ -71,17 +71,16 @@ const props = defineProps({
   modelValue: {
     type: Boolean,
     required: true
+  },
+  tableName: {
+    type: String,
+    required: true
+  },
+  id: {
+    type: String,
+    required: true
   }
-  // tableName: {
-  //   type: String,
-  //   required: true
-  // },
-  // id: {
-  //   type: String,
-  //   required: true
-  // }
 })
-console.log(props)
 
 const currentRow = ref()
 const singleTableRef = ref(ElTable)
@@ -101,14 +100,15 @@ const page = ref(1)
 const size = ref(5)
 // 获取数据的方法
 const getListData = async () => {
-  const result = await costList({
-    table: 'systeminformation',
-    page: page.value,
-    size: size.value
-  })
-  tableData.value = result.list
-  total.value = result.total
-  console.log(result.list)
+  if (props.tableName) {
+    const result = await costList({
+      table: props.tableName,
+      page: page.value,
+      size: size.value
+    })
+    tableData.value = result.list
+    total.value = result.total
+  }
 }
 getListData()
 
@@ -136,24 +136,23 @@ const handleCurrentChange = (currentPage) => {
 // }
 
 // 从父组件传值，当父组件传过来的userId不为空时候就获取数据库中该用户的角色
-// watch(
-//   () => props.tableName,
-//   (val) => {
-//     if (val === 'customerinformation') {
-//       title.value = i18n.t('msg.route.customerinformation')
-//       getListData()
-//     } else if (val === 'domaininformation') {
-//       title.value = i18n.t('msg.route.domaininformation')
-//       getListData()
-//     }
-//   }
-// )
+watch(
+  () => props.tableName,
+  (val) => {
+    if (val === 'customerinformation') {
+      title.value = i18n.t('msg.route.customerinformation')
+      getListData()
+    } else if (val === 'domaininformation') {
+      title.value = i18n.t('msg.route.domaininformation')
+      getListData()
+    }
+  }
+)
 
 const emits = defineEmits(['update:modelValue', 'costSelect'])
 const onConfirm = async (row) => {
   ElMessage.success(i18n.t('msg.cost.selectSuccess'))
   emits('costSelect', currentRow.value)
-  console.log(currentRow.value)
   closed()
 
   singleTableRef.value.setCurrentRow(row)

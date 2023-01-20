@@ -37,13 +37,18 @@ export default {
     systemInfomationInfo: 'SystemInfomationInfo',
     systemInfomationEdit: 'systemInfomationEdit',
     systemInfomationCreate: 'systemInfomationCreate',
-    domaininformation: 'domaininformation',
-    customerinformation: 'customerinformation',
+    domainInformationList: 'domainInformationList',
+    customerInformationList: 'customerInformationList',
+    coststandardList: 'coststandardList',
     outsourcing: 'outsourcing',
     outsourcingManage: 'outsourcingManage',
     outsourcingInfo: 'outsourcingInfo',
     outsourcingCreate: 'outsourcingCreate',
-    outsourcingEdit: 'outsourcingEdit'
+    outsourcingEdit: 'outsourcingEdit',
+    coefficientInformationList: 'coefficientInformationList',
+    coefficientInformationInfo: 'coefficientInformationInfo',
+    coefficientInformationEdit: 'coefficientInformationEdit',
+    coefficientInformationCreate: 'coefficientInformationCreate'
   },
   toast: {
     switchLangSuccess: 'Switch Language Success'
@@ -202,7 +207,9 @@ export default {
     remove: 'remove',
     action: 'action',
     selectSuccess: 'selectSuccess',
-    id: '编号',
+    dialogTitle1: 'Are you sure you want to delete the id ',
+    dialogTitle2: ' Is it?',
+    id: 'id',
     classificationName: 'classificationName',
     SystemName: 'SystemName',
     customerName: 'CustomerName',
@@ -219,15 +226,15 @@ export default {
     reportedAmount: 'reportedAmount',
     contractAmount: 'contractAmount',
     taxAmount: 'taxAmount',
-    systemEngineer: '系统工程师',
-    seniorSystemEngineer: '高级系统工程师',
-    softwareEngineer: '软件工程师',
-    seniorSoftwareEngineer: '高级软件工程师',
-    intermediateSap: '中级SAP',
-    seniorSap: '高级SAP',
-    dbaEngineer: 'DBA',
-    seniorDbaEngineer: '高级DBA',
-    totalAmount: '合计金额',
-    totalManpower: '合计人力'
+    systemEngineer: 'systemEngineer',
+    seniorSystemEngineer: 'seniorSystemEngineer',
+    softwareEngineer: 'softwareEngineer',
+    seniorSoftwareEngineer: 'seniorSoftwareEngineer',
+    intermediateSap: 'intermediateSap',
+    seniorSap: 'seniorSap',
+    dbaEngineer: 'dbaEngineer',
+    seniorDbaEngineer: 'seniorDbaEngineer',
+    totalAmount: 'totalAmount',
+    totalManpower: 'totalManpower'
   }
 }

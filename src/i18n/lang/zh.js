@@ -37,13 +37,18 @@ export default {
     systemInfomationInfo: '系统信息查看',
     systemInfomationEdit: '系统信息编辑',
     systemInfomationCreate: '系统信息创建',
-    domaininformation: '领域信息管理',
-    customerinformation: '客户信息管理',
+    domainInformationList: '领域信息管理',
+    customerInformationList: '客户信息管理',
+    coststandardList: '费用标准信息管理',
     outsourcing: '外包费用分解',
     outsourcingManage: '外包费用分解管理',
     outsourcingInfo: '外包费用分解查看',
     outsourcingCreate: '外包费用分解创建',
-    outsourcingEdit: '外包费用分解编辑'
+    outsourcingEdit: '外包费用分解编辑',
+    coefficientInformationList: '系数信息管理',
+    coefficientInformationInfo: '系数信息查看',
+    coefficientInformationEdit: '系数信息编辑',
+    coefficientInformationCreate: '系数信息创建'
   },
   toast: {
     switchLangSuccess: '切换语言成功'
@@ -201,6 +206,8 @@ export default {
     remove: '删除',
     action: '操作',
     selectSuccess: '已选择成功',
+    dialogTitle1: '确定要删除编号 ',
+    dialogTitle2: ' 吗？',
     id: '编号',
     classificationName: '系统分类名称',
     SystemName: '系统名称',
@@ -227,6 +234,8 @@ export default {
     dbaEngineer: 'DBA',
     seniorDbaEngineer: '高级DBA',
     totalAmount: '合计金额',
-    totalManpower: '合计人力'
+    totalManpower: '合计人力',
+    contractPrice: '最终合同价系数',
+    taxIncluded: '含税金额系数'
   }
 }

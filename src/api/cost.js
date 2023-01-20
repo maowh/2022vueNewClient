@@ -43,6 +43,15 @@ export const costDisplay = (data) => {
   })
 }
 // 新增
+export const costCreateSingle = (data) => {
+  return request({
+    url: '/cost/createsingle',
+    method: 'POST',
+    data
+  })
+}
+
+// 新增
 export const costCreate = (data) => {
   return request({
     url: '/cost/create',

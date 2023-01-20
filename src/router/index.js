@@ -8,6 +8,10 @@ import userManageRouter from './modules/userManage'
 import classificationInformationRouter from './modules/classificationInformation'
 import outsourcingCostsRouter from './modules/outsourcingCosts'
 import systemInfomationRouter from './modules/systemInfomation'
+import coefficientInformationRouter from './modules/coefficientInformation'
+import customerInformationRouter from './modules/customerInformation'
+import domainInformationRouter from './modules/domainInformation'
+import coststandardRouter from './modules/coststandard'
 import store from '../store'
 
 // 私有路由表
@@ -155,7 +159,11 @@ export const privateRoutes = [
   ArticleRouter,
   classificationInformationRouter,
   systemInfomationRouter,
-  outsourcingCostsRouter
+  outsourcingCostsRouter,
+  coefficientInformationRouter,
+  customerInformationRouter,
+  domainInformationRouter,
+  coststandardRouter
 ]
 
 // 初始化路由表

@@ -16,31 +16,29 @@
         <el-form-item :label="$t('msg.cost.id')" prop="id">
           <el-input disabled v-model="detailData.id" />
         </el-form-item>
-        <el-form-item :label="$t('msg.cost.SystemName')" prop="SystemName">
-          <el-input v-model="detailData.SystemName" />
-        </el-form-item>
-        <el-form-item :label="$t('msg.cost.customerName')" prop="customerName">
-          <el-input
-            @click="customerDialogClick"
-            v-model="detailData.customerName"
-          >
+        <el-form-item :label="$t('msg.cost.customerName')" prop="customer">
+          <el-input @click="customerDialogClick" v-model="detailData.customer">
             <template #suffix
               ><el-icon style="margin-right: 10px"><Search /></el-icon
             ></template>
           </el-input>
         </el-form-item>
         <el-form-item
-          :label="$t('msg.cost.domainManagerName')"
-          prop="domainManagerName"
+          :label="$t('msg.cost.contractPrice')"
+          prop="contractPrice"
         >
-          <el-input
-            @click="domainManagerDialogClick"
-            v-model="detailData.domainManagerName"
-          >
-            <template #suffix
-              ><el-icon style="margin-right: 10px"><Search /></el-icon
-            ></template>
-          </el-input>
+          <el-input v-model="detailData.contractPrice" />
+        </el-form-item>
+        <el-form-item :label="$t('msg.cost.taxIncluded')" prop="taxIncluded">
+          <el-input v-model="detailData.taxIncluded" />
+        </el-form-item>
+        <el-form-item :label="$t('msg.cost.year')" prop="year">
+          <el-date-picker
+            v-model="detailData.year"
+            clear-icon="CircleClose"
+            @change="pickerSelect($event)"
+            type="year"
+          />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onConfirm(ruleFormRef)">{{
@@ -52,13 +50,13 @@
         </el-form-item>
       </el-form>
 
-      <SystemInfomationDialog
+      <CoefficientInformationDialog
         v-model="systemInformationVisible"
         :tableName="tableName"
         :id="selectId"
         @costSelect="getCostSelect"
       >
-      </SystemInfomationDialog>
+      </CoefficientInformationDialog>
     </div>
     <!-- </el-card> -->
   </div>
@@ -72,7 +70,8 @@ import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
 import { useRoute, useRouter } from 'vue-router'
-import SystemInfomationDialog from './systemInfomationDialog.vue'
+import CoefficientInformationDialog from './coefficientInformationDialog.vue'
+import dayjs from 'dayjs'
 
 const formSize = ref('default')
 const ruleFormRef = ref(FormInstance)
@@ -92,10 +91,12 @@ const costInformationId = route.params.id
 const detailData = ref({})
 const getCostDisplay = async () => {
   detailData.value = await costDisplay({
-    table: 'systeminformation',
+    table: 'coefficientinformation',
     id: route.params.id
   })
   detailData.value = detailData.value[0]
+  detailData.value.year = dayjs().format('YYYY')
+  console.log(detailData.value.year)
 }
 
 if (costInformationId) {
@@ -116,13 +117,13 @@ const onConfirm = async (ruleFormRef) => {
     }
   })
   if (route.params.id) {
-    delete detailData.value.customerName
-    delete detailData.value.domainManagerName
+    delete detailData.value.customer
+    // delete detailData.value.domainManagerName
     // detailData.value.SystemName = detailData.value.SystemName
     // detailData.value.id = route.params.id
     console.log('edit', detailData.value)
     const dataUpdate = await costEdit({
-      table: 'systeminformation',
+      table: 'coefficientinformation',
       data: detailData
     })
     if (dataUpdate === '更新数据成功') {
@@ -136,10 +137,10 @@ const onConfirm = async (ruleFormRef) => {
     }
   } else {
     console.log('create', detailData.value)
-    delete detailData.value.customerName
-    delete detailData.value.domainManagerName
+    delete detailData.value.customer
+    // delete detailData.value.domainManagerName
     const dataCreate = await costCreate({
-      table: 'systeminformation',
+      table: 'coefficientinformation',
       data: detailData
     })
     if (dataCreate === '新增数据成功') {
@@ -157,7 +158,7 @@ const onConfirm = async (ruleFormRef) => {
 const closed = (ruleFormRef) => {
   if (!ruleFormRef) return
   ruleFormRef.resetFields()
-  router.push('/basics/systemInfomation')
+  router.push('/basics/coefficientInformation')
 }
 
 // 关闭
@@ -175,12 +176,6 @@ const customerDialogClick = () => {
   selectId.value = route.params.id
 }
 
-const domainManagerDialogClick = () => {
-  systemInformationVisible.value = true
-  tableName.value = 'domaininformation'
-  selectId.value = route.params.id
-}
-
 const selectId = ref('')
 // 关闭dialog时重置selectUserId
 watch(systemInformationVisible, (val) => {
@@ -189,16 +184,20 @@ watch(systemInformationVisible, (val) => {
 
 const getCostSelect = (item) => {
   if (item) {
-    if (item.domainManager) {
-      detailData.value.domainManagerId = item.id
-      detailData.value.domainManagerName = item.domainManager
-      console.log('domainManager', detailData.value, item)
-    } else {
-      detailData.value.customerId = item.id
-      detailData.value.customerName = item.customer
-      console.log('customer', detailData.value, item)
-    }
+    // if (item.domainManager) {
+    //   detailData.value.domainManagerId = item.id
+    //   detailData.value.domainManagerName = item.domainManager
+    //   console.log('domainManager', detailData.value, item)
+    // } else {
+    detailData.value.customerId = item.id
+    detailData.value.customer = item.customer
+    console.log('customer', detailData.value, item)
+    // }
   }
+}
+
+const pickerSelect = (val) => {
+  detailData.value.year = dayjs(val).format('YYYY')
 }
 // getCostSelect()
 </script>

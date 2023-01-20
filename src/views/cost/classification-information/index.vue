@@ -94,9 +94,7 @@ onActivated(getListData)
 
 const onRemoveClick = (row) => {
   ElMessageBox.confirm(
-    i18n.t('msg.excel.dialogTitle1') +
-      row.classificationName +
-      i18n.t('msg.excel.dialogTitle2'),
+    i18n.t('msg.cost.dialogTitle1') + row.id + i18n.t('msg.cost.dialogTitle2'),
     { type: 'warning' }
   )
     .then(async () => {
