@@ -77,3 +77,12 @@ export const costSingleEdit = (data) => {
     data
   })
 }
+
+// 数据条件筛选判断
+export const costAllSelect = (data) => {
+  return request({
+    url: '/cost/allselect',
+    method: 'POST',
+    data
+  })
+}

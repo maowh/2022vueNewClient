@@ -45,29 +45,15 @@
           }}</el-descriptions-item>
         </el-descriptions>
       </div>
+
       <div class="body">
         <!-- 内容渲染表格 -->
-        <el-descriptions direction="vertical" :column="3" border>
+        <el-descriptions direction="vertical" :column="9" border>
           <el-descriptions-item :label="$t('msg.cost.classificationName')">
             <div v-if="moneyData[0]">
               {{ moneyData[0].classification }}
             </div>
           </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.totalAmount')">
-            <div v-if="moneyData[0]">
-              {{ moneyData[0].totalAmount }}
-            </div>
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.totalManpower')">
-            <div v-if="moneyData[0]">
-              {{ moneyData[0].totalManpower }}
-            </div>
-          </el-descriptions-item>
-        </el-descriptions>
-      </div>
-      <div class="body">
-        <!-- 内容渲染表格 -->
-        <el-descriptions direction="vertical" :column="8" border>
           <el-descriptions-item :label="$t('msg.cost.systemEngineer')">
             <div v-if="moneyData[0]">
               {{ moneyData[0].systemEngineer }}
@@ -106,6 +92,21 @@
           <el-descriptions-item :label="$t('msg.cost.seniorDbaEngineer')">
             <div v-if="moneyData[0]">
               {{ moneyData[0].seniorDbaEngineer }}
+            </div>
+          </el-descriptions-item>
+        </el-descriptions>
+      </div>
+      <div class="body">
+        <!-- 内容渲染表格 -->
+        <el-descriptions direction="vertical" :column="3" border>
+          <el-descriptions-item :label="$t('msg.cost.totalAmount')">
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].totalAmount }}
+            </div>
+          </el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.totalManpower')">
+            <div v-if="moneyData[0]">
+              {{ moneyData[0].totalManpower }}
             </div>
           </el-descriptions-item>
         </el-descriptions>

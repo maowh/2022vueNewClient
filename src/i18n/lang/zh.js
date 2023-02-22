@@ -48,7 +48,12 @@ export default {
     coefficientInformationList: '系数信息管理',
     coefficientInformationInfo: '系数信息查看',
     coefficientInformationEdit: '系数信息编辑',
-    coefficientInformationCreate: '系数信息创建'
+    coefficientInformationCreate: '系数信息创建',
+    personnel: '人员基本信息',
+    personnelload: '人员负荷管理',
+    personnelloadInfo: '人员负荷信息查看',
+    personnelloadEdit: '人员负荷信息编辑',
+    personnelloadCreate: '人员负荷信息创建'
   },
   toast: {
     switchLangSuccess: '切换语言成功'
@@ -209,7 +214,7 @@ export default {
     dialogTitle1: '确定要删除编号 ',
     dialogTitle2: ' 吗？',
     id: '编号',
-    classificationName: '系统分类名称',
+    classificationName: '系统分类',
     SystemName: '系统名称',
     customerName: '客户名称',
     domainManagerName: '领域经理名称',
@@ -236,6 +241,8 @@ export default {
     totalAmount: '合计金额',
     totalManpower: '合计人力',
     contractPrice: '最终合同价系数',
-    taxIncluded: '含税金额系数'
+    taxIncluded: '含税金额系数',
+    name: '姓名',
+    load: '负荷系数'
   }
 }

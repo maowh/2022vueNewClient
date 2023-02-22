@@ -121,6 +121,27 @@
         <el-row :gutter="20">
           <el-col :span="24" :offset="0">
             <el-table :data="moneyData" border>
+              <el-table-column
+                :label="$t('msg.cost.classificationName')"
+                align="center"
+              >
+                <template #default="{ row }">
+                  <template v-if="row.edit">
+                    <el-select v-model="row.classification" class="m-2">
+                      <el-option
+                        v-for="item in options"
+                        :key="item.label"
+                        :label="item.label"
+                        :value="item.label"
+                      />
+                    </el-select>
+                    <!-- <el-input v-model="row.classification" /> -->
+                  </template>
+                  <span @dblclick="row.edit = !row.edit" v-else>{{
+                    row.classification
+                  }}</span>
+                </template>
+              </el-table-column>
               <el-table-column label="系统工程师" align="center">
                 <template #default="{ row }">
                   <template v-if="row.edit">
@@ -238,20 +259,20 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="18" :offset="0">
-            <el-descriptions direction="vertical" :column="4" border>
-              <el-descriptions-item :label="$t('msg.cost.classificationName')">
+            <el-descriptions direction="vertical" :column="3" border>
+              <!-- <el-descriptions-item :label="$t('msg.cost.classificationName')">
                 <div v-if="moneyData[0]">
                   {{ moneyData[0].classification }}
                 </div>
-              </el-descriptions-item>
+              </el-descriptions-item> -->
               <el-descriptions-item :label="$t('msg.cost.totalAmount')">
-                <div v-if="moneyData[0]">
-                  {{ moneyData[0].totalAmount }}
+                <div v-if="totalAmount">
+                  {{ totalAmount }}
                 </div>
               </el-descriptions-item>
               <el-descriptions-item :label="$t('msg.cost.totalManpower')">
-                <div v-if="moneyData[0]">
-                  {{ moneyData[0].totalManpower }}
+                <div v-if="totalManpower">
+                  {{ totalManpower }}
                 </div>
               </el-descriptions-item>
             </el-descriptions></el-col
@@ -276,7 +297,7 @@
           <el-button @click="onCancel(ruleFormRef)">{{
             $t('msg.universal.cancel')
           }}</el-button> -->
-          <el-button @click="onCancel()" type="info">{{
+          <el-button @click="onCancel()">{{
             $t('msg.article.back')
           }}</el-button>
         </el-form-item>
@@ -320,6 +341,18 @@ const rules = reactive({
   SystemName: [{ validator: validatetext, trigger: 'blur' }]
 })
 
+// const value = ref('')
+// 确定费用选择项目
+const options = [
+  {
+    // value: '运维',
+    label: '运维'
+  },
+  {
+    // value: '开发',
+    label: '开发'
+  }
+]
 // 确定按钮点击事件
 const i18n = useI18n()
 const title = ref()
@@ -338,12 +371,16 @@ const getCostDisplay = async (id) => {
     .set('month', detailData.value.month - 1)
 }
 
+// 定义费用变量
+// const rowCount = ref([])
+// const moneyDataTmp = ref([])
 const moneyData = ref([])
 const getCostMoneyList = async (id) => {
   moneyData.value = await costDisplay({
     table: 'outsourcingcostsmoney',
     id: id
   })
+  // moneyData.value = moneyDataTmp.value
   console.log(moneyData.value)
   // moneyData.value = moneyData.value[0]
   // console.log(moneyData.value)
@@ -356,20 +393,41 @@ const addIs = ref(false)
 // 判断是新增还是编辑
 const isEditCreatId = ref('')
 const costNew = ref('')
+const costEdit = ref('')
+// 监听当前路由
 if (route.params.id) {
+  console.log(route.params.id)
   title.value = i18n.t('msg.cost.edit')
   isEditCreatId.value = route.params.id
   getCostDisplay(isEditCreatId.value)
   getCostMoneyList(isEditCreatId.value)
+  console.log(moneyData.value)
 } else {
   title.value = i18n.t('msg.cost.add')
   addIs.value = true
   if (costNew.value.insertId) {
     isEditCreatId.value = costNew.value.insertId
   }
-
-  // costInitCreate()
 }
+
+watch(
+  () => moneyData.value,
+  (value) => {
+    // if (moneyData.value) {
+    console.log(value.length)
+    if (value.length > 1) {
+      addIs.value = true
+    } else {
+      addIs.value = false
+    }
+
+    // }
+  },
+  { immediate: true }
+)
+//   },
+//   { immediate: true }
+// )
 
 // 日期
 const yearMonth = ref('')
@@ -419,56 +477,128 @@ const updateDisplay = async (row) => {
 }
 getCostStandard()
 
+// 定义费用明细是否
+const isAddMoney = ref(false)
+// 判断合计人力和合计金额
+const tmpTotalAmount = ref(0)
+const tmpTotalManpower = ref(0)
+// 统计合计人力和合计金额
+const totalAmount = ref(0)
+const totalManpower = ref(0)
+
 const confirmEdit = async (row, index) => {
-  // console.log(dayjs(yearMonth.value).format('YYYY'))
-  // console.log(dayjs(yearMonth.value).format('MM'))
   row.edit = false
 
   row.originalTitle = row.title
   row.totalAmount = 0
   row.totalManpower = 0
-  row.totalAmount =
-    row.systemEngineer * CostStandard.value.systemEngineer +
-    row.seniorSap * CostStandard.value.seniorSap +
-    row.seniorSoftwareEngineer * CostStandard.value.seniorSoftwareEngineer +
-    row.dbaEngineer * CostStandard.value.dbaEngineer +
-    row.seniorSystemEngineer * CostStandard.value.seniorSystemEngineer +
-    row.intermediateSap * CostStandard.value.intermediateSap +
-    row.seniorDbaEngineer * CostStandard.value.seniorDbaEngineer +
-    row.softwareEngineer * CostStandard.value.softwareEngineer
-  row.totalManpower =
-    Number(row.systemEngineer) +
-    Number(row.seniorSap) +
-    Number(row.seniorSoftwareEngineer) +
-    Number(row.dbaEngineer) +
-    Number(row.seniorSystemEngineer) +
-    Number(row.intermediateSap) +
-    Number(row.seniorDbaEngineer) +
-    Number(row.softwareEngineer)
+  // row.totalAmount =
+  //   row.systemEngineer * CostStandard.value.systemEngineer +
+  //   row.seniorSap * CostStandard.value.seniorSap +
+  //   row.seniorSoftwareEngineer * CostStandard.value.seniorSoftwareEngineer +
+  //   row.dbaEngineer * CostStandard.value.dbaEngineer +
+  //   row.seniorSystemEngineer * CostStandard.value.seniorSystemEngineer +
+  //   row.intermediateSap * CostStandard.value.intermediateSap +
+  //   row.seniorDbaEngineer * CostStandard.value.seniorDbaEngineer +
+  //   row.softwareEngineer * CostStandard.value.softwareEngineer
+  // row.totalManpower =
+  //   Number(row.systemEngineer) +
+  //   Number(row.seniorSap) +
+  //   Number(row.seniorSoftwareEngineer) +
+  //   Number(row.dbaEngineer) +
+  //   Number(row.seniorSystemEngineer) +
+  //   Number(row.intermediateSap) +
+  //   Number(row.seniorDbaEngineer) +
+  //   Number(row.softwareEngineer)
   delete row.edit
-  // const test = ref(true)
-  if (addIs.value !== true) {
+
+  for (let index = 0; index < moneyData.value.length; index++) {
+    // const element = moneyData.value[index]
+    row.totalAmount =
+      moneyData.value[index].systemEngineer *
+        CostStandard.value.systemEngineer +
+      moneyData.value[index].seniorSap * CostStandard.value.seniorSap +
+      moneyData.value[index].seniorSoftwareEngineer *
+        CostStandard.value.seniorSoftwareEngineer +
+      moneyData.value[index].dbaEngineer * CostStandard.value.dbaEngineer +
+      moneyData.value[index].seniorSystemEngineer *
+        CostStandard.value.seniorSystemEngineer +
+      moneyData.value[index].intermediateSap *
+        CostStandard.value.intermediateSap +
+      moneyData.value[index].seniorDbaEngineer *
+        CostStandard.value.seniorDbaEngineer +
+      moneyData.value[index].softwareEngineer *
+        CostStandard.value.softwareEngineer
+    if (index === 0) {
+      tmpTotalAmount.value = row.totalAmount
+    } else {
+      row.totalAmount = tmpTotalAmount.value + row.totalAmount
+    }
+    row.totalManpower =
+      Number(moneyData.value[index].systemEngineer) +
+      Number(moneyData.value[index].seniorSap) +
+      Number(moneyData.value[index].seniorSoftwareEngineer) +
+      Number(moneyData.value[index].dbaEngineer) +
+      Number(moneyData.value[index].seniorSystemEngineer) +
+      Number(moneyData.value[index].intermediateSap) +
+      Number(moneyData.value[index].seniorDbaEngineer) +
+      Number(moneyData.value[index].softwareEngineer)
+    if (index === 0) {
+      tmpTotalManpower.value = row.totalManpower
+    } else {
+      row.totalManpower = tmpTotalManpower.value + row.totalManpower
+    }
+    console.log(row.totalAmount, row.totalManpower)
+  }
+  totalAmount.value = row.totalAmount
+  totalManpower.value = row.totalManpower
+
+  // tmp判断是否包含2个相同的分类
+  const tmp = ref(0)
+  moneyData.value.map((item) => {
+    if (item.classification === row.classification) {
+      tmp.value = tmp.value + 1
+    }
+  })
+  console.log(tmp.value)
+  // rowCount.value = moneyData.value
+  // 编辑
+  console.log(row.classification)
+  if (!isAddMoney.value && row.classification !== undefined && tmp.value < 2) {
     delete row.outsourcingCostsId
-    // const moneyDataObj = { ...moneyData }
+    console.log(row)
     const moneyDataUpdate = await costSingleEdit({
       table: 'outsourcingcostsmoney',
       data: row
     })
     console.log(moneyDataUpdate)
-    // ElMessage.success(moneyDataUpdate)
-  } else {
-    row.classification = '运维'
+    updateDisplay(row)
+    // 新增
+  } else if (isAddMoney.value && row.classification !== '' && tmp.value < 2) {
     delete row.id
+    console.log(row)
+    // rowCount.value.push(row)
     const moneyDataAdd = await costCreateSingle({
       table: 'outsourcingcostsmoney',
       data: row
     })
     console.log(moneyDataAdd)
+    updateDisplay(row)
     // ElMessage.success(moneyDataAdd)
+  } else {
+    ElMessage.error('系统分类不能为空并且不能重复')
   }
-  updateDisplay(row)
+  console.log(row)
   getCostMoneyList(isEditCreatId.value)
-  addIs.value = false
+  isAddMoney.value = false
+  if (moneyData.value.length > 1) {
+    addIs.value = true
+  }
+  // if (rowCount.value.length > 2) {
+  //   addIs.value = true
+  // } else {
+  //   addIs.value = false
+  // }
 }
 
 const confirmAdd = async () => {
@@ -487,6 +617,7 @@ const confirmAdd = async () => {
   moneyData.value.push(row)
   row.edit = true
   addIs.value = true
+  isAddMoney.value = true
   // delete row.outsourcingCostsId
   // const moneyDataObj = { ...moneyData }
 }
@@ -498,70 +629,66 @@ const confirmDel = (row) => {
   )
     .then(async () => {
       await costDel({ table: 'outsourcingcostsmoney', id: row.id })
+      // getCostMoneyList(isEditCreatId.value)
       ElMessage.success(i18n.t('msg.excel.removeSuccess'))
+
       // 重新渲染数据
       getCostMoneyList(isEditCreatId.value)
-        .then(() => updateDisplay(row))
+        .then(() => {
+          if (moneyData.value.length > 0) {
+            for (let index = 0; index < moneyData.value.length; index++) {
+              // const element = moneyData.value[index]
+              row.totalAmount =
+                moneyData.value[index].systemEngineer *
+                  CostStandard.value.systemEngineer +
+                moneyData.value[index].seniorSap *
+                  CostStandard.value.seniorSap +
+                moneyData.value[index].seniorSoftwareEngineer *
+                  CostStandard.value.seniorSoftwareEngineer +
+                moneyData.value[index].dbaEngineer *
+                  CostStandard.value.dbaEngineer +
+                moneyData.value[index].seniorSystemEngineer *
+                  CostStandard.value.seniorSystemEngineer +
+                moneyData.value[index].intermediateSap *
+                  CostStandard.value.intermediateSap +
+                moneyData.value[index].seniorDbaEngineer *
+                  CostStandard.value.seniorDbaEngineer +
+                moneyData.value[index].softwareEngineer *
+                  CostStandard.value.softwareEngineer
+              if (index === 0) {
+                tmpTotalAmount.value = row.totalAmount
+              } else {
+                row.totalAmount = tmpTotalAmount.value + row.totalAmount
+              }
+              row.totalManpower =
+                Number(moneyData.value[index].systemEngineer) +
+                Number(moneyData.value[index].seniorSap) +
+                Number(moneyData.value[index].seniorSoftwareEngineer) +
+                Number(moneyData.value[index].dbaEngineer) +
+                Number(moneyData.value[index].seniorSystemEngineer) +
+                Number(moneyData.value[index].intermediateSap) +
+                Number(moneyData.value[index].seniorDbaEngineer) +
+                Number(moneyData.value[index].softwareEngineer)
+              if (index === 0) {
+                tmpTotalManpower.value = row.totalManpower
+              } else {
+                row.totalManpower = tmpTotalManpower.value + row.totalManpower
+              }
+              console.log(row.totalAmount, row.totalManpower)
+            }
+            console.log()
+            totalAmount.value = row.totalAmount
+            totalManpower.value = row.totalManpower
+          } else {
+            totalAmount.value = 0
+            totalManpower.value = 0
+          }
+          updateDisplay(row)
+        })
         .catch((error) => error)
     })
     .catch((error) => error)
-  // tableData.value = tableData.value.filter((item) => item !== row)
 }
-
-// 确定按钮点击事件
-// const validate = ref(false)
-// const onConfirm = async (ruleFormRef) => {
-//   ruleFormRef.validate((valid) => {
-//     if (valid) {
-//       validate.value = true
-//     } else {
-//       validate.value = false
-//     }
-//   })
-//   if (route.params.id) {
-//     console.log('edit', detailData.value)
-//     delete detailData.value.customerName
-//     delete detailData.value.domainManagerName
-//     // detailData.value.SystemName = detailData.value.SystemName
-//     // detailData.value.id = route.params.id
-//     const dataUpdate = await costSingleEdit({
-//       table: 'systeminformation',
-//       data: detailData
-//     })
-//     if (dataUpdate === '更新数据成功') {
-//       ElMessage.success(i18n.t('msg.cost.updateSuccess'))
-//       // 数据更新成功
-//       closed(ruleFormRef)
-//     } else if (dataUpdate === '数据已存在不能重复') {
-//       ElMessage.warning(i18n.t('msg.cost.existsSuccess'))
-//       // 数据更新成功
-//       closed(ruleFormRef)
-//     }
-//   } else {
-//     console.log('create', detailData.value)
-//     delete detailData.value.customerName
-//     delete detailData.value.domainManagerName
-//     const dataCreate = await costCreate({
-//       table: 'systeminformation',
-//       data: detailData
-//     })
-//     if (dataCreate === '新增数据成功') {
-//       ElMessage.success(i18n.t('msg.cost.addSuccess'))
-//       // 数据更新成功
-//       closed(ruleFormRef)
-//     } else if (dataCreate === '数据已存在不能重复') {
-//       ElMessage.warning(i18n.t('msg.cost.existsSuccess'))
-//       // 数据更新成功
-//       closed(ruleFormRef)
-//     }
-//   }
-// }
-
-// const closed = (ruleFormRef) => {
-//   if (!ruleFormRef) return
-//   ruleFormRef.resetFields()
-//   router.push('/outsourcing/manage')
-// }
 
 // 关闭
 const onCancel = () => {
@@ -579,12 +706,6 @@ const systemDialogClick = () => {
   // selectId.value = route.params.id
 }
 
-// const domainManagerDialogClick = () => {
-//   systemInformationVisible.value = true
-//   tableName.value = 'domaininformation'
-//   selectId.value = route.params.id
-// }
-
 const selectId = ref('')
 // 关闭dialog时重置selectUserId
 watch(systemInformationVisible, (val) => {
@@ -597,9 +718,68 @@ const getCostSelect = async (item) => {
   if (item) {
     if (!route.params.id && !detailData.value.id) {
       updateDetail.systemId = item.id
+      detailData.value.SystemName = item.SystemName
+      console.log('新增')
+      // delete updateDetail.id
+      // console.log(updateDetail.year, updateDetail.month)
+      // // updateDetail.year = dayjs().format('YYYY')
+      // // updateDetail.month = dayjs().format('MM')
+      // delete updateDetail.reportedAmount
+      // delete updateDetail.contractAmount
+      // delete updateDetail.taxAmount
+      // costNew.value = await costCreateSingle({
+      //   table: 'outsourcingcosts',
+      //   data: updateDetail
+      // })
+      // console.log(costNew.value)
+      // if (costNew.value !== '数据已存在不能重复') {
+      //   console.log(0)
+      //   addIs.value = false
+      //   isEditCreatId.value = costNew.value.insertId
+      //   getCostDisplay(isEditCreatId.value)
+      // } else {
+      //   ElMessage.error(costNew.value)
+      // }
+      // // console.log(costNew.value)
+      // // getCostDisplay(costNew.value.insertId)
+      // // detailData.value = dayjs().format('YYYY')
+      // // detailData.value = dayjs().format('MM')
+    } else {
+      updateDetail.systemId = item.id
+      detailData.value.SystemName = item.SystemName
+      console.log(yearMonth.value)
+      // delete updateDetail.year
+      // delete updateDetail.month
+      updateDetail.year = dayjs(yearMonth.value).format('YYYY')
+      updateDetail.month = dayjs(yearMonth.value).format('MM')
+      delete updateDetail.reportedAmount
+      delete updateDetail.contractAmount
+      delete updateDetail.taxAmount
+
+      costEdit.value = await costSingleEdit({
+        table: 'outsourcingcosts',
+        data: updateDetail
+      })
+      if (costEdit.value !== '数据已存在不能重复') {
+        ElMessage.success('已修改数据成功')
+        getCostDisplay(isEditCreatId.value)
+      } else {
+        ElMessage.error(costEdit.value)
+        getCostDisplay(isEditCreatId.value)
+      }
+    }
+    // console.log(isEditCreatId.value)
+  }
+}
+// 日期选择框选中事件
+const pickerSelect = async (val) => {
+  console.log(val)
+  if (!route.params.id && !detailData.value.id) {
+    if (updateDetail.systemId) {
       delete updateDetail.id
-      updateDetail.year = dayjs().format('YYYY')
-      updateDetail.month = dayjs().format('MM')
+      console.log(updateDetail.year, updateDetail.month)
+      updateDetail.year = dayjs(val).format('YYYY')
+      updateDetail.month = dayjs(val).format('MM')
       delete updateDetail.reportedAmount
       delete updateDetail.contractAmount
       delete updateDetail.taxAmount
@@ -607,49 +787,45 @@ const getCostSelect = async (item) => {
         table: 'outsourcingcosts',
         data: updateDetail
       })
-      addIs.value = false
-      isEditCreatId.value = costNew.value.insertId
+      console.log(costNew.value)
+      if (costNew.value !== '数据已存在不能重复') {
+        console.log(0)
+        addIs.value = false
+        isEditCreatId.value = costNew.value.insertId
+        getCostDisplay(isEditCreatId.value)
+      } else {
+        ElMessage.error(costNew.value)
+      }
       // console.log(costNew.value)
       // getCostDisplay(costNew.value.insertId)
       // detailData.value = dayjs().format('YYYY')
       // detailData.value = dayjs().format('MM')
     } else {
-      updateDetail.systemId = item.id
-      delete updateDetail.year
-      delete updateDetail.month
-      delete updateDetail.reportedAmount
-      delete updateDetail.contractAmount
-      delete updateDetail.taxAmount
-
-      await costSingleEdit({
-        table: 'outsourcingcosts',
-        data: updateDetail
-      })
+      ElMessage.warning('请先选择系统名称')
+      yearMonth.value = ''
     }
-    console.log(isEditCreatId.value)
-    getCostDisplay(isEditCreatId.value)
-  }
-}
-// 日期选择框选中事件
-const pickerSelect = async (val) => {
-  console.log(val)
-  if (!route.params.id && !detailData.value.id) {
-    ElMessage.warning('请选择系统名称')
   } else {
     updateDetail.year = dayjs(val).format('YYYY')
     updateDetail.month = dayjs(val).format('MM')
-    delete updateDetail.systemId
+    updateDetail.systemId = detailData.value.systemId
+    // detailData.value.SystemName = item.SystemName
+    // delete updateDetail.systemId
     delete updateDetail.reportedAmount
     delete updateDetail.contractAmount
     delete updateDetail.taxAmount
     updateDetail.id = isEditCreatId.value
-    await costSingleEdit({
+    console.log(updateDetail)
+    costEdit.value = await costSingleEdit({
       table: 'outsourcingcosts',
       data: updateDetail
     })
-    ElMessage.success('已选择数据成功')
-
-    getCostDisplay(isEditCreatId.value)
+    if (costEdit.value !== '数据已存在不能重复') {
+      getCostDisplay(isEditCreatId.value)
+      ElMessage.success('已修改数据成功')
+    } else {
+      ElMessage.error(costEdit.value)
+      getCostDisplay(isEditCreatId.value)
+    }
   }
 }
 // getCostSelect()

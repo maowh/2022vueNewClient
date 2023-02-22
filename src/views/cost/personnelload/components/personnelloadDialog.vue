@@ -1,32 +1,6 @@
 <template>
   <el-dialog :title="title" :model-value="modelValue">
-    <!-- <div v-if="props.tableName === 'domaininformation'"> -->
-    <el-table
-      ref="singleTableRef"
-      :data="tableData"
-      highlight-current-row
-      @current-change="handleCurrentLine"
-    >
-      <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
-      <el-table-column
-        prop="SystemName"
-        :label="$t('msg.cost.SystemName')"
-      ></el-table-column>
-      <!-- <el-table-column
-          prop="businessLines"
-          :label="$t('msg.cost.businessLines')"
-        ></el-table-column>
-        <el-table-column
-          prop="domain"
-          :label="$t('msg.cost.domain')"
-        ></el-table-column>
-        <el-table-column
-          prop="domainManager"
-          :label="$t('msg.cost.domainManager')"
-        ></el-table-column> -->
-    </el-table>
-    <!-- </div> -->
-    <!-- <div v-else-if="props.tableName === 'customerinformation'">
+    <div v-if="props.tableName === 'systeminformation'">
       <el-table
         ref="singleTableRef"
         :data="tableData"
@@ -35,11 +9,25 @@
       >
         <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
         <el-table-column
-          prop="customer"
-          :label="$t('msg.cost.customerName')"
+          prop="SystemName"
+          :label="$t('msg.cost.SystemName')"
         ></el-table-column>
       </el-table>
-    </div> -->
+    </div>
+    <div v-else-if="props.tableName === 'personnel'">
+      <el-table
+        ref="singleTableRef"
+        :data="tableData"
+        highlight-current-row
+        @current-change="handleCurrentLine"
+      >
+        <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
+        <el-table-column
+          prop="name"
+          :label="$t('msg.cost.name')"
+        ></el-table-column>
+      </el-table>
+    </div>
 
     <el-pagination
       class="pagination"
@@ -62,26 +50,25 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref } from 'vue'
+import { defineProps, defineEmits, ref, watch } from 'vue'
 import { costList } from '@/api/cost'
-import { ElTable } from 'element-plus'
-// import { useI18n } from 'vue-i18n'
+import { ElTable, ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
     required: true
+  },
+  tableName: {
+    type: String,
+    required: true
+  },
+  id: {
+    type: String,
+    required: true
   }
-  // tableName: {
-  //   type: String,
-  //   required: true
-  // },
-  // id: {
-  //   type: String,
-  //   required: true
-  // }
 })
-console.log(props)
 
 const currentRow = ref()
 const singleTableRef = ref(ElTable)
@@ -91,7 +78,7 @@ const handleCurrentLine = (val) => {
 }
 
 // 确定按钮点击事件
-// const i18n = useI18n()
+const i18n = useI18n()
 const title = ref()
 
 // 数据相关
@@ -101,14 +88,15 @@ const page = ref(1)
 const size = ref(5)
 // 获取数据的方法
 const getListData = async () => {
-  const result = await costList({
-    table: 'systeminformation',
-    page: page.value,
-    size: size.value
-  })
-  tableData.value = result.list
-  total.value = result.total
-  console.log(result.list)
+  if (props.tableName) {
+    const result = await costList({
+      table: props.tableName,
+      page: page.value,
+      size: size.value
+    })
+    tableData.value = result.list
+    total.value = result.total
+  }
 }
 getListData()
 
@@ -136,24 +124,27 @@ const handleCurrentChange = (currentPage) => {
 // }
 
 // 从父组件传值，当父组件传过来的userId不为空时候就获取数据库中该用户的角色
-// watch(
-//   () => props.tableName,
-//   (val) => {
-//     if (val === 'customerinformation') {
-//       title.value = i18n.t('msg.route.customerinformation')
-//       getListData()
-//     } else if (val === 'domaininformation') {
-//       title.value = i18n.t('msg.route.domaininformation')
-//       getListData()
-//     }
-//   }
-// )
+watch(
+  () => props.tableName,
+  (val) => {
+    // if (val === 'systeminformation') {
+    //   title.value = i18n.t('msg.route.systemInfomationList')
+    //   // getListData()
+    // }
+    if (val === 'systeminformation') {
+      title.value = i18n.t('msg.route.systemInfomationList')
+      getListData()
+    } else if (val === 'personnel') {
+      title.value = i18n.t('msg.route.personnel')
+      getListData()
+    }
+  }
+)
 
 const emits = defineEmits(['update:modelValue', 'costSelect'])
 const onConfirm = async (row) => {
-  // ElMessage.success(i18n.t('msg.cost.selectSuccess'))
+  ElMessage.success(i18n.t('msg.cost.selectSuccess'))
   emits('costSelect', currentRow.value)
-  console.log(currentRow.value)
   closed()
 
   singleTableRef.value.setCurrentRow(row)

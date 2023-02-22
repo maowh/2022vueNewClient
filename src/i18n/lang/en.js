@@ -48,7 +48,12 @@ export default {
     coefficientInformationList: 'coefficientInformationList',
     coefficientInformationInfo: 'coefficientInformationInfo',
     coefficientInformationEdit: 'coefficientInformationEdit',
-    coefficientInformationCreate: 'coefficientInformationCreate'
+    coefficientInformationCreate: 'coefficientInformationCreate',
+    personnel: 'personnel',
+    personnelload: 'personnelload',
+    personnelloadInfo: 'personnelloadInfo',
+    personnelloadEdit: 'personnelloadEdit',
+    personnelloadCreate: 'personnelloadCreate'
   },
   toast: {
     switchLangSuccess: 'Switch Language Success'
@@ -235,6 +240,8 @@ export default {
     dbaEngineer: 'dbaEngineer',
     seniorDbaEngineer: 'seniorDbaEngineer',
     totalAmount: 'totalAmount',
-    totalManpower: 'totalManpower'
+    totalManpower: 'totalManpower',
+    name: 'name',
+    load: 'load'
   }
 }
