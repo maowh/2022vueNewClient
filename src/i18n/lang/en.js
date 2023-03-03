@@ -53,7 +53,10 @@ export default {
     personnelload: 'personnelload',
     personnelloadInfo: 'personnelloadInfo',
     personnelloadEdit: 'personnelloadEdit',
-    personnelloadCreate: 'personnelloadCreate'
+    personnelloadCreate: 'personnelloadCreate',
+    costsreport: 'costsreport',
+    customerinformation: 'customerinformation',
+    domaininformation: 'domaininformation'
   },
   toast: {
     switchLangSuccess: 'Switch Language Success'

@@ -101,16 +101,6 @@ const props = defineProps({
 const formSize = ref('default')
 const ruleFormRef = ref(FormInstance)
 
-// const validatetext = (rule, value, callback) => {
-//   if (!value && value === '') {
-//     callback(new Error('请输入内容'))
-//   } else if (value.length > 25) {
-//     callback(new Error('输入内容需要小于25个字符'))
-//   } else {
-//     callback()
-//   }
-// }
-
 const rules = reactive({
   systemEngineer: [{ validator: validatetext, trigger: 'blur' }],
   seniorSystemEngineer: [{ validator: validatetext, trigger: 'blur' }],

@@ -64,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onActivated } from 'vue'
 import { costCreate, costEdit, costDisplay } from '@/api/cost'
 import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
@@ -79,7 +79,10 @@ const route = useRoute()
 const router = useRouter()
 
 const rules = reactive({
-  SystemName: [{ validator: validatetext, trigger: 'blur' }]
+  taxIncluded: [{ validator: validatetext, trigger: 'blur' }],
+  contractPrice: [{ validator: validatetext, trigger: 'blur' }],
+  customer: [{ validator: validatetext, trigger: 'blur' }],
+  year: [{ validator: validatetext, trigger: 'blur' }]
 })
 
 // 确定按钮点击事件
@@ -98,29 +101,36 @@ const getCostDisplay = async () => {
   detailData.value.year = dayjs().format('YYYY')
   console.log(detailData.value.year)
 }
-
-if (costInformationId) {
-  title.value = i18n.t('msg.cost.edit')
-  getCostDisplay()
-} else {
-  title.value = i18n.t('msg.cost.add')
-}
+onActivated(() => {
+  if (costInformationId) {
+    title.value = i18n.t('msg.cost.edit')
+    getCostDisplay()
+  } else {
+    title.value = i18n.t('msg.cost.add')
+  }
+})
 
 // 确定按钮点击事件
 const validate = ref(false)
 const onConfirm = async (ruleFormRef) => {
+  console.log(ruleFormRef)
   ruleFormRef.validate((valid) => {
+    console.log(valid)
     if (valid) {
       validate.value = true
     } else {
       validate.value = false
     }
   })
-  if (route.params.id) {
+  console.log(Object.keys(detailData.value).length)
+  if (Object.keys(detailData.value).length < 5) {
+    validate.value = false
+  } else {
+    validate.value = true
+  }
+  console.log(validate.value, detailData.value)
+  if (route.params.id && validate.value) {
     delete detailData.value.customer
-    // delete detailData.value.domainManagerName
-    // detailData.value.SystemName = detailData.value.SystemName
-    // detailData.value.id = route.params.id
     console.log('edit', detailData.value)
     const dataUpdate = await costEdit({
       table: 'coefficientinformation',
@@ -135,7 +145,7 @@ const onConfirm = async (ruleFormRef) => {
       // 数据更新成功
       closed(ruleFormRef)
     }
-  } else {
+  } else if (validate.value) {
     console.log('create', detailData.value)
     delete detailData.value.customer
     // delete detailData.value.domainManagerName

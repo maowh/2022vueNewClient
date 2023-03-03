@@ -49,51 +49,38 @@
       <div class="body">
         <!-- 内容渲染表格 -->
         <el-descriptions direction="vertical" :column="9" border>
-          <el-descriptions-item :label="$t('msg.cost.classificationName')">
-            <div v-if="moneyData[0]">
-              {{ moneyData[0].classification }}
-            </div>
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.systemEngineer')">
-            <div v-if="moneyData[0]">
-              {{ moneyData[0].systemEngineer }}
-            </div>
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.seniorSystemEngineer')">
-            <div v-if="moneyData[0]">
-              {{ moneyData[0].seniorSystemEngineer }}
-            </div>
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.softwareEngineer')">
-            <div v-if="moneyData[0]">
-              {{ moneyData[0].softwareEngineer }}
-            </div>
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.seniorSoftwareEngineer')">
-            <div v-if="moneyData[0]">
-              {{ moneyData[0].seniorSoftwareEngineer }}
-            </div>
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.intermediateSap')">
-            <div v-if="moneyData[0]">
-              {{ moneyData[0].intermediateSap }}
-            </div>
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.seniorSap')">
-            <div v-if="moneyData[0]">
-              {{ moneyData[0].seniorSap }}
-            </div>
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.dbaEngineer')">
-            <div v-if="moneyData[0]">
-              {{ moneyData[0].dbaEngineer }}
-            </div>
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.seniorDbaEngineer')">
-            <div v-if="moneyData[0]">
-              {{ moneyData[0].seniorDbaEngineer }}
-            </div>
-          </el-descriptions-item>
+          <template v-for="item in moneyData" :key="item.id">
+            <el-descriptions-item :label="$t('msg.cost.classificationName')">
+              {{ item.classification }}
+              <!-- </div> -->
+            </el-descriptions-item>
+            <el-descriptions-item :label="$t('msg.cost.systemEngineer')">
+              {{ item.systemEngineer }}
+            </el-descriptions-item>
+            <el-descriptions-item :label="$t('msg.cost.seniorSystemEngineer')">
+              {{ moneyData.seniorSystemEngineer }}
+            </el-descriptions-item>
+            <el-descriptions-item :label="$t('msg.cost.softwareEngineer')">
+              {{ moneyData.softwareEngineer }}
+            </el-descriptions-item>
+            <el-descriptions-item
+              :label="$t('msg.cost.seniorSoftwareEngineer')"
+            >
+              {{ moneyData.seniorSoftwareEngineer }}
+            </el-descriptions-item>
+            <el-descriptions-item :label="$t('msg.cost.intermediateSap')">
+              {{ moneyData.intermediateSap }}
+            </el-descriptions-item>
+            <el-descriptions-item :label="$t('msg.cost.seniorSap')">
+              {{ moneyData.seniorSap }}
+            </el-descriptions-item>
+            <el-descriptions-item :label="$t('msg.cost.dbaEngineer')">
+              {{ moneyData.dbaEngineer }}
+            </el-descriptions-item>
+            <el-descriptions-item :label="$t('msg.cost.seniorDbaEngineer')">
+              {{ moneyData.seniorDbaEngineer }}
+            </el-descriptions-item>
+          </template>
         </el-descriptions>
       </div>
       <div class="body">
@@ -103,10 +90,16 @@
             <div v-if="moneyData[0]">
               {{ moneyData[0].totalAmount }}
             </div>
+            <div v-else-if="moneyData[0] & moneyData[1]">
+              {{ moneyData[0].totalAmount + moneyData[1].totalAmount }}
+            </div>
           </el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.totalManpower')">
             <div v-if="moneyData[0]">
               {{ moneyData[0].totalManpower }}
+            </div>
+            <div v-else-if="moneyData[0] || moneyData[1]">
+              {{ moneyData[0].totalManpower + moneyData[1].totalManpower }}
             </div>
           </el-descriptions-item>
         </el-descriptions>

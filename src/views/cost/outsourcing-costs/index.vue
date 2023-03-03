@@ -85,6 +85,7 @@ const getListData = async () => {
   })
   // console.log(result)
   tableData.value = result.list
+  console.log(tableData.value)
   total.value = result.total
 }
 getListData()

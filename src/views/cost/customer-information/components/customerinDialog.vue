@@ -13,12 +13,6 @@
         <el-col :span="20">
           <el-input style="width: 100%" v-model="detailData.customer" />
         </el-col>
-        <!-- <el-col :span="10">
-          <el-input
-            style="width: 100%"
-            v-model="classification.classificationName"
-          />
-        </el-col> -->
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onConfirm(ruleFormRef)">{{
@@ -51,16 +45,6 @@ const props = defineProps({
 
 const formSize = ref('default')
 const ruleFormRef = ref(FormInstance)
-
-// const validatetext = (rule, value, callback) => {
-//   if (!value && value === '') {
-//     callback(new Error('请输入内容'))
-//   } else if (value.length > 25) {
-//     callback(new Error('输入内容需要小于25个字符'))
-//   } else {
-//     callback()
-//   }
-// }
 
 const rules = reactive({
   customer: [{ validator: validatetext, trigger: 'blur' }]
@@ -99,7 +83,9 @@ const emits = defineEmits(['update:modelValue', 'updateRole'])
 // 确定按钮点击事件
 const validate = ref(false)
 const onConfirm = async (ruleFormRef) => {
+  console.log(ruleFormRef)
   ruleFormRef.validate((valid) => {
+    console.log(valid)
     if (valid) {
       validate.value = true
     } else {

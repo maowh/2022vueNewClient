@@ -53,7 +53,10 @@ export default {
     personnelload: '人员负荷管理',
     personnelloadInfo: '人员负荷信息查看',
     personnelloadEdit: '人员负荷信息编辑',
-    personnelloadCreate: '人员负荷信息创建'
+    personnelloadCreate: '人员负荷信息创建',
+    costsreport: '费用分解报表',
+    customerinformation: '客户信息',
+    domaininformation: '领域信息'
   },
   toast: {
     switchLangSuccess: '切换语言成功'

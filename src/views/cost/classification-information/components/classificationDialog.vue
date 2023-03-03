@@ -19,12 +19,6 @@
             v-model="classification.classificationName"
           />
         </el-col>
-        <!-- <el-col :span="10">
-          <el-input
-            style="width: 100%"
-            v-model="classification.classificationName"
-          />
-        </el-col> -->
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onConfirm(ruleFormRef)">{{
@@ -57,16 +51,6 @@ const props = defineProps({
 
 const formSize = ref('default')
 const ruleFormRef = ref(FormInstance)
-
-// const validatetext = (rule, value, callback) => {
-//   if (!value && value === '') {
-//     callback(new Error('请输入内容'))
-//   } else if (value.length > 25) {
-//     callback(new Error('输入内容需要小于25个字符'))
-//   } else {
-//     callback()
-//   }
-// }
 
 const rules = reactive({
   classificationName: [{ validator: validatetext, trigger: 'blur' }]
@@ -106,9 +90,12 @@ const emits = defineEmits(['update:modelValue', 'updateRole'])
 const validate = ref(false)
 const onConfirm = async (ruleFormRef) => {
   ruleFormRef.validate((valid) => {
+    console.log(valid)
     if (valid) {
+      console.log(valid)
       validate.value = true
     } else {
+      console.log(valid)
       validate.value = false
     }
   })

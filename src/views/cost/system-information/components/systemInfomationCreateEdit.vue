@@ -66,7 +66,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onActivated } from 'vue'
 import { costCreate, costEdit, costDisplay } from '@/api/cost'
 import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
@@ -80,7 +80,9 @@ const route = useRoute()
 const router = useRouter()
 
 const rules = reactive({
-  SystemName: [{ validator: validatetext, trigger: 'blur' }]
+  SystemName: [{ validator: validatetext, trigger: 'blur' }],
+  customerName: [{ validator: validatetext, trigger: 'blur' }],
+  domainManagerName: [{ validator: validatetext, trigger: 'blur' }]
 })
 
 // 确定按钮点击事件
@@ -98,12 +100,14 @@ const getCostDisplay = async () => {
   detailData.value = detailData.value[0]
 }
 
-if (costInformationId) {
-  title.value = i18n.t('msg.cost.edit')
-  getCostDisplay()
-} else {
-  title.value = i18n.t('msg.cost.add')
-}
+onActivated(() => {
+  if (costInformationId) {
+    title.value = i18n.t('msg.cost.edit')
+    getCostDisplay()
+  } else {
+    title.value = i18n.t('msg.cost.add')
+  }
+})
 
 // 确定按钮点击事件
 const validate = ref(false)
@@ -115,7 +119,14 @@ const onConfirm = async (ruleFormRef) => {
       validate.value = false
     }
   })
-  if (route.params.id) {
+  console.log(Object.keys(detailData.value).length)
+  console.log(detailData.value)
+  if (Object.keys(detailData.value).length < 5) {
+    validate.value = false
+  } else {
+    validate.value = true
+  }
+  if (route.params.id && validate.value) {
     delete detailData.value.customerName
     delete detailData.value.domainManagerName
     // detailData.value.SystemName = detailData.value.SystemName
@@ -134,7 +145,7 @@ const onConfirm = async (ruleFormRef) => {
       // 数据更新成功
       closed(ruleFormRef)
     }
-  } else {
+  } else if (validate.value) {
     console.log('create', detailData.value)
     delete detailData.value.customerName
     delete detailData.value.domainManagerName

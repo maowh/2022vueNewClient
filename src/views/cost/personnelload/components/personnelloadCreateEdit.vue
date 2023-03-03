@@ -65,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onActivated } from 'vue'
 import { costCreate, costEdit, costDisplay, costAllSelect } from '@/api/cost'
 import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
@@ -80,7 +80,10 @@ const route = useRoute()
 const router = useRouter()
 
 const rules = reactive({
-  SystemName: [{ validator: validatetext, trigger: 'blur' }]
+  SystemName: [{ validator: validatetext, trigger: 'blur' }],
+  name: [{ validator: validatetext, trigger: 'blur' }],
+  year: [{ validator: validatetext, trigger: 'blur' }],
+  load: [{ validator: validatetext, trigger: 'blur' }]
 })
 
 // 确定按钮点击事件
@@ -109,12 +112,23 @@ const getCostDisplay = async () => {
   console.log(detailData.value.year)
 }
 
-if (costInformationId) {
-  title.value = i18n.t('msg.cost.edit')
-  getCostDisplay()
-} else {
-  title.value = i18n.t('msg.cost.add')
-}
+onActivated(() => {
+  if (costInformationId) {
+    title.value = i18n.t('msg.cost.edit')
+    getCostDisplay()
+  } else {
+    title.value = i18n.t('msg.cost.add')
+  }
+})
+
+// onMounted(() => {
+//   if (costInformationId) {
+//     title.value = i18n.t('msg.cost.edit')
+//     getCostDisplay()
+//   } else {
+//     title.value = i18n.t('msg.cost.add')
+//   }
+// })
 
 // 确定按钮点击事件
 const validate = ref(false)
@@ -126,7 +140,16 @@ const onConfirm = async (ruleFormRef) => {
       validate.value = false
     }
   })
-  if (route.params.id) {
+
+  console.log(Object.keys(detailData.value).length)
+  console.log(detailData.value)
+  if (Object.keys(detailData.value).length < 6) {
+    validate.value = false
+  } else {
+    validate.value = true
+  }
+
+  if (route.params.id && validate.value) {
     delete detailData.value.SystemName
     delete detailData.value.name
 
@@ -158,7 +181,7 @@ const onConfirm = async (ruleFormRef) => {
         closed(ruleFormRef)
       }
     }
-  } else {
+  } else if (validate.value) {
     console.log('create', detailData.value)
     delete detailData.value.id
     delete detailData.value.SystemName

@@ -64,7 +64,7 @@
 <script setup>
 import { defineProps, defineEmits, ref } from 'vue'
 import { costList } from '@/api/cost'
-import { ElTable } from 'element-plus'
+import { ElTable, ElMessage } from 'element-plus'
 // import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
@@ -72,14 +72,6 @@ const props = defineProps({
     type: Boolean,
     required: true
   }
-  // tableName: {
-  //   type: String,
-  //   required: true
-  // },
-  // id: {
-  //   type: String,
-  //   required: true
-  // }
 })
 console.log(props)
 
@@ -124,39 +116,16 @@ const handleCurrentChange = (currentPage) => {
   getListData()
 }
 
-// // 当前系统信息
-// const systemInformation = ref({})
-// // 获取当前系统信息
-// const getSystemDetail = async () => {
-//   const res = await costDetail({
-//     table: 'systeminformation',
-//     id: props.id
-//   })
-//   systemInformation.value = res
-// }
-
-// 从父组件传值，当父组件传过来的userId不为空时候就获取数据库中该用户的角色
-// watch(
-//   () => props.tableName,
-//   (val) => {
-//     if (val === 'customerinformation') {
-//       title.value = i18n.t('msg.route.customerinformation')
-//       getListData()
-//     } else if (val === 'domaininformation') {
-//       title.value = i18n.t('msg.route.domaininformation')
-//       getListData()
-//     }
-//   }
-// )
-
 const emits = defineEmits(['update:modelValue', 'costSelect'])
 const onConfirm = async (row) => {
-  // ElMessage.success(i18n.t('msg.cost.selectSuccess'))
-  emits('costSelect', currentRow.value)
-  console.log(currentRow.value)
-  closed()
-
-  singleTableRef.value.setCurrentRow(row)
+  if (currentRow.value === undefined) {
+    ElMessage.warning('请选择系统信息')
+  } else {
+    emits('costSelect', currentRow.value)
+    console.log(currentRow.value)
+    closed()
+    singleTableRef.value.setCurrentRow(row)
+  }
 }
 // 关闭
 const closed = () => {

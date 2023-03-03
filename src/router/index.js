@@ -14,6 +14,7 @@ import domainInformationRouter from './modules/domainInformation'
 import coststandardRouter from './modules/coststandard'
 import personnelRouter from './modules/personnel'
 import personnelloadRouter from './modules/personnelload'
+import costsreportRouter from './modules/costsreport'
 import store from '../store'
 
 // 私有路由表
@@ -166,6 +167,7 @@ export const privateRoutes = [
   customerInformationRouter,
   domainInformationRouter,
   coststandardRouter,
+  costsreportRouter,
   personnelRouter,
   personnelloadRouter
 ]

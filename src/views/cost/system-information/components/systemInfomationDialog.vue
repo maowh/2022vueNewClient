@@ -124,17 +124,6 @@ const handleCurrentChange = (currentPage) => {
   getListData()
 }
 
-// // 当前系统信息
-// const systemInformation = ref({})
-// // 获取当前系统信息
-// const getSystemDetail = async () => {
-//   const res = await costDetail({
-//     table: 'systeminformation',
-//     id: props.id
-//   })
-//   systemInformation.value = res
-// }
-
 // 从父组件传值，当父组件传过来的userId不为空时候就获取数据库中该用户的角色
 watch(
   () => props.tableName,
@@ -151,11 +140,19 @@ watch(
 
 const emits = defineEmits(['update:modelValue', 'costSelect'])
 const onConfirm = async (row) => {
-  ElMessage.success(i18n.t('msg.cost.selectSuccess'))
-  emits('costSelect', currentRow.value)
-  closed()
+  if (currentRow.value === undefined) {
+    if (title.value === i18n.t('msg.route.customerinformation')) {
+      ElMessage.warning('请维护客户信息')
+    } else if ((title.value = i18n.t('msg.route.domaininformation'))) {
+      ElMessage.warning('请维护领域经理信息')
+    }
+  } else {
+    // ElMessage.success(i18n.t('msg.cost.selectSuccess'))
+    emits('costSelect', currentRow.value)
+    closed()
 
-  singleTableRef.value.setCurrentRow(row)
+    singleTableRef.value.setCurrentRow(row)
+  }
 }
 // 关闭
 const closed = () => {

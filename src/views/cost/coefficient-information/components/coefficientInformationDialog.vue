@@ -151,11 +151,15 @@ watch(
 
 const emits = defineEmits(['update:modelValue', 'costSelect'])
 const onConfirm = async (row) => {
-  ElMessage.success(i18n.t('msg.cost.selectSuccess'))
-  emits('costSelect', currentRow.value)
-  closed()
+  if (currentRow.value === undefined) {
+    ElMessage.warning('请选择客户信息')
+  } else {
+    // ElMessage.success(i18n.t('msg.cost.selectSuccess'))
+    emits('costSelect', currentRow.value)
+    closed()
 
-  singleTableRef.value.setCurrentRow(row)
+    singleTableRef.value.setCurrentRow(row)
+  }
 }
 // 关闭
 const closed = () => {

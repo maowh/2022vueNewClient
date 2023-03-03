@@ -297,7 +297,7 @@
           <el-button @click="onCancel(ruleFormRef)">{{
             $t('msg.universal.cancel')
           }}</el-button> -->
-          <el-button @click="onCancel()">{{
+          <el-button type="info" @click="onCancel()">{{
             $t('msg.article.back')
           }}</el-button>
         </el-form-item>
@@ -316,7 +316,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onActivated } from 'vue'
 import {
   // costCreate,
   costSingleEdit,
@@ -358,6 +358,15 @@ const i18n = useI18n()
 const title = ref()
 // const costInformationId = route.params.id
 
+// 定义费用明细是否
+const isAddMoney = ref(false)
+// 判断合计人力和合计金额
+const tmpTotalAmount = ref(0)
+const tmpTotalManpower = ref(0)
+// 统计合计人力和合计金额
+const totalAmount = ref(0)
+const totalManpower = ref(0)
+
 // 获取数据
 const detailData = ref({})
 const getCostDisplay = async (id) => {
@@ -380,11 +389,15 @@ const getCostMoneyList = async (id) => {
     table: 'outsourcingcostsmoney',
     id: id
   })
-  // moneyData.value = moneyDataTmp.value
+  totalAmount.value = 0
+  totalManpower.value = 0
+  moneyData.value.forEach((item) => {
+    totalAmount.value += item.totalAmount
+    totalManpower.value += item.totalManpower
+  })
+  // totalAmount.value = moneyData.value.totalAmount
+  // totalManpower.value = moneyData.value.totalManpower
   console.log(moneyData.value)
-  // moneyData.value = moneyData.value[0]
-  // console.log(moneyData.value)
-  // console.log(moneyData.value[0].classification)
 }
 
 // 判断是否可以编辑数据
@@ -394,21 +407,24 @@ const addIs = ref(false)
 const isEditCreatId = ref('')
 const costNew = ref('')
 const costEdit = ref('')
-// 监听当前路由
-if (route.params.id) {
-  console.log(route.params.id)
-  title.value = i18n.t('msg.cost.edit')
-  isEditCreatId.value = route.params.id
-  getCostDisplay(isEditCreatId.value)
-  getCostMoneyList(isEditCreatId.value)
-  console.log(moneyData.value)
-} else {
-  title.value = i18n.t('msg.cost.add')
-  addIs.value = true
-  if (costNew.value.insertId) {
-    isEditCreatId.value = costNew.value.insertId
+onActivated(() => {
+  // 监听当前路由
+  if (route.params.id) {
+    console.log(route.params.id)
+    title.value = i18n.t('msg.cost.edit')
+    isEditCreatId.value = route.params.id
+    getCostDisplay(isEditCreatId.value)
+    getCostMoneyList(isEditCreatId.value)
+    console.log(moneyData.value)
+  } else {
+    title.value = i18n.t('msg.cost.add')
+    addIs.value = true
+    console.log(addIs.value)
+    if (costNew.value.insertId) {
+      isEditCreatId.value = costNew.value.insertId
+    }
   }
-}
+})
 
 watch(
   () => moneyData.value,
@@ -451,22 +467,23 @@ const getCostStandard = async () => {
   console.log(CostStandard.value)
 }
 // 更新工程师费用标准后渲染费用数据
-const updateDisplay = async (row) => {
+const updateDisplay = async (totalAmount) => {
+  // console.log(row, moneyData.value)
   if (Object.keys(moneyData.value).length === 0) {
     updateDetail.reportedAmount = 0
     updateDetail.contractAmount = 0
     updateDetail.taxAmount = 0
   } else {
-    updateDetail.reportedAmount = row.totalAmount
-    updateDetail.contractAmount = row.totalAmount * 0.9
-    updateDetail.taxAmount = row.totalAmount * 0.8
+    updateDetail.reportedAmount = totalAmount
+    updateDetail.contractAmount = totalAmount * 0.9
+    updateDetail.taxAmount = totalAmount * 0.8
   }
   console.log(updateDetail.reportedAmount)
   delete updateDetail.systemId
   // updateDetail.reportedAmount = row.totalAmount
-
   delete updateDetail.year
   delete updateDetail.month
+  console.log(updateDetail)
   await costSingleEdit({
     table: 'outsourcingcosts',
     data: updateDetail
@@ -477,40 +494,16 @@ const updateDisplay = async (row) => {
 }
 getCostStandard()
 
-// 定义费用明细是否
-const isAddMoney = ref(false)
-// 判断合计人力和合计金额
-const tmpTotalAmount = ref(0)
-const tmpTotalManpower = ref(0)
-// 统计合计人力和合计金额
-const totalAmount = ref(0)
-const totalManpower = ref(0)
-
 const confirmEdit = async (row, index) => {
   row.edit = false
 
   row.originalTitle = row.title
   row.totalAmount = 0
   row.totalManpower = 0
-  // row.totalAmount =
-  //   row.systemEngineer * CostStandard.value.systemEngineer +
-  //   row.seniorSap * CostStandard.value.seniorSap +
-  //   row.seniorSoftwareEngineer * CostStandard.value.seniorSoftwareEngineer +
-  //   row.dbaEngineer * CostStandard.value.dbaEngineer +
-  //   row.seniorSystemEngineer * CostStandard.value.seniorSystemEngineer +
-  //   row.intermediateSap * CostStandard.value.intermediateSap +
-  //   row.seniorDbaEngineer * CostStandard.value.seniorDbaEngineer +
-  //   row.softwareEngineer * CostStandard.value.softwareEngineer
-  // row.totalManpower =
-  //   Number(row.systemEngineer) +
-  //   Number(row.seniorSap) +
-  //   Number(row.seniorSoftwareEngineer) +
-  //   Number(row.dbaEngineer) +
-  //   Number(row.seniorSystemEngineer) +
-  //   Number(row.intermediateSap) +
-  //   Number(row.seniorDbaEngineer) +
-  //   Number(row.softwareEngineer)
   delete row.edit
+  updateDetail.id = isEditCreatId.value
+
+  totalAmount.value = 0
 
   for (let index = 0; index < moneyData.value.length; index++) {
     // const element = moneyData.value[index]
@@ -529,11 +522,11 @@ const confirmEdit = async (row, index) => {
         CostStandard.value.seniorDbaEngineer +
       moneyData.value[index].softwareEngineer *
         CostStandard.value.softwareEngineer
-    if (index === 0) {
-      tmpTotalAmount.value = row.totalAmount
-    } else {
-      row.totalAmount = tmpTotalAmount.value + row.totalAmount
-    }
+    // if (index === 0) {
+    //   tmpTotalAmount.value = totalAmount.value
+    // } else {
+    //   totalAmount.value = tmpTotalAmount.value + totalAmount.value
+    // }
     row.totalManpower =
       Number(moneyData.value[index].systemEngineer) +
       Number(moneyData.value[index].seniorSap) +
@@ -543,15 +536,15 @@ const confirmEdit = async (row, index) => {
       Number(moneyData.value[index].intermediateSap) +
       Number(moneyData.value[index].seniorDbaEngineer) +
       Number(moneyData.value[index].softwareEngineer)
-    if (index === 0) {
-      tmpTotalManpower.value = row.totalManpower
-    } else {
-      row.totalManpower = tmpTotalManpower.value + row.totalManpower
-    }
+    // if (index === 0) {
+    //   tmpTotalManpower.value = totalManpower.value
+    // } else {
+    //   totalManpower.value = tmpTotalManpower.value + totalManpower.value
+    // }
     console.log(row.totalAmount, row.totalManpower)
   }
-  totalAmount.value = row.totalAmount
-  totalManpower.value = row.totalManpower
+  // totalAmount.value = row.totalAmount
+  // totalManpower.value = row.totalManpower
 
   // tmp判断是否包含2个相同的分类
   const tmp = ref(0)
@@ -563,7 +556,7 @@ const confirmEdit = async (row, index) => {
   console.log(tmp.value)
   // rowCount.value = moneyData.value
   // 编辑
-  console.log(row.classification)
+  console.log(moneyData.value)
   if (!isAddMoney.value && row.classification !== undefined && tmp.value < 2) {
     delete row.outsourcingCostsId
     console.log(row)
@@ -572,9 +565,17 @@ const confirmEdit = async (row, index) => {
       data: row
     })
     console.log(moneyDataUpdate)
-    updateDisplay(row)
+
+    moneyData.value.forEach((item) => {
+      totalAmount.value += item.totalAmount
+    })
+    updateDisplay(totalAmount.value)
     // 新增
-  } else if (isAddMoney.value && row.classification !== '' && tmp.value < 2) {
+  } else if (
+    isAddMoney.value &&
+    row.classification !== undefined &&
+    tmp.value < 2
+  ) {
     delete row.id
     console.log(row)
     // rowCount.value.push(row)
@@ -583,7 +584,10 @@ const confirmEdit = async (row, index) => {
       data: row
     })
     console.log(moneyDataAdd)
-    updateDisplay(row)
+    moneyData.value.forEach((item) => {
+      totalAmount.value += item.totalAmount
+    })
+    updateDisplay(totalAmount.value)
     // ElMessage.success(moneyDataAdd)
   } else {
     ElMessage.error('系统分类不能为空并且不能重复')
@@ -594,11 +598,6 @@ const confirmEdit = async (row, index) => {
   if (moneyData.value.length > 1) {
     addIs.value = true
   }
-  // if (rowCount.value.length > 2) {
-  //   addIs.value = true
-  // } else {
-  //   addIs.value = false
-  // }
 }
 
 const confirmAdd = async () => {
@@ -676,7 +675,6 @@ const confirmDel = (row) => {
               }
               console.log(row.totalAmount, row.totalManpower)
             }
-            console.log()
             totalAmount.value = row.totalAmount
             totalManpower.value = row.totalManpower
           } else {
@@ -720,30 +718,6 @@ const getCostSelect = async (item) => {
       updateDetail.systemId = item.id
       detailData.value.SystemName = item.SystemName
       console.log('新增')
-      // delete updateDetail.id
-      // console.log(updateDetail.year, updateDetail.month)
-      // // updateDetail.year = dayjs().format('YYYY')
-      // // updateDetail.month = dayjs().format('MM')
-      // delete updateDetail.reportedAmount
-      // delete updateDetail.contractAmount
-      // delete updateDetail.taxAmount
-      // costNew.value = await costCreateSingle({
-      //   table: 'outsourcingcosts',
-      //   data: updateDetail
-      // })
-      // console.log(costNew.value)
-      // if (costNew.value !== '数据已存在不能重复') {
-      //   console.log(0)
-      //   addIs.value = false
-      //   isEditCreatId.value = costNew.value.insertId
-      //   getCostDisplay(isEditCreatId.value)
-      // } else {
-      //   ElMessage.error(costNew.value)
-      // }
-      // // console.log(costNew.value)
-      // // getCostDisplay(costNew.value.insertId)
-      // // detailData.value = dayjs().format('YYYY')
-      // // detailData.value = dayjs().format('MM')
     } else {
       updateDetail.systemId = item.id
       detailData.value.SystemName = item.SystemName
@@ -789,9 +763,9 @@ const pickerSelect = async (val) => {
       })
       console.log(costNew.value)
       if (costNew.value !== '数据已存在不能重复') {
-        console.log(0)
         addIs.value = false
         isEditCreatId.value = costNew.value.insertId
+        console.log(costNew.value, isEditCreatId.value)
         getCostDisplay(isEditCreatId.value)
       } else {
         ElMessage.error(costNew.value)
