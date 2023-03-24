@@ -1,6 +1,6 @@
 <template>
   <el-dialog :title="title" :model-value="modelValue">
-    <div v-if="props.tableName === 'domaininformation'">
+    <div v-if="props.tableName === 'systeminformation'">
       <el-table
         ref="singleTableRef"
         :data="tableData"
@@ -9,24 +9,12 @@
       >
         <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
         <el-table-column
-          prop="businessDivision"
-          :label="$t('msg.cost.businessDivision')"
-        ></el-table-column>
-        <el-table-column
-          prop="businessLines"
-          :label="$t('msg.cost.businessLines')"
-        ></el-table-column>
-        <el-table-column
-          prop="domain"
-          :label="$t('msg.cost.domain')"
-        ></el-table-column>
-        <el-table-column
-          prop="domainManager"
-          :label="$t('msg.cost.domainManager')"
+          prop="SystemName"
+          :label="$t('msg.cost.SystemName')"
         ></el-table-column>
       </el-table>
     </div>
-    <div v-else-if="props.tableName === 'customerinformation'">
+    <div v-else-if="props.tableName === 'personnel'">
       <el-table
         ref="singleTableRef"
         :data="tableData"
@@ -35,8 +23,8 @@
       >
         <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
         <el-table-column
-          prop="customer"
-          :label="$t('msg.cost.customerName')"
+          prop="name"
+          :label="$t('msg.cost.name')"
         ></el-table-column>
       </el-table>
     </div>
@@ -128,11 +116,15 @@ const handleCurrentChange = (currentPage) => {
 watch(
   () => props.tableName,
   (val) => {
-    if (val === 'customerinformation') {
-      title.value = i18n.t('msg.route.customerinformation')
+    // if (val === 'systeminformation') {
+    //   title.value = i18n.t('msg.route.systemInfomationList')
+    //   // getListData()
+    // }
+    if (val === 'systeminformation') {
+      title.value = i18n.t('msg.route.systemInfomationList')
       getListData()
-    } else if (val === 'domaininformation') {
-      title.value = i18n.t('msg.route.domaininformation')
+    } else if (val === 'personnel') {
+      title.value = i18n.t('msg.route.personnel')
       getListData()
     }
   }
@@ -141,12 +133,15 @@ watch(
 const emits = defineEmits(['update:modelValue', 'costSelect'])
 const onConfirm = async (row) => {
   if (currentRow.value === undefined) {
-    ElMessage.warning('请选择客户信息')
+    if (title.value === i18n.t('msg.route.personnel')) {
+      ElMessage.warning('请维护人员信息')
+    } else if ((title.value = i18n.t('msg.route.systemInfomationList'))) {
+      ElMessage.warning('请维系统信息')
+    }
   } else {
     // ElMessage.success(i18n.t('msg.cost.selectSuccess'))
     emits('costSelect', currentRow.value)
     closed()
-
     singleTableRef.value.setCurrentRow(row)
   }
 }

@@ -27,11 +27,21 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, watch, reactive } from 'vue'
+import {
+  defineProps,
+  defineEmits,
+  ref,
+  watch,
+  reactive
+  // onActivated
+} from 'vue'
 import { costDetail, costCreate, costEdit } from '@/api/cost'
 import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
+// import { userName, currentTime } from '@/utils/userTime.js'
+import store from '@/store'
+import dayjs from 'dayjs'
 
 const props = defineProps({
   modelValue: {
@@ -65,6 +75,7 @@ const getCostDetail = async () => {
   })
   detailData.value = res
 }
+
 // 从父组件传值，当父组件传过来的userId不为空时候就获取数据库中该用户的角色
 watch(
   () => props.id,
@@ -93,6 +104,8 @@ const onConfirm = async (ruleFormRef) => {
     }
   })
   if (props.id && validate.value) {
+    detailData.value.updateUser = store.getters.userInfo.username
+    detailData.value.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataUpdate = await costEdit({
       table: 'customerinformation',
       data: detailData
@@ -109,6 +122,8 @@ const onConfirm = async (ruleFormRef) => {
       closed(ruleFormRef)
     }
   } else if (validate.value) {
+    detailData.value.createUser = store.getters.userInfo.username
+    detailData.value.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     if (detailData.value.customer !== null) {
       const dataCreate = await costCreate({
         table: 'customerinformation',

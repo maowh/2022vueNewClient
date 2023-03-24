@@ -10,44 +10,26 @@
         <!-- <el-table-column label="#" type="index"></el-table-column> -->
         <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
         <el-table-column
-          prop="systemEngineer"
-          :label="$t('msg.cost.systemEngineer')"
+          prop="customer"
+          :label="$t('msg.cost.customerName')"
         ></el-table-column>
         <el-table-column
-          prop="seniorSystemEngineer"
-          :label="$t('msg.cost.seniorSystemEngineer')"
-        ></el-table-column>
-        <el-table-column
-          prop="dbaEngineer"
-          :label="$t('msg.cost.dbaEngineer')"
-        ></el-table-column>
-        <el-table-column
-          prop="seniorDbaEngineer"
-          :label="$t('msg.cost.seniorDbaEngineer')"
-        ></el-table-column>
-        <el-table-column
-          prop="softwareEngineer"
-          :label="$t('msg.cost.softwareEngineer')"
-        ></el-table-column>
-        <el-table-column
-          prop="seniorSoftwareEngineer"
-          :label="$t('msg.cost.seniorSoftwareEngineer')"
-        ></el-table-column>
-        <el-table-column
-          prop="intermediateSap"
-          :label="$t('msg.cost.intermediateSap')"
-        ></el-table-column>
-        <el-table-column
-          prop="seniorSap"
-          :label="$t('msg.cost.seniorSap')"
+          prop="year"
+          :label="$t('msg.cost.year')"
         ></el-table-column>
         <el-table-column
           :label="$t('msg.cost.action')"
           fixed="right"
-          width="160"
+          width="260"
         >
           <template #default="{ row }">
-            <el-button type="info" size="mini" @click="onEditClick(row)">{{
+            <el-button
+              type="primary"
+              size="mini"
+              @click="onShowClick(row.id)"
+              >{{ $t('msg.cost.show') }}</el-button
+            >
+            <el-button type="info" size="mini" @click="onEditClick(row.id)">{{
               $t('msg.cost.edit')
             }}</el-button>
             <el-button type="danger" size="mini" @click="onRemoveClick(row)">{{
@@ -69,24 +51,25 @@
       </el-pagination>
     </el-card>
     <!-- v-model进行双向数据绑定，roleDialogVisible将值传给子组件同时也接收子组件传过来的数据 -->
-    <coststandardDialog
+    <!-- <coststandardDialog
       v-model="classificationDialogVisible"
       :id="selectId"
       @updateList="getListData"
-    ></coststandardDialog>
+    ></coststandardDialog> -->
   </div>
 </template>
 
 <script setup>
 import { ref, onActivated, watch } from 'vue'
-import { costList, costDel } from '@/api/cost'
-// import { useRouter } from 'vue-router'
+import { costListDisplay, costDel } from '@/api/cost'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import coststandardDialog from './components/coststandardDialog.vue'
+// import coststandardDialog from './components/coststandardDialog1.vue'
 
 // const router = useRouter()
 const i18n = useI18n()
+const router = useRouter()
 // 数据相关
 const tableData = ref([])
 const total = ref(0)
@@ -94,11 +77,12 @@ const page = ref(1)
 const size = ref(5)
 // 获取数据的方法
 const getListData = async () => {
-  const result = await costList({
+  const result = await costListDisplay({
     table: 'coststandard',
     page: page.value,
     size: size.value
   })
+  console.log(result)
   tableData.value = result.list
   total.value = result.total
 }
@@ -143,20 +127,19 @@ watch(classificationDialogVisible, (val) => {
   if (!val) selectId.value = ''
 })
 
-// const onShowClick = (id) => {
-//   console.log(id)
-//   router.push(`/user/info/${id}`)
-// }
+const onShowClick = (id) => {
+  router.push(`/basics/coststandardInfo/${id}`)
+}
 
 // 新增记录
 const onAddClick = () => {
-  classificationDialogVisible.value = true
-  // console.log('selectId.value')
+  // const id = ''
+  // console.log(id)
+  router.push('/basics/coststandardCreate')
 }
 // 编辑记录
-const onEditClick = (row) => {
-  classificationDialogVisible.value = true
-  selectId.value = row.id
+const onEditClick = (id) => {
+  router.push(`/basics/coststandardEdit/${id}`)
 }
 </script>
 

@@ -6,15 +6,11 @@ export function isExternal(path) {
 }
 
 export const validatetext = (rule, value, callback) => {
-  console.log(value)
   if (!value || value === '') {
     callback(new Error('请输入内容'))
-    console.log('请输入内容')
   } else if (value.length > 50) {
     callback(new Error('输入内容需要小于50个字符'))
-    console.log('输入内容需要小于50个字符')
   } else {
     callback()
-    console.log('符合要求')
   }
 }

@@ -19,9 +19,6 @@
           <el-descriptions-item :label="$t('msg.cost.year')">{{
             detailData.year
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.month')">{{
-            detailData.month
-          }}</el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.businessDivision')">{{
             detailData.businessDivision
           }}</el-descriptions-item>
@@ -122,7 +119,7 @@ const router = useRouter()
 const detailData = ref({})
 const getCostDisplay = async () => {
   detailData.value = await costDisplay({
-    table: 'outsourcingcosts',
+    table: 'outsourcingcostsplan',
     id: route.params.id
   })
   detailData.value = detailData.value[0]
@@ -147,18 +144,14 @@ const getCostMoneyList = async () => {
       totalManpower.value = item[0].totalManpower
     }
   })
-  // console.log(moneyData.value.length, moneyData.value)
-  // moneyData.value = moneyData.value[0]
-  // console.log(moneyData.value)
-  // console.log(moneyData.value[0].classification)
 }
 getCostMoneyList()
 
 const onBackClick = () => {
-  router.push('/outsourcing/manage')
+  router.push('/outsourcing/outsourcingplan')
 }
 const onEditClick = () => {
-  router.push(`/outsourcing/outsourcingEdit/${route.params.id}`)
+  router.push(`/outsourcing/outsourcingplanEdit/${route.params.id}`)
 }
 </script>
 

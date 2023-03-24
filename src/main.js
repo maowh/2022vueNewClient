@@ -16,8 +16,14 @@ import i18n from './i18n'
 import installFilter from '@/filters'
 // 导入打印指令
 import installDirective from '@/directives'
+// 引入图表
+import * as echarts from 'echarts'
 
 const app = createApp(App)
+
+// vue3 给原型上挂载属性
+app.config.globalProperties.$echarts = echarts
+
 Object.keys(Icons).forEach((key) => {
   app.component(key, Icons[key])
 })

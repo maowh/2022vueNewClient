@@ -7,6 +7,7 @@ import RoleListRouter from './modules/RoleList'
 import userManageRouter from './modules/userManage'
 // import classificationInformationRouter from './modules/classificationInformation'
 import outsourcingCostsRouter from './modules/outsourcingCosts'
+import outsourcingPlanRouter from './modules/outsourcing-costsplan'
 import systemInfomationRouter from './modules/systemInfomation'
 import coefficientInformationRouter from './modules/coefficientInformation'
 import customerInformationRouter from './modules/customerInformation'
@@ -15,6 +16,7 @@ import coststandardRouter from './modules/coststandard'
 import personnelRouter from './modules/personnel'
 import personnelloadRouter from './modules/personnelload'
 import costsreportRouter from './modules/costsreport'
+import costsChartRouter from './modules/costschart'
 import store from '../store'
 
 // 私有路由表
@@ -162,14 +164,17 @@ export const privateRoutes = [
   ArticleRouter,
   // classificationInformationRouter,
   systemInfomationRouter,
-  outsourcingCostsRouter,
   coefficientInformationRouter,
   customerInformationRouter,
   domainInformationRouter,
   coststandardRouter,
-  costsreportRouter,
   personnelRouter,
-  personnelloadRouter
+
+  outsourcingCostsRouter,
+  outsourcingPlanRouter,
+  personnelloadRouter,
+  costsreportRouter,
+  costsChartRouter
 ]
 
 // 初始化路由表

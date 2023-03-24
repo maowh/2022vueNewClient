@@ -75,13 +75,13 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12" :offset="0">
-            <el-form-item :label="$t('msg.cost.month')">
+            <el-form-item :label="$t('msg.cost.year')">
               <el-date-picker
                 clear-icon="CircleClose"
                 v-model="yearMonth"
-                type="month"
+                type="year"
                 @change="pickerSelect($event)"
-                placeholder="请选择年份月度"
+                placeholder="请选择年份"
               /> </el-form-item
           ></el-col>
           <el-col :span="12" :offset="0">
@@ -135,7 +135,6 @@
                         :value="item.label"
                       />
                     </el-select>
-                    <!-- <el-input v-model="row.classification" /> -->
                   </template>
                   <span @dblclick="row.edit = !row.edit" v-else>{{
                     row.classification
@@ -260,11 +259,6 @@
         <el-row :gutter="20">
           <el-col :span="18" :offset="0">
             <el-descriptions direction="vertical" :column="3" border>
-              <!-- <el-descriptions-item :label="$t('msg.cost.classificationName')">
-                <div v-if="moneyData[0]">
-                  {{ moneyData[0].classification }}
-                </div>
-              </el-descriptions-item> -->
               <el-descriptions-item :label="$t('msg.cost.totalAmount')">
                 <div v-if="totalAmount">
                   {{ totalAmount }}
@@ -297,12 +291,12 @@
         </el-form-item>
       </el-form>
 
-      <outsourcingDialog
+      <outsourcingplanDialog
         v-model="systemInformationVisible"
         :id="selectId"
         @costSelect="getCostSelect"
       >
-      </outsourcingDialog>
+      </outsourcingplanDialog>
     </div>
     <!-- </el-card> -->
   </div>
@@ -323,7 +317,7 @@ import { ElMessage, ElMessageBox, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
 import { useRoute, useRouter } from 'vue-router'
-import outsourcingDialog from './outsourcingDialog.vue'
+import outsourcingplanDialog from './outsourcingplanDialog.vue'
 import dayjs from 'dayjs'
 import store from '@/store'
 
@@ -351,7 +345,6 @@ const options = [
 // 确定按钮点击事件
 const i18n = useI18n()
 const title = ref()
-// const costInformationId = route.params.id
 
 // 定义费用明细是否
 const isAddMoney = ref(false)
@@ -366,17 +359,14 @@ const totalManpower = ref(0)
 const detailData = ref({})
 const getCostDisplay = async (id) => {
   await costDisplay({
-    table: 'outsourcingcosts',
+    table: 'outsourcingcostsplan',
     id: id
   }).then((res) => {
     detailData.value = res[0]
     getCostStandard()
     getCostCoefficient()
   })
-  // detailData.value = detailData.value[0]
-  yearMonth.value = dayjs()
-    .set('year', detailData.value.year)
-    .set('month', detailData.value.month - 1)
+  yearMonth.value = dayjs().set('year', detailData.value.year)
 }
 
 // 定义费用变量
@@ -447,14 +437,9 @@ const updateDetail = {
   id: isEditCreatId.value,
   systemId: 0,
   year: '',
-  month: '',
   reportedAmount: 0,
   contractAmount: 0,
-  taxAmount: 0,
-  updateUser: '',
-  updateTime: '',
-  createUser: '',
-  createTime: ''
+  taxAmount: 0
 }
 
 // 根据客户和年份获取费用标准信息
@@ -509,12 +494,10 @@ const updateDisplay = async (totalAmount) => {
   delete updateDetail.systemId
   // updateDetail.reportedAmount = row.totalAmount
   delete updateDetail.year
-  delete updateDetail.month
+  // delete updateDetail.month
   console.log(updateDetail)
-  updateDetail.updateUser = store.getters.userInfo.username
-  updateDetail.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
   await costSingleEdit({
-    table: 'outsourcingcosts',
+    table: 'outsourcingcostsplan',
     data: updateDetail
   })
 
@@ -525,6 +508,14 @@ const updateDisplay = async (totalAmount) => {
 const confirmEdit = async (row, index) => {
   // getCostStandard()
   // getCostCoefficient()
+  console.log(
+    'detailData',
+    detailData.value,
+    'CostStandard',
+    CostStandard.value,
+    'costCoefficient',
+    costCoefficient.value
+  )
   if (
     CostStandard.value === undefined ||
     costCoefficient.value === undefined ||
@@ -594,6 +585,8 @@ const confirmEdit = async (row, index) => {
       tmp.value < 2
     ) {
       delete row.outsourcingCostsPlanId
+      delete row.outsourcingCostsId
+
       row.updateUser = store.getters.userInfo.username
       row.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
       console.log(row)
@@ -614,10 +607,10 @@ const confirmEdit = async (row, index) => {
       tmp.value < 2
     ) {
       delete row.id
-      console.log(row)
       // rowCount.value.push(row)
       row.createUser = store.getters.userInfo.username
       row.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
+      console.log(row)
       const moneyDataAdd = await costCreateSingle({
         table: 'outsourcingcostsmoney',
         data: row
@@ -651,11 +644,7 @@ const confirmAdd = async () => {
     intermediateSap: 0,
     seniorDbaEngineer: 0,
     softwareEngineer: 0,
-    outsourcingCostsId: isEditCreatId.value,
-    updateUser: '',
-    updateTime: '',
-    createUser: '',
-    createTime: ''
+    outsourcingCostsPlanId: isEditCreatId.value
   }
   moneyData.value.push(row)
   row.edit = true
@@ -737,14 +726,17 @@ const confirmDel = (row) => {
 const onCancel = () => {
   // closed(ruleFormRef)
   detailData.value = {}
-  router.push('/outsourcing/manage')
+  router.push('/outsourcing/outsourcingplan')
 }
 
 // 弹出窗口
 const systemInformationVisible = ref(false)
+// const tableName = ref('')
 
 const systemDialogClick = () => {
   systemInformationVisible.value = true
+  // tableName.value = 'customerinformation'
+  // selectId.value = route.params.id
 }
 
 const selectId = ref('')
@@ -768,13 +760,12 @@ const getCostSelect = async (item) => {
       // delete updateDetail.year
       // delete updateDetail.month
       updateDetail.year = dayjs(yearMonth.value).format('YYYY')
-      updateDetail.month = dayjs(yearMonth.value).format('MM')
       delete updateDetail.reportedAmount
       delete updateDetail.contractAmount
       delete updateDetail.taxAmount
 
       costEdit.value = await costSingleEdit({
-        table: 'outsourcingcosts',
+        table: 'outsourcingcostsplan',
         data: updateDetail
       })
       if (costEdit.value !== '数据已存在不能重复') {
@@ -794,14 +785,13 @@ const pickerSelect = async (val) => {
   if (!route.params.id && !detailData.value.id) {
     if (updateDetail.systemId) {
       delete updateDetail.id
-      console.log(updateDetail.year, updateDetail.month)
       updateDetail.year = dayjs(val).format('YYYY')
-      updateDetail.month = dayjs(val).format('MM')
+      // updateDetail.month = dayjs(val).format('MM')
       delete updateDetail.reportedAmount
       delete updateDetail.contractAmount
       delete updateDetail.taxAmount
       costNew.value = await costCreateSingle({
-        table: 'outsourcingcosts',
+        table: 'outsourcingcostsplan',
         data: updateDetail
       })
       console.log(costNew.value)
@@ -819,17 +809,17 @@ const pickerSelect = async (val) => {
     }
   } else {
     updateDetail.year = dayjs(val).format('YYYY')
-    updateDetail.month = dayjs(val).format('MM')
+    // updateDetail.month = dayjs(val).format('MM')
     updateDetail.systemId = detailData.value.systemId
+    // detailData.value.SystemName = item.SystemName
+    // delete updateDetail.systemId
     delete updateDetail.reportedAmount
     delete updateDetail.contractAmount
     delete updateDetail.taxAmount
     updateDetail.id = isEditCreatId.value
     console.log(updateDetail)
-    updateDetail.updateUser = store.getters.userInfo.username
-    updateDetail.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     costEdit.value = await costSingleEdit({
-      table: 'outsourcingcosts',
+      table: 'outsourcingcostsplan',
       data: updateDetail
     })
     if (costEdit.value !== '数据已存在不能重复') {

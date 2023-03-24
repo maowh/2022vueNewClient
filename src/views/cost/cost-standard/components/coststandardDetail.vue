@@ -6,24 +6,37 @@
 
       <div class="header">
         <!-- 头部渲染表格 -->
-        <el-descriptions :column="1" border>
-          <el-descriptions-item :label="$t('msg.cost.id')">{{
-            detailData.id
-          }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.name')">{{
-            detailData.name
+        <el-descriptions :column="2" border>
+          <el-descriptions-item :label="$t('msg.cost.customerName')">{{
+            detailData.customer
           }}</el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.year')">{{
             detailData.year
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.month')">{{
-            detailData.month
+          <el-descriptions-item :label="$t('msg.cost.softwareEngineer')">{{
+            detailData.softwareEngineer
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.SystemName')">{{
-            detailData.SystemName
+          <el-descriptions-item
+            :label="$t('msg.cost.seniorSoftwareEngineer')"
+            >{{ detailData.seniorSoftwareEngineer }}</el-descriptions-item
+          >
+          <el-descriptions-item :label="$t('msg.cost.systemEngineer')">{{
+            detailData.systemEngineer
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.load')">{{
-            detailData.load
+          <el-descriptions-item :label="$t('msg.cost.seniorSystemEngineer')">{{
+            detailData.seniorSystemEngineer
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.dbaEngineer')">{{
+            detailData.dbaEngineer
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.seniorDbaEngineer')">{{
+            detailData.seniorDbaEngineer
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.seniorSap')">{{
+            detailData.seniorSap
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.intermediateSap')">{{
+            detailData.intermediateSap
           }}</el-descriptions-item>
         </el-descriptions>
       </div>
@@ -53,7 +66,7 @@ const router = useRouter()
 const detailData = ref({})
 const getCostDisplay = async () => {
   detailData.value = await costDisplay({
-    table: 'personnelload',
+    table: 'coststandard',
     id: route.params.id
   })
   detailData.value = detailData.value[0]
@@ -61,10 +74,11 @@ const getCostDisplay = async () => {
 getCostDisplay()
 
 const onBackClick = () => {
-  router.push('/outsourcing/personnelload')
+  router.push('/basics/coststandard')
 }
 const onEditClick = () => {
-  router.push(`/outsourcing/personnelloadEdit/${route.params.id}`)
+  router.push(`/basics/coststandardEdit/${route.params.id}`)
+  // router.push(`/basics/coefficientInformationCreateEdit/${route.params.id}`)
 }
 </script>
 

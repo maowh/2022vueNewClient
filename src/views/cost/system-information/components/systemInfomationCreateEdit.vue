@@ -73,6 +73,8 @@ import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
 import { useRoute, useRouter } from 'vue-router'
 import SystemInfomationDialog from './systemInfomationDialog.vue'
+import dayjs from 'dayjs'
+import store from '@/store'
 
 const formSize = ref('default')
 const ruleFormRef = ref(FormInstance)
@@ -119,8 +121,6 @@ const onConfirm = async (ruleFormRef) => {
       validate.value = false
     }
   })
-  console.log(Object.keys(detailData.value).length)
-  console.log(detailData.value)
   if (Object.keys(detailData.value).length < 5) {
     validate.value = false
   } else {
@@ -132,6 +132,8 @@ const onConfirm = async (ruleFormRef) => {
     // detailData.value.SystemName = detailData.value.SystemName
     // detailData.value.id = route.params.id
     console.log('edit', detailData.value)
+    detailData.value.updateUser = store.getters.userInfo.username
+    detailData.value.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataUpdate = await costEdit({
       table: 'systeminformation',
       data: detailData
@@ -149,6 +151,8 @@ const onConfirm = async (ruleFormRef) => {
     console.log('create', detailData.value)
     delete detailData.value.customerName
     delete detailData.value.domainManagerName
+    detailData.value.createUser = store.getters.userInfo.username
+    detailData.value.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataCreate = await costCreate({
       table: 'systeminformation',
       data: detailData
@@ -203,11 +207,9 @@ const getCostSelect = (item) => {
     if (item.domainManager) {
       detailData.value.domainManagerId = item.id
       detailData.value.domainManagerName = item.domainManager
-      console.log('domainManager', detailData.value, item)
     } else {
       detailData.value.customerId = item.id
       detailData.value.customerName = item.customer
-      console.log('customer', detailData.value, item)
     }
   }
 }

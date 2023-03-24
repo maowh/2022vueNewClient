@@ -38,6 +38,8 @@ import { costDetail, costCreate, costEdit } from '@/api/cost'
 import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
+import store from '@/store'
+import dayjs from 'dayjs'
 
 const props = defineProps({
   modelValue: {
@@ -100,6 +102,8 @@ const onConfirm = async (ruleFormRef) => {
     }
   })
   if (props.id && validate.value) {
+    classification.value.updateUser = store.getters.userInfo.username
+    classification.value.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataUpdate = await costEdit({
       table: 'classificationinformation',
       data: classification
@@ -116,6 +120,8 @@ const onConfirm = async (ruleFormRef) => {
       closed(ruleFormRef)
     }
   } else if (validate.value) {
+    classification.value.createUser = store.getters.userInfo.username
+    classification.value.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataCreate = await costCreate({
       table: 'classificationinformation',
       data: classification

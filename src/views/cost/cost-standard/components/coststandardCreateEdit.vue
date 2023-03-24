@@ -13,33 +13,99 @@
         :size="formSize"
         status-icon
       >
-        <el-form-item :label="$t('msg.cost.id')" prop="id">
-          <el-input disabled v-model="detailData.id" />
-        </el-form-item>
-        <el-form-item :label="$t('msg.cost.customerName')" prop="customer">
-          <el-input @click="customerDialogClick" v-model="detailData.customer">
-            <template #suffix
-              ><el-icon style="margin-right: 10px"><Search /></el-icon
-            ></template>
-          </el-input>
-        </el-form-item>
-        <el-form-item
-          :label="$t('msg.cost.contractPrice')"
-          prop="contractPrice"
-        >
-          <el-input v-model="detailData.contractPrice" />
-        </el-form-item>
-        <el-form-item :label="$t('msg.cost.taxIncluded')" prop="taxIncluded">
-          <el-input v-model="detailData.taxIncluded" />
-        </el-form-item>
-        <el-form-item :label="$t('msg.cost.year')" prop="year">
-          <el-date-picker
-            v-model="detailData.year"
-            clear-icon="CircleClose"
-            @change="pickerSelect($event)"
-            type="year"
-          />
-        </el-form-item>
+        <el-row :gutter="20">
+          <el-col :span="12" :offset="0">
+            <el-form-item :label="$t('msg.cost.customerName')" prop="customer">
+              <el-input
+                @click="customerDialogClick"
+                v-model="detailData.customer"
+              >
+                <template #suffix
+                  ><el-icon style="margin-right: 10px"><Search /></el-icon
+                ></template>
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" :offset="0">
+            <el-form-item :label="$t('msg.cost.year')" prop="year">
+              <el-date-picker
+                v-model="detailData.year"
+                clear-icon="CircleClose"
+                @change="pickerSelect($event)"
+                type="year"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12" :offset="0">
+            <el-form-item
+              :label="$t('msg.cost.softwareEngineer')"
+              prop="softwareEngineer"
+            >
+              <el-input v-model="detailData.softwareEngineer" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" :offset="0">
+            <el-form-item
+              :label="$t('msg.cost.seniorSoftwareEngineer')"
+              prop="seniorSoftwareEngineer"
+            >
+              <el-input v-model="detailData.seniorSoftwareEngineer" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12" :offset="0">
+            <el-form-item
+              :label="$t('msg.cost.systemEngineer')"
+              prop="systemEngineer"
+            >
+              <el-input v-model="detailData.systemEngineer" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" :offset="0">
+            <el-form-item
+              :label="$t('msg.cost.seniorSystemEngineer')"
+              prop="seniorSystemEngineer"
+            >
+              <el-input v-model="detailData.seniorSystemEngineer" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12" :offset="0">
+            <el-form-item
+              :label="$t('msg.cost.dbaEngineer')"
+              prop="dbaEngineer"
+            >
+              <el-input v-model="detailData.dbaEngineer" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" :offset="0">
+            <el-form-item
+              :label="$t('msg.cost.seniorDbaEngineer')"
+              prop="seniorDbaEngineer"
+            >
+              <el-input v-model="detailData.seniorDbaEngineer" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12" :offset="0">
+            <el-form-item :label="$t('msg.cost.seniorSap')" prop="seniorSap">
+              <el-input v-model="detailData.seniorSap" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" :offset="0">
+            <el-form-item
+              :label="$t('msg.cost.intermediateSap')"
+              prop="intermediateSap"
+            >
+              <el-input v-model="detailData.intermediateSap" />
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item>
           <el-button type="primary" @click="onConfirm(ruleFormRef)">{{
             $t('msg.universal.confirm')
@@ -50,13 +116,13 @@
         </el-form-item>
       </el-form>
 
-      <CoefficientInformationDialog
+      <CoststandardDialog
         v-model="systemInformationVisible"
         :tableName="tableName"
         :id="selectId"
         @costSelect="getCostSelect"
       >
-      </CoefficientInformationDialog>
+      </CoststandardDialog>
     </div>
     <!-- </el-card> -->
   </div>
@@ -70,7 +136,7 @@ import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
 import { useRoute, useRouter } from 'vue-router'
-import CoefficientInformationDialog from './coefficientInformationDialog.vue'
+import CoststandardDialog from './coststandardDialog.vue'
 import dayjs from 'dayjs'
 import store from '@/store'
 
@@ -80,8 +146,14 @@ const route = useRoute()
 const router = useRouter()
 
 const rules = reactive({
-  taxIncluded: [{ validator: validatetext, trigger: 'blur' }],
-  contractPrice: [{ validator: validatetext, trigger: 'blur' }],
+  systemEngineer: [{ validator: validatetext, trigger: 'blur' }],
+  seniorSystemEngineer: [{ validator: validatetext, trigger: 'blur' }],
+  dbaEngineer: [{ validator: validatetext, trigger: 'blur' }],
+  seniorDbaEngineer: [{ validator: validatetext, trigger: 'blur' }],
+  softwareEngineer: [{ validator: validatetext, trigger: 'blur' }],
+  seniorSoftwareEngineer: [{ validator: validatetext, trigger: 'blur' }],
+  intermediateSap: [{ validator: validatetext, trigger: 'blur' }],
+  seniorSap: [{ validator: validatetext, trigger: 'blur' }],
   customer: [{ validator: validatetext, trigger: 'blur' }],
   year: [{ validator: validatetext, trigger: 'blur' }]
 })
@@ -95,7 +167,7 @@ const costInformationId = route.params.id
 const detailData = ref({})
 const getCostDisplay = async () => {
   detailData.value = await costDisplay({
-    table: 'coefficientinformation',
+    table: 'coststandard',
     id: route.params.id
   })
   detailData.value = detailData.value[0]
@@ -132,11 +204,11 @@ const onConfirm = async (ruleFormRef) => {
   console.log(validate.value, detailData.value)
   if (route.params.id && validate.value) {
     delete detailData.value.customer
+    console.log('edit', detailData.value)
     detailData.value.updateUser = store.getters.userInfo.username
     detailData.value.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
-    console.log('edit', detailData.value)
     const dataUpdate = await costEdit({
-      table: 'coefficientinformation',
+      table: 'coststandard',
       data: detailData
     })
     if (dataUpdate === '更新数据成功') {
@@ -151,11 +223,11 @@ const onConfirm = async (ruleFormRef) => {
   } else if (validate.value) {
     console.log('create', detailData.value)
     delete detailData.value.customer
-    // delete detailData.value.domainManagerName
     detailData.value.createUser = store.getters.userInfo.username
     detailData.value.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
+    // delete detailData.value.domainManagerName
     const dataCreate = await costCreate({
-      table: 'coefficientinformation',
+      table: 'coststandard',
       data: detailData
     })
     if (dataCreate === '新增数据成功') {
@@ -173,7 +245,7 @@ const onConfirm = async (ruleFormRef) => {
 const closed = (ruleFormRef) => {
   if (!ruleFormRef) return
   ruleFormRef.resetFields()
-  router.push('/basics/coefficientInformation')
+  router.push('/basics/coststandard')
 }
 
 // 关闭
@@ -223,7 +295,7 @@ const pickerSelect = (val) => {
   text-align: right;
 }
 .user-info-box {
-  width: 500px;
+  width: 1000px;
   margin: 0 auto;
   .title {
     text-align: center;

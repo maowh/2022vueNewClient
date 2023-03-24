@@ -10,24 +10,16 @@
         <!-- <el-table-column label="#" type="index"></el-table-column> -->
         <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
         <el-table-column
-          prop="name"
-          :label="$t('msg.cost.name')"
+          prop="SystemName"
+          :label="$t('msg.cost.SystemName')"
         ></el-table-column>
         <el-table-column
           prop="year"
           :label="$t('msg.cost.year')"
         ></el-table-column>
         <el-table-column
-          prop="month"
-          :label="$t('msg.cost.month')"
-        ></el-table-column>
-        <el-table-column
-          prop="SystemName"
-          :label="$t('msg.cost.SystemName')"
-        ></el-table-column>
-        <el-table-column
-          prop="load"
-          :label="$t('msg.cost.load')"
+          prop="reportedAmount"
+          :label="$t('msg.cost.reportedAmount')"
         ></el-table-column>
         <el-table-column
           :label="$t('msg.cost.action')"
@@ -83,11 +75,13 @@ const size = ref(5)
 // 获取数据的方法
 const getListData = async () => {
   const result = await costListDisplay({
-    table: 'personnelload',
+    table: 'outsourcingcostsplan',
     page: page.value,
     size: size.value
   })
+  // console.log(result)
   tableData.value = result.list
+  console.log(tableData.value)
   total.value = result.total
 }
 getListData()
@@ -129,7 +123,7 @@ const onRemoveClick = (row) => {
     { type: 'warning' }
   )
     .then(async () => {
-      await costDel({ table: 'personnelload', id: row.id })
+      await costDel({ table: 'outsourcingcostsplan', id: row.id })
       ElMessage.success(i18n.t('msg.excel.removeSuccess'))
       // 重新渲染数据
       getListData()
@@ -137,19 +131,20 @@ const onRemoveClick = (row) => {
     .catch((error) => error)
 }
 
+// 查看记录
 const onShowClick = (id) => {
-  router.push(`/outsourcing/personnelloadInfo/${id}`)
+  router.push(`/outsourcing/outsourcingplanInfo/${id}`)
 }
 
 // 新增记录
 const onAddClick = () => {
   // const id = ''
   // console.log(id)
-  router.push('/outsourcing/personnelloadCreate')
+  router.push('/outsourcing/outsourcingplanCreate')
 }
 // 编辑记录
 const onEditClick = (id) => {
-  router.push(`/outsourcing/personnelloadEdit/${id}`)
+  router.push(`/outsourcing/outsourcingplanEdit/${id}`)
 }
 </script>
 

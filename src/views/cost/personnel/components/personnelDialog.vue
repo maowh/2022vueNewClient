@@ -34,6 +34,8 @@ import { costDetail, costCreate, costEdit } from '@/api/cost'
 import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
+import store from '@/store'
+import dayjs from 'dayjs'
 
 const props = defineProps({
   modelValue: {
@@ -105,7 +107,8 @@ const onConfirm = async (ruleFormRef) => {
   })
   console.log(props.id, validate.value)
   if (props.id && validate.value) {
-    console.log('修改')
+    detailData.value.updateUser = store.getters.userInfo.username
+    detailData.value.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataUpdate = await costEdit({
       table: 'personnel',
       data: detailData
@@ -122,8 +125,8 @@ const onConfirm = async (ruleFormRef) => {
       closed(ruleFormRef)
     }
   } else if (validate.value) {
-    console.log('新建')
-    // if (detailData.value.customer !== null) {
+    detailData.value.createUser = store.getters.userInfo.username
+    detailData.value.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataCreate = await costCreate({
       table: 'personnel',
       data: detailData
@@ -141,7 +144,7 @@ const onConfirm = async (ruleFormRef) => {
     }
   }
 }
-// }
+
 // 关闭
 const closed = (ruleFormRef) => {
   if (!ruleFormRef) return

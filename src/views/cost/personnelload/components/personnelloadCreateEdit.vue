@@ -23,12 +23,21 @@
             ></template>
           </el-input>
         </el-form-item>
-        <el-form-item :label="$t('msg.cost.year')" prop="year">
+        <!-- <el-form-item :label="$t('msg.cost.year')" prop="year">
           <el-date-picker
             v-model="detailData.year"
             clear-icon="CircleClose"
             @change="pickerSelect($event)"
             type="year"
+          />
+        </el-form-item> -->
+        <el-form-item :label="$t('msg.cost.month')">
+          <el-date-picker
+            clear-icon="CircleClose"
+            v-model="yearMonth"
+            type="month"
+            @change="pickerSelect($event)"
+            placeholder="请选择年份月度"
           />
         </el-form-item>
         <el-form-item :label="$t('msg.cost.SystemName')" prop="SystemName">
@@ -73,6 +82,7 @@ import { validatetext } from '@/utils/validate'
 import { useRoute, useRouter } from 'vue-router'
 import PersonnelloadDialog from './personnelloadDialog.vue'
 import dayjs from 'dayjs'
+import store from '@/store'
 
 const formSize = ref('default')
 const ruleFormRef = ref(FormInstance)
@@ -82,7 +92,7 @@ const router = useRouter()
 const rules = reactive({
   SystemName: [{ validator: validatetext, trigger: 'blur' }],
   name: [{ validator: validatetext, trigger: 'blur' }],
-  year: [{ validator: validatetext, trigger: 'blur' }],
+  yearMonth: [{ validator: validatetext, trigger: 'blur' }],
   load: [{ validator: validatetext, trigger: 'blur' }]
 })
 
@@ -91,15 +101,8 @@ const i18n = useI18n()
 const title = ref()
 const costInformationId = route.params.id
 
-// 数据相关
-// 校验新增和编辑人员是否满足条件
-// const personnelData = ref()
-// const getPersonnelData = async () => {
-//   personnelData.value = await costAllSelect({
-//     table:'personnelload',
-//     data:
-//   })
-// }
+// 日期
+const yearMonth = ref('')
 
 const detailData = ref({})
 const getCostDisplay = async () => {
@@ -108,7 +111,10 @@ const getCostDisplay = async () => {
     id: route.params.id
   })
   detailData.value = detailData.value[0]
-  detailData.value.year = dayjs().format('YYYY')
+  // detailData.value.year = dayjs().format('YYYY')
+  yearMonth.value = dayjs()
+    .set('year', detailData.value.year)
+    .set('month', detailData.value.month - 1)
   console.log(detailData.value.year)
 }
 
@@ -121,15 +127,6 @@ onActivated(() => {
   }
 })
 
-// onMounted(() => {
-//   if (costInformationId) {
-//     title.value = i18n.t('msg.cost.edit')
-//     getCostDisplay()
-//   } else {
-//     title.value = i18n.t('msg.cost.add')
-//   }
-// })
-
 // 确定按钮点击事件
 const validate = ref(false)
 const onConfirm = async (ruleFormRef) => {
@@ -141,32 +138,48 @@ const onConfirm = async (ruleFormRef) => {
     }
   })
 
-  console.log(Object.keys(detailData.value).length)
+  let value = false
   console.log(detailData.value)
-  if (Object.keys(detailData.value).length < 6) {
+  Object.values(detailData.value).forEach((item) => {
+    console.log(item)
+    if (typeof item === 'undefined') {
+      return
+    }
+    if (item === '') {
+      value = true
+    }
+    // if (typeof item === 'undefined' || item === '') {
+    //   console.log('null')
+    //   value = true
+    // }
+  })
+
+  if (Object.keys(detailData.value).length < 7 || value) {
     validate.value = false
   } else {
     validate.value = true
   }
 
+  // 编辑
   if (route.params.id && validate.value) {
     delete detailData.value.SystemName
     delete detailData.value.name
 
     // 校验新增和编辑人员是否满足条件
-    const dataSelect = await costAllSelect({
+    const dataSelect = ref(0)
+    await costAllSelect({
       table: 'personnelload',
       data: detailData
+    }).then((item) => {
+      dataSelect.value = item[0].total
     })
-    console.log(
-      'edit',
-      Number(dataSelect) + Number(detailData.value.load),
-      Number(dataSelect) + Number(detailData.value.load) > 1
-    )
-    if (Number(dataSelect) + Number(detailData.value.load) > 1) {
-      ElMessage.warning('人员同一年度负荷系数不能大于1')
+    console.log(dataSelect.value)
+    if (Number(dataSelect.value) + Number(detailData.value.load) > 1) {
+      ElMessage.warning('人员同一年月负荷系数不能大于1')
       closed(ruleFormRef)
     } else {
+      detailData.value.updateUser = store.getters.userInfo.username
+      detailData.value.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
       const dataUpdate = await costEdit({
         table: 'personnelload',
         data: detailData
@@ -181,18 +194,25 @@ const onConfirm = async (ruleFormRef) => {
         closed(ruleFormRef)
       }
     }
+    // 新增
   } else if (validate.value) {
     console.log('create', detailData.value)
     delete detailData.value.id
     delete detailData.value.SystemName
     delete detailData.value.name
+    detailData.value.createUser = store.getters.userInfo.username
+    detailData.value.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     // 校验新增和编辑人员是否满足条件
-    const dataSelect = await costAllSelect({
+    const dataSelect = ref(0)
+    await costAllSelect({
       table: 'personnelload',
       data: detailData
+    }).then((item) => {
+      dataSelect.value = item[0].total
     })
-    if (Number(dataSelect) + Number(detailData.value.load) > 1) {
-      ElMessage.warning('人员同一年度负荷系数不能大于1')
+    console.log(dataSelect.value)
+    if (Number(dataSelect.value) + Number(detailData.value.load) > 1) {
+      ElMessage.warning('人员同一年月负荷系数不能大于1')
       closed(ruleFormRef)
     } else {
       const dataCreate = await costCreate({
@@ -205,7 +225,7 @@ const onConfirm = async (ruleFormRef) => {
         closed(ruleFormRef)
       } else if (dataCreate === '数据已存在不能重复') {
         ElMessage.warning(i18n.t('msg.cost.existsSuccess'))
-        // 数据更新成功
+        // 数据已存在不能重复
         closed(ruleFormRef)
       }
     }
@@ -215,6 +235,7 @@ const onConfirm = async (ruleFormRef) => {
 const closed = (ruleFormRef) => {
   if (!ruleFormRef) return
   ruleFormRef.resetFields()
+  yearMonth.value = ''
   router.push('/outsourcing/personnelload')
 }
 
@@ -259,7 +280,9 @@ const getCostSelect = (item) => {
 }
 
 const pickerSelect = (val) => {
+  // detailData.value.year = dayjs(val).format('YYYY')
   detailData.value.year = dayjs(val).format('YYYY')
+  detailData.value.month = dayjs(val).format('MM')
 }
 // getCostSelect()
 </script>

@@ -142,9 +142,9 @@ const emits = defineEmits(['update:modelValue', 'costSelect'])
 const onConfirm = async (row) => {
   if (currentRow.value === undefined) {
     if (title.value === i18n.t('msg.route.customerinformation')) {
-      ElMessage.warning('请维护客户信息')
+      ElMessage.warning('请选择客户')
     } else if ((title.value = i18n.t('msg.route.domaininformation'))) {
-      ElMessage.warning('请维护领域经理信息')
+      ElMessage.warning('请选择领域经理')
     }
   } else {
     // ElMessage.success(i18n.t('msg.cost.selectSuccess'))
