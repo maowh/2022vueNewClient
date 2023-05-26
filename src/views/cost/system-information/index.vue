@@ -18,8 +18,16 @@
           :label="$t('msg.cost.customerName')"
         ></el-table-column>
         <el-table-column
-          prop="domainManagerName"
-          :label="$t('msg.cost.domainManagerName')"
+          prop="business"
+          :label="$t('msg.cost.business')"
+        ></el-table-column>
+        <el-table-column
+          prop="operationManagerName"
+          :label="$t('msg.cost.operationManager')"
+        ></el-table-column>
+        <el-table-column
+          prop="developManagerName"
+          :label="$t('msg.cost.developManager')"
         ></el-table-column>
         <el-table-column
           :label="$t('msg.cost.action')"

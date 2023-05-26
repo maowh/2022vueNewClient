@@ -64,12 +64,12 @@
           ></el-col>
           <el-col :span="12" :offset="0">
             <el-form-item
-              :label="$t('msg.cost.domainManager')"
-              prop="domainManager"
+              :label="$t('msg.cost.operationManager')"
+              prop="operationManagerName"
             >
               <el-input
                 disabled
-                v-model="detailData.domainManager"
+                v-model="detailData.operationManagerName"
               /> </el-form-item
           ></el-col>
         </el-row>
@@ -354,6 +354,9 @@ const tmpTotalManpower = ref(0)
 // 统计合计人力和合计金额
 const totalAmount = ref(0)
 const totalManpower = ref(0)
+// 分别统计运维和研发金额
+const operationAmount = ref(0)
+const developAmount = ref(0)
 
 // 获取数据
 const detailData = ref({})
@@ -438,8 +441,14 @@ const updateDetail = {
   systemId: 0,
   year: '',
   reportedAmount: 0,
+  operationAmount: 0,
+  developAmount: 0,
   contractAmount: 0,
-  taxAmount: 0
+  taxAmount: 0,
+  updateUser: '',
+  updateTime: '',
+  createUser: '',
+  createTime: ''
 }
 
 // 根据客户和年份获取费用标准信息
@@ -478,22 +487,40 @@ const getCostCoefficient = async () => {
 // getCostCoefficient()
 
 // 更新工程师费用标准后渲染费用数据
-const updateDisplay = async (totalAmount) => {
-  console.log(updateDetail)
+const updateDisplay = async () => {
+  // 初始化合计金额数据
+  totalAmount.value = 0
+  operationAmount.value = 0
+  developAmount.value = 0
   if (Object.keys(moneyData.value).length === 0) {
     updateDetail.reportedAmount = 0
+    updateDetail.operationAmount = 0
+    updateDetail.developAmount = 0
     updateDetail.contractAmount = 0
     updateDetail.taxAmount = 0
   } else {
-    updateDetail.reportedAmount = totalAmount
+    moneyData.value.forEach((item) => {
+      if (item.classification === '运维') {
+        operationAmount.value = item.totalAmount
+      } else if (item.classification === '开发') {
+        developAmount.value = item.totalAmount
+      }
+      totalAmount.value += item.totalAmount
+    })
+    updateDetail.reportedAmount = totalAmount.value
+    updateDetail.operationAmount = operationAmount.value
+    updateDetail.developAmount = developAmount.value
     updateDetail.contractAmount =
-      totalAmount * costCoefficient.value.contractPrice
-    updateDetail.taxAmount = totalAmount * costCoefficient.value.taxIncluded
+      totalAmount.value * costCoefficient.value.contractPrice
+    updateDetail.taxAmount =
+      totalAmount.value * costCoefficient.value.taxIncluded
   }
   console.log(updateDetail.reportedAmount)
   delete updateDetail.systemId
   // updateDetail.reportedAmount = row.totalAmount
   delete updateDetail.year
+  updateDetail.updateUser = store.getters.userInfo.username
+  updateDetail.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
   // delete updateDetail.month
   console.log(updateDetail)
   await costSingleEdit({
@@ -596,10 +623,10 @@ const confirmEdit = async (row, index) => {
       })
       console.log(moneyDataUpdate)
 
-      moneyData.value.forEach((item) => {
-        totalAmount.value += item.totalAmount
-      })
-      updateDisplay(totalAmount.value)
+      // moneyData.value.forEach((item) => {
+      //   totalAmount.value += item.totalAmount
+      // })
+      updateDisplay()
       // 新增
     } else if (
       isAddMoney.value &&
@@ -616,10 +643,10 @@ const confirmEdit = async (row, index) => {
         data: row
       })
       console.log(moneyDataAdd)
-      moneyData.value.forEach((item) => {
-        totalAmount.value += item.totalAmount
-      })
-      updateDisplay(totalAmount.value)
+      // moneyData.value.forEach((item) => {
+      //   totalAmount.value += item.totalAmount
+      // })
+      updateDisplay()
       // ElMessage.success(moneyDataAdd)
     } else {
       ElMessage.error('系统分类不能为空并且不能重复')
@@ -711,11 +738,11 @@ const confirmDel = (row) => {
             totalAmount.value = 0
             totalManpower.value = 0
           }
-          totalAmount.value = 0
-          moneyData.value.forEach((item) => {
-            totalAmount.value += item.totalAmount
-          })
-          updateDisplay(totalAmount.value)
+          // totalAmount.value = 0
+          // moneyData.value.forEach((item) => {
+          //   totalAmount.value += item.totalAmount
+          // })
+          updateDisplay()
         })
         .catch((error) => error)
     })

@@ -122,6 +122,7 @@ const getListData = async () => {
     page: page.value,
     size: size.value
   })
+  console.log(result.list)
   tableData.value = result.list
   total.value = result.list.length
 }

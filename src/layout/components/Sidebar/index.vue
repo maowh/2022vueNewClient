@@ -6,7 +6,9 @@
         shape="square"
         src="https://m.imooc.com/static/wap/static/common/img/logo-small@2x.png"
       />
-      <h1 class="logo-title" v-if="$store.getters.sidebarOpened">admin</h1>
+      <h1 class="logo-title" v-if="$store.getters.sidebarOpened">
+        {{ $store.getters.userInfo.username }}
+      </h1>
     </div>
     <el-scrollbar>
       <SidebarMenu></SidebarMenu>
@@ -17,6 +19,7 @@
 <script setup>
 import {} from 'vue'
 import SidebarMenu from './SidebarMenu.vue'
+// import { Store } from 'vuex'
 
 // 组件状态驱动的动态 CSS 值
 const logoHeight = 44

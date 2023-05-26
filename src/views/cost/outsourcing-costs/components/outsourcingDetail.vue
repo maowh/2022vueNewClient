@@ -31,8 +31,8 @@
           <el-descriptions-item :label="$t('msg.cost.domain')">{{
             detailData.domain
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.domainManager')">{{
-            detailData.domainManager
+          <el-descriptions-item :label="$t('msg.cost.operationManager')">{{
+            detailData.operationManagerName
           }}</el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.reportedAmount')">{{
             detailData.reportedAmount

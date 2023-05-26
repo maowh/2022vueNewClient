@@ -19,6 +19,16 @@
         <el-form-item :label="$t('msg.cost.SystemName')" prop="SystemName">
           <el-input v-model="detailData.SystemName" />
         </el-form-item>
+        <el-form-item :label="$t('msg.cost.business')" prop="business">
+          <el-select v-model="business" class="m-2" placeholder="请选择">
+            <el-option
+              v-for="item in ListBusiness"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item :label="$t('msg.cost.customerName')" prop="customerName">
           <el-input
             @click="customerDialogClick"
@@ -30,12 +40,25 @@
           </el-input>
         </el-form-item>
         <el-form-item
-          :label="$t('msg.cost.domainManagerName')"
-          prop="domainManagerName"
+          :label="$t('msg.cost.operationManager')"
+          prop="operationManagerName"
         >
           <el-input
-            @click="domainManagerDialogClick"
-            v-model="detailData.domainManagerName"
+            @click="operationManagerDialogClick"
+            v-model="detailData.operationManagerName"
+          >
+            <template #suffix
+              ><el-icon style="margin-right: 10px"><Search /></el-icon
+            ></template>
+          </el-input>
+        </el-form-item>
+        <el-form-item
+          :label="$t('msg.cost.developManager')"
+          prop="developManagerName"
+        >
+          <el-input
+            @click="developManagerDialogClick"
+            v-model="detailData.developManagerName"
           >
             <template #suffix
               ><el-icon style="margin-right: 10px"><Search /></el-icon
@@ -73,6 +96,7 @@ import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
 import { useRoute, useRouter } from 'vue-router'
 import SystemInfomationDialog from './systemInfomationDialog.vue'
+import { ListBusiness } from './business'
 import dayjs from 'dayjs'
 import store from '@/store'
 
@@ -80,9 +104,11 @@ const formSize = ref('default')
 const ruleFormRef = ref(FormInstance)
 const route = useRoute()
 const router = useRouter()
+const business = ref('')
 
 const rules = reactive({
   SystemName: [{ validator: validatetext, trigger: 'blur' }],
+  business: [{ validator: validatetext, trigger: 'blur' }],
   customerName: [{ validator: validatetext, trigger: 'blur' }],
   domainManagerName: [{ validator: validatetext, trigger: 'blur' }]
 })
@@ -100,6 +126,8 @@ const getCostDisplay = async () => {
     id: route.params.id
   })
   detailData.value = detailData.value[0]
+  business.value = detailData.value.business
+  // console.log(detailData.value, business.value)
 }
 
 onActivated(() => {
@@ -128,10 +156,12 @@ const onConfirm = async (ruleFormRef) => {
   }
   if (route.params.id && validate.value) {
     delete detailData.value.customerName
-    delete detailData.value.domainManagerName
+    delete detailData.value.operationManagerName
+    delete detailData.value.developManagerName
     // detailData.value.SystemName = detailData.value.SystemName
     // detailData.value.id = route.params.id
     console.log('edit', detailData.value)
+    detailData.value.business = business.value
     detailData.value.updateUser = store.getters.userInfo.username
     detailData.value.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataUpdate = await costEdit({
@@ -150,7 +180,9 @@ const onConfirm = async (ruleFormRef) => {
   } else if (validate.value) {
     console.log('create', detailData.value)
     delete detailData.value.customerName
-    delete detailData.value.domainManagerName
+    delete detailData.value.operationManagerName
+    delete detailData.value.developManagerName
+    detailData.value.business = business.value
     detailData.value.createUser = store.getters.userInfo.username
     detailData.value.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataCreate = await costCreate({
@@ -173,6 +205,7 @@ const closed = (ruleFormRef) => {
   if (!ruleFormRef) return
   ruleFormRef.resetFields()
   router.push('/basics/systemInfomation')
+  business.value = ''
 }
 
 // 关闭
@@ -190,13 +223,23 @@ const customerDialogClick = () => {
   selectId.value = route.params.id
 }
 
-const domainManagerDialogClick = () => {
+// 将系统id传到弹出窗口
+const selectId = ref('')
+// 判断是运维还是研发经理
+const isOperationDevelop = ref('')
+const operationManagerDialogClick = () => {
   systemInformationVisible.value = true
   tableName.value = 'domaininformation'
   selectId.value = route.params.id
+  isOperationDevelop.value = 'operation'
+}
+const developManagerDialogClick = () => {
+  systemInformationVisible.value = true
+  tableName.value = 'domaininformation'
+  selectId.value = route.params.id
+  isOperationDevelop.value = 'develop'
 }
 
-const selectId = ref('')
 // 关闭dialog时重置selectUserId
 watch(systemInformationVisible, (val) => {
   if (!val) selectId.value = ''
@@ -205,8 +248,13 @@ watch(systemInformationVisible, (val) => {
 const getCostSelect = (item) => {
   if (item) {
     if (item.domainManager) {
-      detailData.value.domainManagerId = item.id
-      detailData.value.domainManagerName = item.domainManager
+      if (isOperationDevelop.value === 'operation') {
+        detailData.value.operationManagerId = item.id
+        detailData.value.operationManagerName = item.domainManager
+      } else if (isOperationDevelop.value === 'develop') {
+        detailData.value.developManagerId = item.id
+        detailData.value.developManagerName = item.domainManager
+      }
     } else {
       detailData.value.customerId = item.id
       detailData.value.customerName = item.customer

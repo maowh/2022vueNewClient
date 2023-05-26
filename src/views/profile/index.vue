@@ -10,9 +10,9 @@
             <el-tab-pane :label="$t('msg.profile.feature')" name="feature">
               <Feature :features="featureData" />
             </el-tab-pane>
-            <el-tab-pane :label="$t('msg.profile.chapter')" name="chapter">
+            <!-- <el-tab-pane :label="$t('msg.profile.chapter')" name="chapter">
               <Chapter />
-            </el-tab-pane>
+            </el-tab-pane> -->
             <el-tab-pane :label="$t('msg.profile.author')" name="author">
               <Author />
             </el-tab-pane>
@@ -25,7 +25,7 @@
 
 <script setup>
 import ProjectCard from './components/ProjectCard.vue'
-import Chapter from './components/Chapter.vue'
+// import Chapter from './components/Chapter.vue'
 import Feature from './components/Feature.vue'
 import Author from './components/Author.vue'
 import { feature } from '@/api/sys'

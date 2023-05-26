@@ -2,7 +2,35 @@
   <div class="article-ranking-container">
     <el-card class="header">
       <div class="dynamic-box">
-        <el-select v-model="selectType" class="m-2" placeholder="请选择">
+        <span style="margin-left: 5px">年份：</span>
+        <el-date-picker
+          clear-icon="CircleClose"
+          v-model="yearValue"
+          style="width: 200px; margin-left: 5px"
+          type="year"
+          placeholder="请选择年份"
+        />
+        <span style="margin-left: 5px">运维&开发：</span>
+        <el-select
+          v-model="lcategoryValue"
+          style="width: 170px; margin-left: 5px"
+          class="m-2"
+          placeholder="请选择运维&开发"
+        >
+          <el-option
+            v-for="item in lcategorySelect"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+        <span style="margin-left: 5px">自定义分类查询：</span>
+        <el-select
+          v-model="selectType"
+          style="width: 130px; margin-left: 5px"
+          class="m-2"
+          placeholder="请选择分类"
+        >
           <el-option
             v-for="item in listSelect"
             :key="item.value"
@@ -12,12 +40,15 @@
         </el-select>
         <el-input
           v-model="inputSearch"
-          style="width: 300px; margin-left: 5px"
+          style="width: 200px; margin-left: 5px"
           class="w-50 m-2"
-          placeholder="请输入查询内容"
+          placeholder="请输入分类查询内容"
         />
         <el-button type="primary" style="margin-left: 5px" @click="onSearch"
           ><el-icon><Search /></el-icon> 查询</el-button
+        >
+        <el-button type="primary" style="margin-left: 5px" @click="onRefresh"
+          ><el-icon><RefreshRight /></el-icon> 重置</el-button
         >
         <el-button
           type="primary"
@@ -55,6 +86,10 @@
           :label="$t('msg.cost.domain')"
         ></el-table-column>
         <el-table-column
+          prop="business"
+          :label="$t('msg.cost.business')"
+        ></el-table-column>
+        <el-table-column
           prop="domainManager"
           :label="$t('msg.cost.domainManager')"
         ></el-table-column>
@@ -86,10 +121,16 @@
 
 <script setup>
 import { ref, onActivated } from 'vue'
-import { costListDisplay, costList, costAllSelect } from '@/api/cost'
+import { costListDisplay, costList, costAllSelectPage } from '@/api/cost'
 // import { useRouter, useRoute } from 'vue-router'
-import { USER_RELATIONS, ListDisplay } from './components/Export2ExcelConstants'
+import {
+  USER_RELATIONS,
+  ListDisplay,
+  lcategorySelect,
+  listSelect
+} from './components/Export2ExcelConstants'
 import { ElMessage } from 'element-plus'
+import dayjs from 'dayjs'
 // import { useI18n } from 'vue-i18n'
 
 // const router = useRouter()
@@ -98,54 +139,19 @@ import { ElMessage } from 'element-plus'
 // 数据相关
 const inputSearch = ref('')
 const selectType = ref('')
+const yearValue = ref('')
+const lcategoryValue = ref('')
 const tableData = ref([])
+// tableDatas获取所有的记录用于统计
+const tableDatas = ref([])
 const tableStandardData = ref([])
 const standardArrange = ref([])
 // const standardValue = ref([])
 const total = ref(0)
 const page = ref(1)
 const size = ref(5)
-
-const listSelect = [
-  { value: 'customer', label: '客户名称' },
-  { value: 'SystemName', label: '系统名称' },
-  { value: 'domain', label: '领域' }
-]
-
-// const listDisplay = [
-//   {
-//     prop: 'systemEngineer',
-//     label: '系统工程师'
-//   },
-//   {
-//     prop: 'seniorSystemEngineer',
-//     label: '高级系统工程师'
-//   },
-//   {
-//     prop: 'softwareEngineer',
-//     label: '软件工程师'
-//   },
-//   {
-//     prop: 'seniorSoftwareEngineer',
-//     label: '高级软件工程师'
-//   },
-//   {
-//     prop: 'intermediateSap',
-//     label: '中级SAP'
-//   },
-//   {
-//     prop: 'dbaEngineer',
-//     label: '高级SAP'
-//   },
-//   {
-//     prop: 'dbaEngineer',
-//     label: 'DBA'
-//   },
-//   {
-//     prop: 'seniorDbaEngineer',
-//     label: '高级DBA'
-//   }
-// ]
+// 判断是否查询
+const isSearch = ref(false)
 
 // 获取初始数据的方法
 const getListData = async () => {
@@ -155,6 +161,7 @@ const getListData = async () => {
     size: size.value
   })
   console.log(result)
+  tableDatas.value = result.lists
   tableData.value = result.list
   total.value = result.total
   // tableData.value.map((item) => {})
@@ -163,36 +170,55 @@ getListData()
 
 // 获取查询数据的方法
 const getSearchListData = async () => {
-  await costAllSelect({
+  await costAllSelectPage({
     table: 'costsreportsearch',
-    data: selectData
-  }).then((item) => {
-    tableData.value = item
-    console.log(tableData.value, item)
+    data: selectData,
+    page: page.value,
+    size: size.value
+  }).then((result) => {
+    tableDatas.value = result.lists
+    tableData.value = result.list
+    total.value = result.total
   })
 }
 
 // 分页相关，size改变触发
 const handleSizeChange = (currentSize) => {
   size.value = currentSize
-  getListData()
+  if (isSearch.value) {
+    getSearchListData()
+  } else {
+    getListData()
+  }
 }
 
 // 页码改变触发
 const handleCurrentChange = (currentPage) => {
   page.value = currentPage
-  getListData()
+  if (isSearch.value) {
+    getSearchListData()
+  } else {
+    getListData()
+  }
 }
 
 // 数据表合计
 const getSummaries = (value) => {
-  const { columns, data } = value
+  // const data = tableDatas.value
+  const { columns } = value
+  let data = []
+  // const { columns, data } = value
+  // console.log(tableDatas.value)
+  if (tableDatas.value.length !== 0) {
+    data = tableDatas.value
+  }
+  console.log(columns, tableDatas.value)
   const sums = []
   columns.forEach((column, index) => {
     if (index === 0) {
       sums[index] = '合计'
       return
-    } else if (index === 15 || index === 16) {
+    } else if (index === 16 || index === 17) {
       sums[index] = ''
       return
     }
@@ -210,9 +236,9 @@ const getSummaries = (value) => {
       sums[index] = ''
     }
   })
-
   return sums
 }
+// }
 
 // 获取数据的方法
 const getListStandardData = async () => {
@@ -265,7 +291,7 @@ const formatJson = (headers, rows) => {
 const loading = ref(false)
 const onToExcelClick = async () => {
   loading.value = true
-  const allUser = await tableData.value
+  const allUser = await tableDatas.value
   // 导入工具包
   const excel = await import('@/utils/Export2Excel')
   const data = formatJson(USER_RELATIONS, allUser)
@@ -292,16 +318,46 @@ const evil = (fn) => {
 }
 const selectData = ref({})
 const onSearch = async () => {
-  if (selectType.value === '') {
+  if (
+    lcategoryValue.value === '' &&
+    yearValue.value === '' &&
+    selectType.value === ''
+  ) {
     ElMessage.warning('请选择查询项目！')
-  } else if (inputSearch.value.trim() === '') {
-    ElMessage.warning('请输入查询内容！')
-  } else {
-    const test = `{ ${selectType.value}:'${inputSearch.value}' }`
+  } else if (selectType.value !== '' && inputSearch.value.trim() === '') {
+    ElMessage.warning('请输入自定义查询内容！')
+  } else if (selectType.value === '' && inputSearch.value.trim() !== '') {
+    ElMessage.warning('请选择自定义查询项目！')
+  } else if (selectType.value === '' && inputSearch.value.trim() === '') {
+    const test = `{ 'classification':'${lcategoryValue.value}','year':'${dayjs(
+      yearValue.value
+    ).format('YYYY')}' }`
     selectData.value = evil(test)
+    console.log(test, selectData.value)
+    getSearchListData()
+    console.log('data', selectData, typeof selectData.value)
+  } else {
+    const test = `{ ${selectType.value}:'${
+      inputSearch.value
+    }','classification':'${lcategoryValue.value}','year':'${dayjs(
+      yearValue.value
+    ).format('YYYY')}' }`
+    selectData.value = evil(test)
+    console.log(test, selectData.value)
     getSearchListData()
     console.log('data', selectData, typeof selectData.value)
   }
+  isSearch.value = true
+}
+
+// 重置
+const onRefresh = () => {
+  inputSearch.value = ''
+  selectType.value = ''
+  yearValue.value = ''
+  lcategoryValue.value = ''
+  getListData()
+  isSearch.value = false
 }
 
 // const i18n = useI18n()

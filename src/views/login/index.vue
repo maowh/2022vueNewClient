@@ -25,7 +25,7 @@
         <el-input
           name="username"
           v-model="loginForm.username"
-          placeholder="username"
+          placeholder="用户名"
           type="text"
         ></el-input>
       </el-form-item>
@@ -38,7 +38,7 @@
         </span>
         <el-input
           v-model="loginForm.password"
-          placeholder="password"
+          placeholder="密码"
           name="password"
           :type="passwordType"
         ></el-input>
@@ -57,7 +57,7 @@
         @click="handleLogin"
         >{{ $t('msg.login.loginBtn') }}</el-button
       >
-      <div class="tips" v-html="$t('msg.login.desc')"></div>
+      <!-- <div class="tips" v-html="$t('msg.login.desc')"></div> -->
     </el-form>
   </div>
 </template>
@@ -76,8 +76,8 @@ const i18n = useI18n()
 
 // 数据源
 const loginForm = ref({
-  username: 'super-admin',
-  password: '123456'
+  // username: 'super-admin',
+  // password: '123456'
 })
 
 // 验证规则
@@ -173,6 +173,11 @@ $cursor: #fff;
         height: 47px;
         caret-color: $cursor;
       }
+    }
+    .tips {
+      font-size: 16px;
+      color: white;
+      line-height: 24px;
     }
   }
 

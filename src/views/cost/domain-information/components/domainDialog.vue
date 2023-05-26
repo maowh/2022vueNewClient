@@ -1,5 +1,9 @@
 <template>
-  <el-dialog :title="title" :model-value="modelValue">
+  <el-dialog
+    :title="title"
+    :model-value="modelValue"
+    :before-close="handleClose"
+  >
     <el-form
       ref="ruleFormRef"
       :model="detailData"
@@ -167,6 +171,12 @@ const onConfirm = async (ruleFormRef) => {
 const closed = (ruleFormRef) => {
   if (!ruleFormRef) return
   ruleFormRef.resetFields()
+  emits('update:modelValue', false)
+}
+
+const handleClose = () => {
+  // if (!ruleFormRef) return
+  // ruleFormRef.resetFields()
   emits('update:modelValue', false)
 }
 </script>

@@ -31,7 +31,7 @@
   </div>
 
   <div style="padding: 10px">
-    <div id="chart" style="width: 100%; height: 600px"></div>
+    <div id="chart" style="width: 1000px; height: 600px"></div>
   </div>
   <CostschartDialog
     v-model="systemInformationVisible"
@@ -77,16 +77,23 @@ const systemDialogClick = () => {
   // selectId.value = route.params.id
 }
 
-const pickerSelect = (val) => {
-  detailData.value.year = dayjs(val).format('YYYY')
+const pickerSelect = async (val) => {
+  if (
+    typeof detailData.value.SystemName === 'undefined' ||
+    detailData.value.SystemName === ''
+  ) {
+    ElMessage.warning('请先选择系统名称！')
+    yearMonth.value = ''
+  } else {
+    detailData.value.year = dayjs(val).format('YYYY')
+    getCostsReality()
+    getCostsPlan()
+  }
 }
 
 const onCostsChart = async () => {
   console.log(
-    'year',
-    detailData.value.year,
-    '系统名称',
-    detailData.value.SystemName
+    'year' + detailData.value.year + '系统名称' + detailData.value.SystemName
   )
 
   if (
@@ -97,22 +104,22 @@ const onCostsChart = async () => {
   ) {
     ElMessage.warning('请先选择系统名称和年度！')
   } else {
-    getCostsReality()
-    getCostsPlan()
-
+    // getCostsReality()
+    // getCostsPlan()
+    console.log(typeof detailData.value.SystemName)
     if (
       monthReality.value.length !== 0 &&
       totalReality.value.length !== 0 &&
       costsPlan.value !== 0
     ) {
-      console.log(
-        'monthReality',
-        monthReality.value,
-        'totalReality',
-        totalReality.value,
-        'costsPlan',
-        costsPlan.value
-      )
+      // console.log(
+      //   'monthReality',
+      //   monthReality.value,
+      //   'totalReality',
+      //   totalReality.value,
+      //   'costsPlan',
+      //   costsPlan.value
+      // )
       init(chart)
       show(chart)
       resize(chart)
@@ -121,25 +128,74 @@ const onCostsChart = async () => {
 }
 // 定义月度实际和月度累计实际
 const monthReality = ref([])
+// 定义季度实际
+const monthRealityTmp = ref([])
 const totalReality = ref([])
 const costsPlan = ref(0)
 // 获取月度实际费用
 const getCostsReality = async () => {
+  monthReality.value = []
+  totalReality.value = []
   await costAllSelect({
     table: 'outsourcingcosts',
     data: detailData
   }).then((item) => {
-    monthReality.value = []
-    totalReality.value = []
+    console.log(item)
     for (let index = 0; index < item.length; index++) {
-      monthReality.value.push(item[index].reportedAmount)
-      if (index === 0) {
-        totalReality.value.push(monthReality.value[index])
+      console.log(Number(item[index].month))
+      // 统计单月费用
+      if (Number(item[index].month - 1) !== index) {
+        for (let j = index; j < Number(item[index].month); j++) {
+          if (j === Number(item[index].month) - 1) {
+            console.log(j, item[index].reportedAmount)
+            monthReality.value.splice(j, 0, item[index].reportedAmount)
+          } else {
+            monthReality.value.splice(j, 0, 0)
+          }
+        }
       } else {
-        totalReality.value.push(
-          monthReality.value[index] + monthReality.value[index - 1]
-        )
+        monthReality.value.splice(index, 0, item[index].reportedAmount)
       }
+      // monthReality.value.push(item[index].reportedAmount)
+      // if (index === 0) {
+      //   totalReality.value.push(monthReality.value[index])
+      // } else {
+      //   totalReality.value.push(
+      //     // monthReality.value[index] + monthReality.value[index - 1]
+      //     获取数组数据合计
+      //     monthReality.value.reduce((old, now) => {
+      //       return old + now
+      //     }, 0)
+      //   )
+      // }
+    }
+
+    // 将费用月份转换为季度
+
+    let value = 0
+    for (let index = 0; index < monthReality.value.length; index++) {
+      value += monthReality.value[index]
+      if (index === 2) {
+        monthRealityTmp.value.push(value)
+        value = 0
+      } else if (index === 5) {
+        monthRealityTmp.value.push(value)
+        value = 0
+      } else if (index === 8) {
+        monthRealityTmp.value.push(value)
+        value = 0
+      } else if (index === 11) {
+        monthRealityTmp.value.push(value)
+        value = 0
+      }
+      console.log(index, monthReality.value[index])
+    }
+    console.log(monthRealityTmp.value)
+    // 统计合计费用
+    let sum = 0
+    for (let i = 0; i < monthRealityTmp.value.length; i++) {
+      sum += monthRealityTmp.value[i]
+      totalReality.value.splice(i, 0, sum)
     }
   })
 }
@@ -164,7 +220,10 @@ onUnmounted(() => {
 
 const option = {
   title: {
-    text: 'SCM系统2023年实际和计划分析图',
+    text:
+      // `${detailData.value.SystemName}` +
+      // `${dayjs(detailData.value.year).format('YYYY')}` +
+      '实际和计划分析图',
     left: 'center'
   },
   tooltip: {
@@ -186,7 +245,7 @@ const option = {
   },
   // 报表头部显示
   legend: {
-    data: ['月度实际费用', '月度实际累计费用'],
+    data: ['季度实际费用', '季度实际累计费用'],
     top: 'bottom'
     // data: ['Evaporation', 'Precipitation', 'Temperature']
   },
@@ -194,20 +253,7 @@ const option = {
   xAxis: [
     {
       type: 'category',
-      data: [
-        '1月',
-        '2月',
-        '3月',
-        '4月',
-        '5月',
-        '6月',
-        '7月',
-        '8月',
-        '9月',
-        '10月',
-        '11月',
-        '12月'
-      ],
+      data: ['1季度', '2季度', '3季度', '4季度'],
       // data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
       axisPointer: {
         type: 'shadow'
@@ -242,7 +288,7 @@ const option = {
   ],
   series: [
     {
-      name: '月度实际费用',
+      name: '季度实际费用',
       type: 'bar',
       tooltip: {
         valueFormatter: function (value) {
@@ -251,10 +297,10 @@ const option = {
       },
       // 柱状图数值显示
       // data: [2.0, 4.9, 7.0, 3.2, 5.6, 6.7, 5.6, 2.2, 3.6, 2.0, 6.4, 3.3]
-      data: monthReality.value
+      data: monthRealityTmp.value
     },
     {
-      name: '月度实际累计费用',
+      name: '季度实际累计费用',
       type: 'line',
       yAxisIndex: 1,
       tooltip: {
@@ -288,11 +334,11 @@ const show = (chart) => {
       ],
       series: [
         {
-          name: '月度实际费用',
-          data: monthReality.value
+          name: '季度实际费用',
+          data: monthRealityTmp.value
         },
         {
-          name: '月度实际累计费用',
+          name: '季度实际累计费用',
           data: totalReality.value
         }
       ]

@@ -6,7 +6,8 @@ export const USER_RELATIONS = {
   事业部: 'businessDivision',
   业务线: 'businessLines',
   领域: 'domain',
-  领域经理: 'domainManager',
+  业务域: 'business',
+  领域经理: 'operationManagerName',
   系统工程师: 'systemEngineer',
   高级系统工程师: 'seniorSystemEngineer',
   软件工程师: 'softwareEngineer',
@@ -54,4 +55,21 @@ export const ListDisplay = [
     prop: 'seniorDbaEngineer',
     label: '高级DBA'
   }
+]
+
+// 运维&开发选择
+export const lcategorySelect = [
+  { value: 'operation', label: '运维' },
+  { value: 'developAmount', label: '开发' },
+  { value: 'operationDevelopAmount', label: '运维&研发' }
+]
+
+// 自定义分类查询选择
+export const listSelect = [
+  { value: 'customer', label: '客户名称' },
+  { value: 'SystemName', label: '系统名称' },
+  { value: 'businessDivision', label: '事业部' },
+  { value: 'businessLines', label: '业务线' },
+  { value: 'domain', label: '领域' },
+  { value: 'business', label: '业务域' }
 ]

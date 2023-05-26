@@ -86,3 +86,12 @@ export const costAllSelect = (data) => {
     data
   })
 }
+
+// 数据条件分页筛选判断
+export const costAllSelectPage = (data) => {
+  return request({
+    url: '/cost/allselectpage',
+    method: 'POST',
+    data
+  })
+}

@@ -64,12 +64,12 @@
           ></el-col>
           <el-col :span="12" :offset="0">
             <el-form-item
-              :label="$t('msg.cost.domainManager')"
-              prop="domainManager"
+              :label="$t('msg.cost.operationManager')"
+              prop="operationManagerName"
             >
               <el-input
                 disabled
-                v-model="detailData.domainManager"
+                v-model="detailData.operationManagerName"
               /> </el-form-item
           ></el-col>
         </el-row>
@@ -233,7 +233,7 @@
                     v-if="row.edit"
                     size="small"
                     type="success"
-                    @click="confirmEdit(row, $index + 1)"
+                    @click="confirmEdit(row, $index)"
                   >
                     保存
                   </el-button>
@@ -361,6 +361,9 @@ const tmpTotalManpower = ref(0)
 // 统计合计人力和合计金额
 const totalAmount = ref(0)
 const totalManpower = ref(0)
+// 分别统计运维和研发金额
+const operationAmount = ref(0)
+const developAmount = ref(0)
 
 // 获取数据
 const detailData = ref({})
@@ -449,6 +452,8 @@ const updateDetail = {
   year: '',
   month: '',
   reportedAmount: 0,
+  operationAmount: 0,
+  developAmount: 0,
   contractAmount: 0,
   taxAmount: 0,
   updateUser: '',
@@ -493,26 +498,43 @@ const getCostCoefficient = async () => {
 // getCostCoefficient()
 
 // 更新工程师费用标准后渲染费用数据
-const updateDisplay = async (totalAmount) => {
-  console.log(updateDetail)
+// const updateDisplay = async (totalAmount) => {
+const updateDisplay = async () => {
+  // 初始化合计金额数据
+  totalAmount.value = 0
+  operationAmount.value = 0
+  developAmount.value = 0
+  console.log(moneyData.value)
   if (Object.keys(moneyData.value).length === 0) {
     updateDetail.reportedAmount = 0
+    updateDetail.operationAmount = 0
+    updateDetail.developAmount = 0
     updateDetail.contractAmount = 0
     updateDetail.taxAmount = 0
   } else {
-    updateDetail.reportedAmount = totalAmount
+    moneyData.value.forEach((item) => {
+      if (item.classification === '运维') {
+        operationAmount.value = item.totalAmount
+      } else if (item.classification === '开发') {
+        developAmount.value = item.totalAmount
+      }
+      totalAmount.value += item.totalAmount
+    })
+    updateDetail.reportedAmount = totalAmount.value
+    updateDetail.operationAmount = operationAmount.value
+    updateDetail.developAmount = developAmount.value
     updateDetail.contractAmount =
-      totalAmount * costCoefficient.value.contractPrice
-    updateDetail.taxAmount = totalAmount * costCoefficient.value.taxIncluded
+      totalAmount.value * costCoefficient.value.contractPrice
+    updateDetail.taxAmount =
+      totalAmount.value * costCoefficient.value.taxIncluded
   }
-  console.log(updateDetail.reportedAmount)
   delete updateDetail.systemId
   // updateDetail.reportedAmount = row.totalAmount
   delete updateDetail.year
   delete updateDetail.month
-  console.log(updateDetail)
   updateDetail.updateUser = store.getters.userInfo.username
   updateDetail.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
+  console.log(updateDetail)
   await costSingleEdit({
     table: 'outsourcingcosts',
     data: updateDetail
@@ -548,34 +570,35 @@ const confirmEdit = async (row, index) => {
 
     totalAmount.value = 0
 
-    for (let index = 0; index < moneyData.value.length; index++) {
-      // const element = moneyData.value[index]
-      row.totalAmount =
-        moneyData.value[index].systemEngineer *
-          CostStandard.value.systemEngineer +
-        moneyData.value[index].seniorSap * CostStandard.value.seniorSap +
-        moneyData.value[index].seniorSoftwareEngineer *
-          CostStandard.value.seniorSoftwareEngineer +
-        moneyData.value[index].dbaEngineer * CostStandard.value.dbaEngineer +
-        moneyData.value[index].seniorSystemEngineer *
-          CostStandard.value.seniorSystemEngineer +
-        moneyData.value[index].intermediateSap *
-          CostStandard.value.intermediateSap +
-        moneyData.value[index].seniorDbaEngineer *
-          CostStandard.value.seniorDbaEngineer +
-        moneyData.value[index].softwareEngineer *
-          CostStandard.value.softwareEngineer
-      row.totalManpower =
-        Number(moneyData.value[index].systemEngineer) +
-        Number(moneyData.value[index].seniorSap) +
-        Number(moneyData.value[index].seniorSoftwareEngineer) +
-        Number(moneyData.value[index].dbaEngineer) +
-        Number(moneyData.value[index].seniorSystemEngineer) +
-        Number(moneyData.value[index].intermediateSap) +
-        Number(moneyData.value[index].seniorDbaEngineer) +
-        Number(moneyData.value[index].softwareEngineer)
-      console.log(row.totalAmount, row.totalManpower)
-    }
+    console.log(moneyData.value)
+    // for (let index = 0; index < moneyData.value.length; index++) {
+    // const element = moneyData.value[index]
+    row.totalAmount =
+      moneyData.value[index].systemEngineer *
+        CostStandard.value.systemEngineer +
+      moneyData.value[index].seniorSap * CostStandard.value.seniorSap +
+      moneyData.value[index].seniorSoftwareEngineer *
+        CostStandard.value.seniorSoftwareEngineer +
+      moneyData.value[index].dbaEngineer * CostStandard.value.dbaEngineer +
+      moneyData.value[index].seniorSystemEngineer *
+        CostStandard.value.seniorSystemEngineer +
+      moneyData.value[index].intermediateSap *
+        CostStandard.value.intermediateSap +
+      moneyData.value[index].seniorDbaEngineer *
+        CostStandard.value.seniorDbaEngineer +
+      moneyData.value[index].softwareEngineer *
+        CostStandard.value.softwareEngineer
+    row.totalManpower =
+      Number(moneyData.value[index].systemEngineer) +
+      Number(moneyData.value[index].seniorSap) +
+      Number(moneyData.value[index].seniorSoftwareEngineer) +
+      Number(moneyData.value[index].dbaEngineer) +
+      Number(moneyData.value[index].seniorSystemEngineer) +
+      Number(moneyData.value[index].intermediateSap) +
+      Number(moneyData.value[index].seniorDbaEngineer) +
+      Number(moneyData.value[index].softwareEngineer)
+    console.log(row.totalAmount, row.totalManpower)
+    // }
 
     // tmp判断是否包含2个相同的分类
     const tmp = ref(0)
@@ -603,10 +626,11 @@ const confirmEdit = async (row, index) => {
       })
       console.log(moneyDataUpdate)
 
-      moneyData.value.forEach((item) => {
-        totalAmount.value += item.totalAmount
-      })
-      updateDisplay(totalAmount.value)
+      // moneyData.value.forEach((item) => {
+      //   totalAmount.value += item.totalAmount
+      // })
+      // updateDisplay(totalAmount.value)
+      updateDisplay()
       // 新增
     } else if (
       isAddMoney.value &&
@@ -623,10 +647,11 @@ const confirmEdit = async (row, index) => {
         data: row
       })
       console.log(moneyDataAdd)
-      moneyData.value.forEach((item) => {
-        totalAmount.value += item.totalAmount
-      })
-      updateDisplay(totalAmount.value)
+      // moneyData.value.forEach((item) => {
+      //   totalAmount.value += item.totalAmount
+      // })
+      // updateDisplay(totalAmount.value)
+      updateDisplay()
       // ElMessage.success(moneyDataAdd)
     } else {
       ElMessage.error('系统分类不能为空并且不能重复')
@@ -722,11 +747,12 @@ const confirmDel = (row) => {
             totalAmount.value = 0
             totalManpower.value = 0
           }
-          totalAmount.value = 0
-          moneyData.value.forEach((item) => {
-            totalAmount.value += item.totalAmount
-          })
-          updateDisplay(totalAmount.value)
+          // totalAmount.value = 0
+          // moneyData.value.forEach((item) => {
+          //   totalAmount.value += item.totalAmount
+          // })
+          // updateDisplay(totalAmount.value)
+          updateDisplay()
         })
         .catch((error) => error)
     })
@@ -794,12 +820,16 @@ const pickerSelect = async (val) => {
   if (!route.params.id && !detailData.value.id) {
     if (updateDetail.systemId) {
       delete updateDetail.id
-      console.log(updateDetail.year, updateDetail.month)
       updateDetail.year = dayjs(val).format('YYYY')
       updateDetail.month = dayjs(val).format('MM')
+      updateDetail.createUser = store.getters.userInfo.username
+      updateDetail.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
       delete updateDetail.reportedAmount
+      delete updateDetail.operationAmount
+      delete updateDetail.developAmount
       delete updateDetail.contractAmount
       delete updateDetail.taxAmount
+      console.log(updateDetail.year, updateDetail.month)
       costNew.value = await costCreateSingle({
         table: 'outsourcingcosts',
         data: updateDetail

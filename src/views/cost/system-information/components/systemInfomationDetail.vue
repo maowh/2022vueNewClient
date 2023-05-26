@@ -16,8 +16,14 @@
           <el-descriptions-item :label="$t('msg.cost.customerName')">{{
             detailData.customerName
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.domainManagerName')">{{
-            detailData.domainManagerName
+          <el-descriptions-item :label="$t('msg.cost.business')">{{
+            detailData.business
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.operationManager')">{{
+            detailData.operationManagerName
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.developManager')">{{
+            detailData.developManagerName
           }}</el-descriptions-item>
         </el-descriptions>
       </div>

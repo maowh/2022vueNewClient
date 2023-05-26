@@ -224,7 +224,8 @@ export default {
     classificationName: 'classificationName',
     SystemName: 'SystemName',
     customerName: 'CustomerName',
-    domainManagerName: 'DomainManagerName',
+    operationManagerName: 'operationManagerName',
+    developManager: 'developManager',
     updateSuccess: 'updateSuccess',
     addSuccess: 'addSuccess',
     existsSuccess: 'existsSuccess',
@@ -248,6 +249,7 @@ export default {
     totalAmount: 'totalAmount',
     totalManpower: 'totalManpower',
     name: 'name',
-    load: 'load'
+    load: 'load',
+    business: 'business'
   }
 }

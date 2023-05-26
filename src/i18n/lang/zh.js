@@ -53,10 +53,10 @@ export default {
     outsourcingplanCreate: '外包费用计划创建',
     outsourcingplanEdit: '外包费用计划编辑',
     costschart: '费用图表分析',
-    coefficientInformationList: '系数信息管理',
-    coefficientInformationInfo: '系数信息查看',
-    coefficientInformationEdit: '系数信息编辑',
-    coefficientInformationCreate: '系数信息创建',
+    coefficientInformationList: '结算比例管理',
+    coefficientInformationInfo: '结算比例查看',
+    coefficientInformationEdit: '结算比例编辑',
+    coefficientInformationCreate: '结算比例创建',
     personnel: '人员基本信息',
     personnelload: '人员负荷管理',
     personnelloadInfo: '人员负荷信息查看',
@@ -117,17 +117,17 @@ export default {
     sidebarDesc: '项目功能菜单'
   },
   profile: {
-    muted: '《vue3 改写 vue-element-admin，实现后台前端综合解决方案》项目演示',
+    muted: '《深圳联友科技有限公司外包费用分解和人员管理系统》项目演示',
     introduce: '介绍',
     projectIntroduction: '项目介绍',
     projectFunction: '项目功能',
     feature: '功能',
     chapter: '章节',
     author: '作者',
-    name: 'Sunday',
-    job: '一个前端开发程序猿',
+    name: 'szlanyou',
+    job: '深圳联友科技有限公司',
     Introduction:
-      '高级技术专家，曾就职于国内一线互联网公司，统筹过的多个大型项目用户数已过千万级。致力于研究大前端技术，多次受邀参加国内前端技术分享会，如：2018 年 Google 中国技术分享会。'
+      '深圳联友科技有限公司-云服务BU-华中云服务部-十堰应用系统运维服务领域'
   },
   userInfo: {
     print: '打印',
@@ -228,7 +228,8 @@ export default {
     classificationName: '系统分类',
     SystemName: '系统名称',
     customerName: '客户名称',
-    domainManagerName: '领域经理名称',
+    operationManager: '运维经理',
+    developManager: '研发经理',
     updateSuccess: '更新数据成功',
     addSuccess: '新增数据成功',
     existsSuccess: '数据已存在不能重复',
@@ -238,7 +239,9 @@ export default {
     domainManager: '领域经理',
     year: '年份',
     month: '月度',
-    reportedAmount: '上报金额',
+    reportedAmount: '合计上报金额',
+    operationAmount: '运维金额',
+    developAmount: '研发金额',
     contractAmount: '合同价',
     taxAmount: '含税金额',
     systemEngineer: '系统工程师',
@@ -254,6 +257,7 @@ export default {
     contractPrice: '最终合同价系数',
     taxIncluded: '含税金额系数',
     name: '姓名',
-    load: '负荷系数'
+    load: '负荷系数',
+    business: '业务域'
   }
 }

@@ -37,7 +37,7 @@ export default {
     removeTagsView(state, payload) {
       if (payload.type === 'index') {
         state.tagsViewList.splice(payload.index, 1)
-        return
+        // return
       } else if (payload.type === 'other') {
         state.tagsViewList.splice(
           payload.index + 1,
@@ -49,6 +49,8 @@ export default {
           payload.index + 1,
           state.tagsViewList.length - payload.index + 1
         )
+      } else if (payload.type === 'all') {
+        state.tagsViewList.splice(0)
       }
       setItem(TAGS_VIEW, state.tagsViewList)
     }

@@ -26,6 +26,14 @@
           :label="$t('msg.cost.reportedAmount')"
         ></el-table-column>
         <el-table-column
+          prop="operationAmount"
+          :label="$t('msg.cost.operationAmount')"
+        ></el-table-column>
+        <el-table-column
+          prop="developAmount"
+          :label="$t('msg.cost.developAmount')"
+        ></el-table-column>
+        <el-table-column
           :label="$t('msg.cost.action')"
           fixed="right"
           width="260"
