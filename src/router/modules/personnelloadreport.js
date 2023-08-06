@@ -4,18 +4,18 @@ export default {
   path: '/personnelManage',
   component: layout,
   redirect: '/personnelManage/personnel',
-  name: 'personnel',
+  name: 'personnelloadreport',
   meta: {
     title: 'personnelManage',
     icon: 'personnel'
   },
   children: [
     {
-      path: '/personnelManage/personnel',
-      name: 'personnel',
-      component: () => import('@/views/cost/personnel/index'),
+      path: '/personnelManage/personnelloadreport',
+      name: 'personnelloadreport',
+      component: () => import('@/views/cost/personnelloadreport/index'),
       meta: {
-        title: 'personnel',
+        title: 'personnelloadreport',
         icon: 'personnel-manage'
       }
     }

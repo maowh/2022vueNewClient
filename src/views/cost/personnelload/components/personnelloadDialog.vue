@@ -1,5 +1,10 @@
 <template>
-  <el-dialog :title="title" :model-value="modelValue">
+  <el-dialog
+    :title="title"
+    :model-value="modelValue"
+    :close-on-press-escape="false"
+    :close-on-click-modal="false"
+  >
     <div v-if="props.tableName === 'systeminformation'">
       <el-table
         ref="singleTableRef"

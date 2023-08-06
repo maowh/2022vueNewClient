@@ -32,3 +32,6 @@ installIcons(app)
 installFilter(app)
 installDirective(app)
 app.use(store).use(router).use(i18n).mount('#app')
+
+// app.$.appContext.components.ElDialog.props.closeOnClickModal.default = false
+// app.$.appContext.components.ElDialog.props.closeOnPressEscape.default = false

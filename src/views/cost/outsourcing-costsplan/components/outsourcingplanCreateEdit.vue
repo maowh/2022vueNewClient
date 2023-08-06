@@ -16,6 +16,7 @@
           <el-col :span="12" :offset="0">
             <el-form-item :label="$t('msg.cost.SystemName')" prop="SystemName">
               <el-input
+                readonly
                 @click="systemDialogClick"
                 v-model="detailData.SystemName"
               >
@@ -232,7 +233,7 @@
                     v-if="row.edit"
                     size="small"
                     type="success"
-                    @click="confirmEdit(row, $index + 1)"
+                    @click="confirmEdit(row, $index)"
                   >
                     保存
                   </el-button>
@@ -348,11 +349,15 @@ const title = ref()
 
 // 定义费用明细是否
 const isAddMoney = ref(false)
-// 判断合计人力和合计金额
+// 判断合计人力和合计金额临时
 const tmpTotalAmount = ref(0)
 const tmpTotalManpower = ref(0)
-// 统计合计人力和合计金额
+const tmpContractAmount = ref(0)
+const tmpTaxAmount = ref(0)
+// 统计费用明细合计人力和合计金额
 const totalAmount = ref(0)
+const contractAmount = ref(0)
+const taxAmount = ref(0)
 const totalManpower = ref(0)
 // 分别统计运维和研发金额
 const operationAmount = ref(0)
@@ -383,8 +388,11 @@ const getCostMoneyList = async (id) => {
   totalManpower.value = 0
   moneyData.value.forEach((item) => {
     totalAmount.value += item.totalAmount
+    contractAmount.value += item.contractAmount
+    taxAmount.value += item.taxAmount
     totalManpower.value += item.totalManpower
   })
+  totalManpower.value = Number(totalManpower.value).toFixed(2)
   console.log(moneyData.value)
 }
 
@@ -505,20 +513,27 @@ const updateDisplay = async () => {
       } else if (item.classification === '开发') {
         developAmount.value = item.totalAmount
       }
-      totalAmount.value += item.totalAmount
+      totalAmount.value += Number(item.totalAmount)
+      contractAmount.value += Number(item.contractAmount)
+      taxAmount.value += Number(item.taxAmount)
     })
     updateDetail.reportedAmount = totalAmount.value
     updateDetail.operationAmount = operationAmount.value
     updateDetail.developAmount = developAmount.value
-    updateDetail.contractAmount =
-      totalAmount.value * costCoefficient.value.contractPrice
-    updateDetail.taxAmount =
-      totalAmount.value * costCoefficient.value.taxIncluded
+    updateDetail.contractAmount = contractAmount.value
+    updateDetail.taxAmount = taxAmount.value
+    // updateDetail.contractAmount =
+    //   totalAmount.value * costCoefficient.value.contractPrice
+    // updateDetail.taxAmount =
+    //   // totalAmount.value * costCoefficient.value.taxIncluded
+    //   (totalAmount.value * costCoefficient.value.contractPrice) /
+    //   costCoefficient.value.taxIncluded
   }
   console.log(updateDetail.reportedAmount)
   delete updateDetail.systemId
   // updateDetail.reportedAmount = row.totalAmount
   delete updateDetail.year
+  delete updateDetail.month
   updateDetail.updateUser = store.getters.userInfo.username
   updateDetail.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
   // delete updateDetail.month
@@ -550,50 +565,67 @@ const confirmEdit = async (row, index) => {
     Object.keys(costCoefficient.value).length === 0
   ) {
     ElMessage.error('客户年度费用标准未维护或客户年度费用系数未维护！')
-    getCostMoneyList(isEditCreatId.value)
-    isAddMoney.value = false
-    if (moneyData.value.length > 1) {
-      addIs.value = true
-    }
+    // getCostMoneyList(isEditCreatId.value)
+    // isAddMoney.value = false
+    // if (moneyData.value.length > 1) {
+    //   addIs.value = true
+    // }
   } else {
     row.edit = false
 
     row.originalTitle = row.title
     row.totalAmount = 0
+    row.contractAmount = 0
+    row.taxAmount = 0
     row.totalManpower = 0
     delete row.edit
     updateDetail.id = isEditCreatId.value
 
     totalAmount.value = 0
+    contractAmount.value = 0
+    taxAmount.value = 0
 
-    for (let index = 0; index < moneyData.value.length; index++) {
-      // const element = moneyData.value[index]
-      row.totalAmount =
-        moneyData.value[index].systemEngineer *
-          CostStandard.value.systemEngineer +
-        moneyData.value[index].seniorSap * CostStandard.value.seniorSap +
-        moneyData.value[index].seniorSoftwareEngineer *
+    // for (let index = 0; index < moneyData.value.length; index++) {
+    // const element = moneyData.value[index]
+    row.totalAmount = Number(
+      (Number(moneyData.value[index].systemEngineer) *
+        CostStandard.value.systemEngineer +
+        Number(moneyData.value[index].seniorSap) *
+          CostStandard.value.seniorSap +
+        Number(moneyData.value[index].seniorSoftwareEngineer) *
           CostStandard.value.seniorSoftwareEngineer +
-        moneyData.value[index].dbaEngineer * CostStandard.value.dbaEngineer +
-        moneyData.value[index].seniorSystemEngineer *
+        Number(moneyData.value[index].dbaEngineer) *
+          CostStandard.value.dbaEngineer +
+        Number(moneyData.value[index].seniorSystemEngineer) *
           CostStandard.value.seniorSystemEngineer +
-        moneyData.value[index].intermediateSap *
+        Number(moneyData.value[index].intermediateSap) *
           CostStandard.value.intermediateSap +
-        moneyData.value[index].seniorDbaEngineer *
+        Number(moneyData.value[index].seniorDbaEngineer) *
           CostStandard.value.seniorDbaEngineer +
-        moneyData.value[index].softwareEngineer *
-          CostStandard.value.softwareEngineer
-      row.totalManpower =
-        Number(moneyData.value[index].systemEngineer) +
+        Number(moneyData.value[index].softwareEngineer) *
+          CostStandard.value.softwareEngineer) /
+        176
+    ).toFixed(0)
+    row.contractAmount = Number(
+      row.totalAmount * costCoefficient.value.contractPrice
+    ).toFixed(0)
+    row.taxAmount = Number(
+      (row.totalAmount * costCoefficient.value.contractPrice) /
+        costCoefficient.value.taxIncluded
+    ).toFixed(0)
+    row.totalManpower = Number(
+      (Number(moneyData.value[index].systemEngineer) +
         Number(moneyData.value[index].seniorSap) +
         Number(moneyData.value[index].seniorSoftwareEngineer) +
         Number(moneyData.value[index].dbaEngineer) +
         Number(moneyData.value[index].seniorSystemEngineer) +
         Number(moneyData.value[index].intermediateSap) +
         Number(moneyData.value[index].seniorDbaEngineer) +
-        Number(moneyData.value[index].softwareEngineer)
-      console.log(row.totalAmount, row.totalManpower)
-    }
+        Number(moneyData.value[index].softwareEngineer)) /
+        176
+    ).toFixed(2)
+    console.log(row.totalAmount, row.totalManpower)
+    // }
 
     // tmp判断是否包含2个相同的分类
     const tmp = ref(0)
@@ -611,7 +643,7 @@ const confirmEdit = async (row, index) => {
       row.classification !== undefined &&
       tmp.value < 2
     ) {
-      delete row.outsourcingCostsPlanId
+      // delete row.outsourcingCostsPlanId
       delete row.outsourcingCostsId
 
       row.updateUser = store.getters.userInfo.username
@@ -694,37 +726,53 @@ const confirmDel = (row) => {
           if (moneyData.value.length > 0) {
             for (let index = 0; index < moneyData.value.length; index++) {
               // const element = moneyData.value[index]
-              row.totalAmount =
-                moneyData.value[index].systemEngineer *
+              row.totalAmount = Number(
+                (Number(moneyData.value[index].systemEngineer) *
                   CostStandard.value.systemEngineer +
-                moneyData.value[index].seniorSap *
-                  CostStandard.value.seniorSap +
-                moneyData.value[index].seniorSoftwareEngineer *
-                  CostStandard.value.seniorSoftwareEngineer +
-                moneyData.value[index].dbaEngineer *
-                  CostStandard.value.dbaEngineer +
-                moneyData.value[index].seniorSystemEngineer *
-                  CostStandard.value.seniorSystemEngineer +
-                moneyData.value[index].intermediateSap *
-                  CostStandard.value.intermediateSap +
-                moneyData.value[index].seniorDbaEngineer *
-                  CostStandard.value.seniorDbaEngineer +
-                moneyData.value[index].softwareEngineer *
-                  CostStandard.value.softwareEngineer
+                  Number(moneyData.value[index].seniorSap) *
+                    CostStandard.value.seniorSap +
+                  Number(moneyData.value[index].seniorSoftwareEngineer) *
+                    CostStandard.value.seniorSoftwareEngineer +
+                  Number(moneyData.value[index].dbaEngineer) *
+                    CostStandard.value.dbaEngineer +
+                  Number(moneyData.value[index].seniorSystemEngineer) *
+                    CostStandard.value.seniorSystemEngineer +
+                  Number(moneyData.value[index].intermediateSap) *
+                    CostStandard.value.intermediateSap +
+                  Number(moneyData.value[index].seniorDbaEngineer) *
+                    CostStandard.value.seniorDbaEngineer +
+                  Number(moneyData.value[index].softwareEngineer) *
+                    CostStandard.value.softwareEngineer) /
+                  176
+              ).toFixed(0)
+              row.contractAmount = Number(
+                row.totalAmount * costCoefficient.value.contractPrice
+              ).toFixed(0)
+              row.taxAmount = Number(
+                (row.totalAmount * costCoefficient.value.contractPrice) /
+                  costCoefficient.value.taxIncluded
+              ).toFixed(0)
               if (index === 0) {
                 tmpTotalAmount.value = row.totalAmount
+                tmpContractAmount.value = row.contractAmount
+                tmpTaxAmount.value = row.taxAmount
               } else {
                 row.totalAmount = tmpTotalAmount.value + row.totalAmount
+                row.contractAmount =
+                  tmpContractAmount.value + row.contractAmount
+                row.taxAmount = tmpTaxAmount.value + row.taxAmount
               }
-              row.totalManpower =
-                Number(moneyData.value[index].systemEngineer) +
-                Number(moneyData.value[index].seniorSap) +
-                Number(moneyData.value[index].seniorSoftwareEngineer) +
-                Number(moneyData.value[index].dbaEngineer) +
-                Number(moneyData.value[index].seniorSystemEngineer) +
-                Number(moneyData.value[index].intermediateSap) +
-                Number(moneyData.value[index].seniorDbaEngineer) +
-                Number(moneyData.value[index].softwareEngineer)
+              row.totalManpower = Number(
+                (Number(moneyData.value[index].systemEngineer) +
+                  Number(moneyData.value[index].seniorSap) +
+                  Number(moneyData.value[index].seniorSoftwareEngineer) +
+                  Number(moneyData.value[index].dbaEngineer) +
+                  Number(moneyData.value[index].seniorSystemEngineer) +
+                  Number(moneyData.value[index].intermediateSap) +
+                  Number(moneyData.value[index].seniorDbaEngineer) +
+                  Number(moneyData.value[index].softwareEngineer)) /
+                  176
+              ).toFixed(2)
               if (index === 0) {
                 tmpTotalManpower.value = row.totalManpower
               } else {
@@ -733,9 +781,13 @@ const confirmDel = (row) => {
               console.log(row.totalAmount, row.totalManpower)
             }
             totalAmount.value = row.totalAmount
+            contractAmount.value = row.contractAmount
+            taxAmount.value = row.taxAmount
             totalManpower.value = row.totalManpower
           } else {
             totalAmount.value = 0
+            contractAmount.value = 0
+            taxAmount.value = 0
             totalManpower.value = 0
           }
           // totalAmount.value = 0
@@ -815,6 +867,8 @@ const pickerSelect = async (val) => {
       updateDetail.year = dayjs(val).format('YYYY')
       // updateDetail.month = dayjs(val).format('MM')
       delete updateDetail.reportedAmount
+      delete updateDetail.contractAmount
+      delete updateDetail.taxAmount
       delete updateDetail.contractAmount
       delete updateDetail.taxAmount
       costNew.value = await costCreateSingle({

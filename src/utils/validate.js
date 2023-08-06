@@ -14,3 +14,7 @@ export const validatetext = (rule, value, callback) => {
     callback()
   }
 }
+// 判断是否复杂密码
+export function isComplexPwd(password) {
+  return /(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9]).{8,20}/.test(password)
+}

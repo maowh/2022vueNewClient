@@ -17,7 +17,11 @@
           <el-input disabled v-model="detailData.id" />
         </el-form-item>
         <el-form-item :label="$t('msg.cost.name')" prop="name">
-          <el-input @click="personnelDialogClick" v-model="detailData.name">
+          <el-input
+            @click="personnelDialogClick"
+            v-model="detailData.name"
+            readonly
+          >
             <template #suffix
               ><el-icon style="margin-right: 10px"><Search /></el-icon
             ></template>
@@ -31,17 +35,28 @@
             type="year"
           />
         </el-form-item> -->
-        <el-form-item :label="$t('msg.cost.month')">
-          <el-date-picker
+        <el-form-item :label="$t('msg.cost.monthBetween')">
+          <!-- <el-date-picker
             clear-icon="CircleClose"
             v-model="yearMonth"
             type="month"
             @change="pickerSelect($event)"
             placeholder="请选择年份月度"
+          /> -->
+          <el-date-picker
+            v-model="monthValue"
+            type="monthrange"
+            start-placeholder="开始月份"
+            end-placeholder="截止月份"
+            @change="pickerSelect($event)"
           />
         </el-form-item>
         <el-form-item :label="$t('msg.cost.SystemName')" prop="SystemName">
-          <el-input @click="systemDialogClick" v-model="detailData.SystemName">
+          <el-input
+            @click="systemDialogClick"
+            v-model="detailData.SystemName"
+            readonly
+          >
             <template #suffix
               ><el-icon style="margin-right: 10px"><Search /></el-icon
             ></template>
@@ -75,10 +90,17 @@
 
 <script setup>
 import { ref, reactive, watch, onActivated } from 'vue'
-import { costCreate, costEdit, costDisplay, costAllSelect } from '@/api/cost'
+import {
+  costCreate,
+  costEdit,
+  costDisplay,
+  // costAllSelect,
+  costListDisplay
+} from '@/api/cost'
 import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
+import { getMonthBetween } from '@/utils/monthbetween'
 import { useRoute, useRouter } from 'vue-router'
 import PersonnelloadDialog from './personnelloadDialog.vue'
 import dayjs from 'dayjs'
@@ -92,7 +114,7 @@ const router = useRouter()
 const rules = reactive({
   SystemName: [{ validator: validatetext, trigger: 'blur' }],
   name: [{ validator: validatetext, trigger: 'blur' }],
-  yearMonth: [{ validator: validatetext, trigger: 'blur' }],
+  monthValue: [{ validator: validatetext, trigger: 'blur' }],
   load: [{ validator: validatetext, trigger: 'blur' }]
 })
 
@@ -102,7 +124,22 @@ const title = ref()
 const costInformationId = route.params.id
 
 // 日期
-const yearMonth = ref('')
+// const yearMonth = ref('')
+// 区间月度选择
+const monthValue = ref('')
+// 获取所有数据
+const personnelloadAll = ref('')
+// 判断人员负荷累计值
+const personnelTotal = ref(false)
+// 判断系统负荷累计值
+const systemTotal = ref(false)
+// 维护分解的全部年月值
+const yearMonth = ref([])
+// 弹出报错提示
+const messageTotal = ref([])
+// 计算系统累加值
+const loadPersonnel = ref(0)
+const loadSystem = ref(0)
 
 const detailData = ref({})
 const getCostDisplay = async () => {
@@ -111,11 +148,14 @@ const getCostDisplay = async () => {
     id: route.params.id
   })
   detailData.value = detailData.value[0]
-  // detailData.value.year = dayjs().format('YYYY')
-  yearMonth.value = dayjs()
-    .set('year', detailData.value.year)
-    .set('month', detailData.value.month - 1)
-  console.log(detailData.value.year)
+  // yearMonth.value = dayjs()
+  //   .set('year', detailData.value.year)
+  //   .set('month', detailData.value.month - 1)
+  monthValue.value = [
+    new Date(detailData.value.startYearMonth),
+    new Date(detailData.value.endYearMonth)
+  ]
+  console.log(detailData.value, 'monthValue', monthValue.value)
 }
 
 onActivated(() => {
@@ -126,6 +166,115 @@ onActivated(() => {
     title.value = i18n.t('msg.cost.add')
   }
 })
+
+// 判断是否满足条件，将数据库全部记录取过来判断
+// 获取数据的方法
+// const getListData = async () => {
+//   const result = await costListDisplay({
+//     table: 'personnelload'
+//   })
+//   personnelloadAll.value = result.lists
+// }
+// 人员合计值是否大于1
+// 系统合计值是否大于1
+
+// 分解数据判断合计值是否超过
+// const accumulateValue = async () => {
+//   await costListDisplay({
+//     table: 'personnelload'
+//   }).then((result) => {
+//     personnelloadAll.value = result.lists
+//     console.log('personnelloadAll', personnelloadAll.value)
+//     const yearMonthList = ref([])
+//     personnelloadAll.value.forEach((item) => {
+//       // 判断是修改还是新增
+//       if (detailData.value.id) {
+//         // 判断人员的合计值不能大于1
+//         if (
+//           item.id !== detailData.value.id &&
+//           item.personnelId === detailData.value.personnelId
+//         ) {
+//           console.log(item.yearMonth)
+//           yearMonthList.value = item.yearMonth.split(',')
+//           console.log(yearMonthList.value, yearMonth.value)
+//           yearMonthList.value.forEach((yearMonthListItem) => {
+//             yearMonth.value.forEach((detailDataItem) => {
+//               // console.log(
+//               //   'detailDataItem',
+//               //   detailDataItem,
+//               //   'yearMonthListItem',
+//               //   yearMonthListItem
+//               // )
+//               // console.log(detailDataItem === yearMonthListItem)
+//               // console.log(detailData.value.load, item.load)
+//               if (detailDataItem === yearMonthListItem) {
+//                 console.log(Number(detailData.value.load), item.load)
+//                 if (Number(detailData.value.load) + Number(item.load) > 1) {
+//                   personnelTotal.value = true
+//                   console.log(
+//                     personnelTotal.value,
+//                     item.personnelId,
+//                     detailDataItem,
+//                     '合计大于1'
+//                   )
+//                 }
+//               }
+//             })
+//           })
+//         }
+//         // 判断系统的合计值不能大于1
+//         if (
+//           item.id !== detailData.value.id &&
+//           item.systemId === detailData.value.systemId
+//         ) {
+//           console.log(item.yearMonth)
+//           yearMonthList.value = item.yearMonth.split(',')
+//           yearMonthList.value.map((yearMonthListItem) => {
+//             yearMonth.value.forEach((detailDataItem) => {
+//               if (detailDataItem === yearMonthListItem) {
+//                 if (detailData.value.load + item.load > 1) {
+//                   systemTotal.value = true
+//                   console.log(item.personnelId, detailDataItem, '合计大于1')
+//                 }
+//               }
+//             })
+//           })
+//         }
+//       } else {
+//         // 判断人员的合计值不能大于1
+//         if (item.personnelId === detailData.value.personnelId) {
+//           console.log(item.yearMonth)
+//           yearMonthList.value = item.yearMonth.split(',')
+//           yearMonthList.value.map((yearMonthListItem) => {
+//             yearMonth.value.forEach((detailDataItem) => {
+//               if (detailDataItem === yearMonthListItem) {
+//                 if (detailData.value.load + item.load > 1) {
+//                   console.log(item.personnelId, detailDataItem, '合计大于1')
+//                   personnelTotal.value = true
+//                 }
+//               }
+//             })
+//           })
+//         }
+//         // 判断系统的合计值不能大于1
+//         if (item.systemId === detailData.value.systemId) {
+//           console.log(item.yearMonth)
+//           yearMonthList.value = item.yearMonth.split(',')
+//           yearMonthList.value.map((yearMonthListItem) => {
+//             yearMonth.value.forEach((detailDataItem) => {
+//               if (detailDataItem === yearMonthListItem) {
+//                 if (detailData.value.load + item.load > 1) {
+//                   console.log(item.personnelId, detailDataItem, '合计大于1')
+//                   systemTotal.value = true
+//                 }
+//               }
+//             })
+//           })
+//         }
+//       }
+//     })
+//   })
+// }
 
 // 确定按钮点击事件
 const validate = ref(false)
@@ -160,24 +309,247 @@ const onConfirm = async (ruleFormRef) => {
     validate.value = true
   }
 
+  // 清空，否则会重复
+  yearMonth.value = []
+  getMonthBetween(
+    dayjs(monthValue.value[0]).format('YYYY-MM'),
+    dayjs(monthValue.value[1]).format('YYYY-MM')
+  ).map((item) => {
+    yearMonth.value.push(item)
+  })
+
   // 编辑
   if (route.params.id && validate.value) {
-    delete detailData.value.SystemName
-    delete detailData.value.name
-
     // 校验新增和编辑人员是否满足条件
-    const dataSelect = ref(0)
-    await costAllSelect({
-      table: 'personnelload',
-      data: detailData
-    }).then((item) => {
-      dataSelect.value = item[0].total
+    // accumulateValue()
+
+    // const dataSelect = ref(0)
+    // await costAllSelect({
+    //   table: 'personnelload',
+    //   data: detailData
+    // }).then((item) => {
+    //   dataSelect.value = item[0].total
+    // })
+    // console.log(dataSelect.value)
+    // if (Number(dataSelect.value) + Number(detailData.value.load) > 1) {
+    //   ElMessage.warning('人员同一年月负荷系数不能大于1')
+    //   closed(ruleFormRef)
+    await costListDisplay({
+      table: 'personnelload'
+    }).then((result) => {
+      personnelloadAll.value = result.lists
+      console.log('personnelloadAll', personnelloadAll.value)
+      const yearMonthList = ref([])
+
+      // 新规则，计算累加
+      yearMonth.value.forEach((detailDataItem) => {
+        loadPersonnel.value = 0
+        loadSystem.value = 0
+        personnelloadAll.value.forEach((personnelloadAllItem) => {
+          if (detailData.value.id) {
+            // 判断人员的合计值不能大于1
+            if (
+              personnelloadAllItem.id !== detailData.value.id &&
+              personnelloadAllItem.personnelId === detailData.value.personnelId
+            ) {
+              yearMonthList.value = personnelloadAllItem.yearMonth.split(',')
+              yearMonthList.value.forEach((yearMonthListItem) => {
+                if (yearMonthListItem === detailDataItem) {
+                  loadPersonnel.value += Number(personnelloadAllItem.load)
+                }
+              })
+            }
+            if (
+              personnelloadAllItem.id !== detailData.value.id &&
+              personnelloadAllItem.systemId === detailData.value.systemId
+            ) {
+              yearMonthList.value = personnelloadAllItem.yearMonth.split(',')
+              yearMonthList.value.forEach((yearMonthListItem) => {
+                if (yearMonthListItem === detailDataItem) {
+                  loadSystem.value += Number(personnelloadAllItem.load)
+                }
+              })
+            }
+          } else {
+            if (
+              personnelloadAllItem.personnelId === detailData.value.personnelId
+            ) {
+              yearMonthList.value = personnelloadAllItem.yearMonth.split(',')
+              yearMonthList.value.forEach((yearMonthListItem) => {
+                if (yearMonthListItem === detailDataItem) {
+                  loadPersonnel.value += Number(personnelloadAllItem.load)
+                }
+              })
+            }
+            if (personnelloadAllItem.systemId === detailData.value.systemId) {
+              yearMonthList.value = personnelloadAllItem.yearMonth.split(',')
+              yearMonthList.value.forEach((yearMonthListItem) => {
+                if (yearMonthListItem === detailDataItem) {
+                  loadSystem.value += Number(personnelloadAllItem.load)
+                }
+              })
+            }
+          }
+        })
+        console.log(
+          Number(detailData.value.load),
+          loadPersonnel.value,
+          loadSystem.value,
+          Number(detailData.value.load) + loadPersonnel.value,
+          Number(detailData.value.load) + loadSystem.value
+        )
+        if (Number(detailData.value.load) + loadPersonnel.value > 1) {
+          personnelTotal.value = true
+          messageTotal.value.push(
+            '用户ID:',
+            detailData.value.personnelId,
+            '年度月份:',
+            detailDataItem,
+            '维护负荷系数',
+            detailData.value.load,
+            '人员存在负荷系数',
+            loadPersonnel.value,
+            '合计负荷大于1'
+          )
+        } else if (Number(detailData.value.load) + loadSystem.value > 1) {
+          personnelTotal.value = true
+          messageTotal.value.push(
+            '用户ID:',
+            detailData.value.personnelId,
+            '年度月份:',
+            detailDataItem,
+            '维护负荷系数',
+            detailData.value.load,
+            '系统存在负荷系数',
+            loadSystem.value,
+            '合计负荷大于1'
+          )
+        }
+      })
+
+      // personnelloadAll.value.forEach((item) => {
+      //   // 判断是修改还是新增
+      //   if (detailData.value.id) {
+      //     // 判断人员的合计值不能大于1
+      //     if (
+      //       item.id !== detailData.value.id &&
+      //       item.personnelId === detailData.value.personnelId
+      //     ) {
+      //       console.log(item.yearMonth)
+      //       yearMonthList.value = item.yearMonth.split(',')
+      //       console.log(yearMonthList.value, yearMonth.value)
+      //       yearMonthList.value.forEach((yearMonthListItem) => {
+      //         yearMonth.value.forEach((detailDataItem) => {
+      //           if (detailDataItem === yearMonthListItem) {
+      //             console.log(Number(detailData.value.load), item.load)
+      //             if (Number(detailData.value.load) + Number(item.load) > 1) {
+      //               personnelTotal.value = true
+      //               messageTotal.value.push(
+      //                 '用户名:',
+      //                 item.name,
+      //                 '年度月份:',
+      //                 detailDataItem,
+      //                 '维护负荷系数',
+      //                 detailData.value.load,
+      //                 '系统存在负荷系数',
+      //                 item.load,
+      //                 '合计负荷大于1'
+      //               )
+      //             }
+      //           }
+      //         })
+      //       })
+      //     }
+      //     // 判断系统的合计值不能大于1
+      //     if (
+      //       item.id !== detailData.value.id &&
+      //       item.systemId === detailData.value.systemId
+      //     ) {
+      //       console.log(item.yearMonth)
+      //       yearMonthList.value = item.yearMonth.split(',')
+      //       yearMonthList.value.map((yearMonthListItem) => {
+      //         yearMonth.value.forEach((detailDataItem) => {
+      //           if (detailDataItem === yearMonthListItem) {
+      //             if (Number(detailData.value.load) + Number(item.load) > 1) {
+      //               systemTotal.value = true
+      //               messageTotal.value.push(
+      //                 '系统名称:',
+      //                 item.SystemName,
+      //                 '年度月份:',
+      //                 detailDataItem,
+      //                 '维护负荷系数',
+      //                 detailData.value.load,
+      //                 '系统存在负荷系数',
+      //                 item.load,
+      //                 '合计负荷大于1'
+      //               )
+      //             }
+      //           }
+      //         })
+      //       })
+      //     }
+      //   } else {
+      //     // 判断人员的合计值不能大于1
+      //     if (item.personnelId === detailData.value.personnelId) {
+      //       console.log(item.yearMonth)
+      //       yearMonthList.value = item.yearMonth.split(',')
+      //       yearMonthList.value.map((yearMonthListItem) => {
+      //         yearMonth.value.forEach((detailDataItem) => {
+      //           if (detailDataItem === yearMonthListItem) {
+      //             if (Number(detailData.value.load) + Number(item.load) > 1) {
+      //               personnelTotal.value = true
+      //               messageTotal.value.push(
+      //                 '用户名:',
+      //                 item.name,
+      //                 '年度月份:',
+      //                 detailDataItem,
+      //                 '维护负荷系数',
+      //                 detailData.value.load,
+      //                 '系统存在负荷系数',
+      //                 item.load,
+      //                 '合计负荷大于1'
+      //               )
+      //             }
+      //           }
+      //         })
+      //       })
+      //     }
+      //     // 判断系统的合计值不能大于1
+      //     if (item.systemId === detailData.value.systemId) {
+      //       console.log(item.yearMonth)
+      //       yearMonthList.value = item.yearMonth.split(',')
+      //       yearMonthList.value.map((yearMonthListItem) => {
+      //         yearMonth.value.forEach((detailDataItem) => {
+      //           if (detailDataItem === yearMonthListItem) {
+      //             if (Number(detailData.value.load) + Number(item.load) > 1) {
+      //               systemTotal.value = true
+      //               messageTotal.value.push(
+      //                 '系统名称:',
+      //                 item.SystemName,
+      //                 '年度月份:',
+      //                 detailDataItem,
+      //                 '维护负荷系数',
+      //                 detailData.value.load,
+      //                 '系统存在负荷系数',
+      //                 item.load,
+      //                 '合计负荷大于1'
+      //               )
+      //             }
+      //           }
+      //         })
+      //       })
+      //     }
+      //   }
+      // })
     })
-    console.log(dataSelect.value)
-    if (Number(dataSelect.value) + Number(detailData.value.load) > 1) {
-      ElMessage.warning('人员同一年月负荷系数不能大于1')
+
+    if (personnelTotal.value === true || systemTotal.value === true) {
+      ElMessage.warning(messageTotal.value.toString())
+      console.log(messageTotal.value)
       closed(ruleFormRef)
     } else {
+      delete detailData.value.SystemName
+      delete detailData.value.name
       detailData.value.updateUser = store.getters.userInfo.username
       detailData.value.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
       const dataUpdate = await costEdit({
@@ -197,24 +569,216 @@ const onConfirm = async (ruleFormRef) => {
     // 新增
   } else if (validate.value) {
     console.log('create', detailData.value)
-    delete detailData.value.id
-    delete detailData.value.SystemName
-    delete detailData.value.name
-    detailData.value.createUser = store.getters.userInfo.username
-    detailData.value.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
+
     // 校验新增和编辑人员是否满足条件
-    const dataSelect = ref(0)
-    await costAllSelect({
-      table: 'personnelload',
-      data: detailData
-    }).then((item) => {
-      dataSelect.value = item[0].total
+    // const dataSelect = ref(0)
+    // await costAllSelect({
+    //   table: 'personnelload',
+    //   data: detailData
+    // }).then((item) => {
+    //   dataSelect.value = item[0].total
+    // })
+    // console.log(dataSelect.value)
+    // if (Number(dataSelect.value) + Number(detailData.value.load) > 1) {
+    //   ElMessage.warning('人员同一年月负荷系数不能大于1')
+    //   closed(ruleFormRef)
+    // 校验新增和编辑人员是否满足条件
+    await costListDisplay({
+      table: 'personnelload'
+    }).then((result) => {
+      personnelloadAll.value = result.lists
+      console.log('personnelloadAll', personnelloadAll.value)
+      const yearMonthList = ref([])
+
+      // 新规则，计算累加
+      yearMonth.value.forEach((detailDataItem) => {
+        loadPersonnel.value = 0
+        loadSystem.value = 0
+        personnelloadAll.value.forEach((personnelloadAllItem) => {
+          if (detailData.value.id) {
+            // 判断人员的合计值不能大于1
+            if (
+              personnelloadAllItem.id !== detailData.value.id &&
+              personnelloadAllItem.personnelId === detailData.value.personnelId
+            ) {
+              yearMonthList.value = personnelloadAllItem.yearMonth.split(',')
+              yearMonthList.value.forEach((yearMonthListItem) => {
+                if (yearMonthListItem === detailDataItem) {
+                  loadPersonnel.value += Number(personnelloadAllItem.load)
+                }
+              })
+            }
+            if (
+              personnelloadAllItem.id !== detailData.value.id &&
+              personnelloadAllItem.systemId === detailData.value.systemId
+            ) {
+              yearMonthList.value = personnelloadAllItem.yearMonth.split(',')
+              yearMonthList.value.forEach((yearMonthListItem) => {
+                if (yearMonthListItem === detailDataItem) {
+                  loadSystem.value += Number(personnelloadAllItem.load)
+                }
+              })
+            }
+          } else {
+            if (
+              personnelloadAllItem.personnelId === detailData.value.personnelId
+            ) {
+              yearMonthList.value = personnelloadAllItem.yearMonth.split(',')
+              yearMonthList.value.forEach((yearMonthListItem) => {
+                if (yearMonthListItem === detailDataItem) {
+                  loadPersonnel.value += Number(personnelloadAllItem.load)
+                }
+              })
+            }
+            if (personnelloadAllItem.systemId === detailData.value.systemId) {
+              yearMonthList.value = personnelloadAllItem.yearMonth.split(',')
+              console.log(personnelloadAllItem.id, yearMonthList.value)
+              yearMonthList.value.forEach((yearMonthListItem) => {
+                if (yearMonthListItem === detailDataItem) {
+                  loadSystem.value += Number(personnelloadAllItem.load)
+                  console.log(
+                    personnelloadAllItem.systemId,
+                    detailData.value.systemId,
+                    yearMonthListItem,
+                    detailDataItem,
+                    loadSystem.value
+                  )
+                }
+              })
+            }
+          }
+        })
+        console.log(
+          Number(detailData.value.load),
+          loadPersonnel.value,
+          loadSystem.value
+        )
+        if (Number(detailData.value.load) + loadPersonnel.value > 1) {
+          personnelTotal.value = true
+          messageTotal.value.push(
+            '用户ID:',
+            detailData.value.personnelId,
+            '年度月份:',
+            detailDataItem,
+            '维护负荷系数',
+            detailData.value.load,
+            '人员存在负荷系数',
+            loadPersonnel.value,
+            '合计负荷大于1'
+          )
+        } else if (Number(detailData.value.load) + loadSystem.value > 1) {
+          personnelTotal.value = true
+          messageTotal.value.push(
+            '用户ID:',
+            detailData.value.personnelId,
+            '年度月份:',
+            detailDataItem,
+            '维护负荷系数',
+            detailData.value.load,
+            '系统存在负荷系数',
+            loadSystem.value,
+            '合计负荷大于1'
+          )
+        }
+      })
+      // personnelloadAll.value.forEach((item) => {
+      //   // 判断是修改还是新增
+      //   if (detailData.value.id) {
+      //     // 判断人员的合计值不能大于1
+      //     if (
+      //       item.id !== detailData.value.id &&
+      //       item.personnelId === detailData.value.personnelId
+      //     ) {
+      //       console.log(item.yearMonth)
+      //       yearMonthList.value = item.yearMonth.split(',')
+      //       console.log(yearMonthList.value, yearMonth.value)
+      //       yearMonthList.value.forEach((yearMonthListItem) => {
+      //         yearMonth.value.forEach((detailDataItem) => {
+      //           // console.log(
+      //           //   'detailDataItem',
+      //           //   detailDataItem,
+      //           //   'yearMonthListItem',
+      //           //   yearMonthListItem
+      //           // )
+      //           // console.log(detailDataItem === yearMonthListItem)
+      //           // console.log(detailData.value.load, item.load)
+      //           if (detailDataItem === yearMonthListItem) {
+      //             console.log(Number(detailData.value.load), item.load)
+      //             if (Number(detailData.value.load) + Number(item.load) > 1) {
+      //               personnelTotal.value = true
+      //               console.log(
+      //                 personnelTotal.value,
+      //                 item.personnelId,
+      //                 detailDataItem,
+      //                 '合计大于1'
+      //               )
+      //             }
+      //           }
+      //         })
+      //       })
+      //     }
+      //     // 判断系统的合计值不能大于1
+      //     if (
+      //       item.id !== detailData.value.id &&
+      //       item.systemId === detailData.value.systemId
+      //     ) {
+      //       console.log(item.yearMonth)
+      //       yearMonthList.value = item.yearMonth.split(',')
+      //       yearMonthList.value.map((yearMonthListItem) => {
+      //         yearMonth.value.forEach((detailDataItem) => {
+      //           if (detailDataItem === yearMonthListItem) {
+      //             if (detailData.value.load + item.load > 1) {
+      //               systemTotal.value = true
+      //               console.log(item.personnelId, detailDataItem, '合计大于1')
+      //             }
+      //           }
+      //         })
+      //       })
+      //     }
+      //   } else {
+      //     // 判断人员的合计值不能大于1
+      //     if (item.personnelId === detailData.value.personnelId) {
+      //       console.log(item.yearMonth)
+      //       yearMonthList.value = item.yearMonth.split(',')
+      //       yearMonthList.value.map((yearMonthListItem) => {
+      //         yearMonth.value.forEach((detailDataItem) => {
+      //           if (detailDataItem === yearMonthListItem) {
+      //             if (detailData.value.load + item.load > 1) {
+      //               console.log(item.personnelId, detailDataItem, '合计大于1')
+      //               personnelTotal.value = true
+      //             }
+      //           }
+      //         })
+      //       })
+      //     }
+      //     // 判断系统的合计值不能大于1
+      //     if (item.systemId === detailData.value.systemId) {
+      //       console.log(item.yearMonth)
+      //       yearMonthList.value = item.yearMonth.split(',')
+      //       yearMonthList.value.map((yearMonthListItem) => {
+      //         yearMonth.value.forEach((detailDataItem) => {
+      //           if (detailDataItem === yearMonthListItem) {
+      //             if (detailData.value.load + item.load > 1) {
+      //               console.log(item.personnelId, detailDataItem, '合计大于1')
+      //               systemTotal.value = true
+      //             }
+      //           }
+      //         })
+      //       })
+      //     }
+      //   }
+      // })
     })
-    console.log(dataSelect.value)
-    if (Number(dataSelect.value) + Number(detailData.value.load) > 1) {
-      ElMessage.warning('人员同一年月负荷系数不能大于1')
+    if (personnelTotal.value === true || systemTotal.value === true) {
+      ElMessage.warning(messageTotal.value.toString())
+      console.log(messageTotal.value)
       closed(ruleFormRef)
     } else {
+      delete detailData.value.id
+      delete detailData.value.SystemName
+      delete detailData.value.name
+      detailData.value.createUser = store.getters.userInfo.username
+      detailData.value.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
       const dataCreate = await costCreate({
         table: 'personnelload',
         data: detailData
@@ -235,8 +799,15 @@ const onConfirm = async (ruleFormRef) => {
 const closed = (ruleFormRef) => {
   if (!ruleFormRef) return
   ruleFormRef.resetFields()
-  yearMonth.value = ''
-  router.push('/outsourcing/personnelload')
+  monthValue.value = ''
+  messageTotal.value = []
+  personnelTotal.value = false
+  // 判断系统负荷累计值
+  systemTotal.value = false
+  // 维护分解的全部年月值
+  yearMonth.value = []
+  detailData.value = {}
+  router.push('/personnelManage/personnelload')
 }
 
 // 关闭
@@ -280,9 +851,34 @@ const getCostSelect = (item) => {
 }
 
 const pickerSelect = (val) => {
+  // 已成功的算出区间月份
+  console.log(dayjs(monthValue.value[0]).format('YYYY-MM'))
+  console.log(dayjs(monthValue.value[1]).format('YYYY-MM'))
+  console.log(
+    getMonthBetween(
+      dayjs(monthValue.value[0]).format('YYYY-MM'),
+      dayjs(monthValue.value[1]).format('YYYY-MM')
+    )
+  )
+  const year = []
+  const month = []
+
+  getMonthBetween(
+    dayjs(monthValue.value[0]).format('YYYY-MM'),
+    dayjs(monthValue.value[1]).format('YYYY-MM')
+  ).map((item) => {
+    year.push(item.split('-')[0])
+    month.push(item.split('-')[1])
+    yearMonth.value.push(item)
+  })
+  detailData.value.year = year
+  detailData.value.month = month
+  detailData.value.yearMonth = yearMonth.value
+  detailData.value.startYearMonth = dayjs(monthValue.value[0]).format('YYYY-MM')
+  detailData.value.endYearMonth = dayjs(monthValue.value[1]).format('YYYY-MM')
+  console.log(detailData.value)
   // detailData.value.year = dayjs(val).format('YYYY')
-  detailData.value.year = dayjs(val).format('YYYY')
-  detailData.value.month = dayjs(val).format('MM')
+  // detailData.value.month = dayjs(val).format('MM')
 }
 // getCostSelect()
 </script>

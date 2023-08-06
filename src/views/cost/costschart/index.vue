@@ -6,7 +6,11 @@
       >
 
       <el-col :span="6">
-        <el-input @click="systemDialogClick" v-model="detailData.SystemName">
+        <el-input
+          @click="systemDialogClick"
+          v-model="detailData.SystemName"
+          readonly
+        >
           <template #suffix
             ><el-icon style="margin-right: 10px"><Search /></el-icon
           ></template> </el-input
@@ -108,18 +112,10 @@ const onCostsChart = async () => {
     // getCostsPlan()
     console.log(typeof detailData.value.SystemName)
     if (
-      monthReality.value.length !== 0 &&
-      totalReality.value.length !== 0 &&
+      monthReportedAmount.value.length !== 0 &&
+      quarterTotal.value.length !== 0 &&
       costsPlan.value !== 0
     ) {
-      // console.log(
-      //   'monthReality',
-      //   monthReality.value,
-      //   'totalReality',
-      //   totalReality.value,
-      //   'costsPlan',
-      //   costsPlan.value
-      // )
       init(chart)
       show(chart)
       resize(chart)
@@ -127,75 +123,65 @@ const onCostsChart = async () => {
   }
 }
 // 定义月度实际和月度累计实际
-const monthReality = ref([])
+const monthReportedAmount = ref([])
+const monthOperationAmount = ref([])
+const monthDevelopAmount = ref([])
 // 定义季度实际
-const monthRealityTmp = ref([])
-const totalReality = ref([])
+const quarterReportedAmount = ref([])
+const quarterOperationAmount = ref([])
+const quarterDevelopAmount = ref([])
+const quarterTotal = ref([])
 const costsPlan = ref(0)
 // 获取月度实际费用
 const getCostsReality = async () => {
-  monthReality.value = []
-  totalReality.value = []
+  monthReportedAmount.value = []
+  quarterTotal.value = []
   await costAllSelect({
     table: 'outsourcingcosts',
     data: detailData
-  }).then((item) => {
-    console.log(item)
-    for (let index = 0; index < item.length; index++) {
-      console.log(Number(item[index].month))
-      // 统计单月费用
-      if (Number(item[index].month - 1) !== index) {
-        for (let j = index; j < Number(item[index].month); j++) {
-          if (j === Number(item[index].month) - 1) {
-            console.log(j, item[index].reportedAmount)
-            monthReality.value.splice(j, 0, item[index].reportedAmount)
-          } else {
-            monthReality.value.splice(j, 0, 0)
-          }
-        }
-      } else {
-        monthReality.value.splice(index, 0, item[index].reportedAmount)
-      }
-      // monthReality.value.push(item[index].reportedAmount)
-      // if (index === 0) {
-      //   totalReality.value.push(monthReality.value[index])
-      // } else {
-      //   totalReality.value.push(
-      //     // monthReality.value[index] + monthReality.value[index - 1]
-      //     获取数组数据合计
-      //     monthReality.value.reduce((old, now) => {
-      //       return old + now
-      //     }, 0)
-      //   )
-      // }
+  }).then((items) => {
+    for (let index = 0; index < 12; index++) {
+      monthReportedAmount.value.splice(index, 0, 0)
+      monthOperationAmount.value.splice(index, 0, 0)
+      monthDevelopAmount.value.splice(index, 0, 0)
     }
+    items.map((item) => {
+      for (let index = 0; index < 12; index++) {
+        if (Number(item.month) - 1 === index) {
+          monthReportedAmount.value.splice(index, 1, item.reportedAmount)
+          monthOperationAmount.value.splice(index, 1, item.operationAmount)
+          monthDevelopAmount.value.splice(index, 1, item.developAmount)
+        }
+      }
+    })
+
+    convertMonthQuarter(monthReportedAmount.value, 'Reported')
+    convertMonthQuarter(monthOperationAmount.value, 'Operation')
+    convertMonthQuarter(monthDevelopAmount.value, 'Develop')
 
     // 将费用月份转换为季度
-
-    let value = 0
-    for (let index = 0; index < monthReality.value.length; index++) {
-      value += monthReality.value[index]
-      if (index === 2) {
-        monthRealityTmp.value.push(value)
-        value = 0
-      } else if (index === 5) {
-        monthRealityTmp.value.push(value)
-        value = 0
-      } else if (index === 8) {
-        monthRealityTmp.value.push(value)
-        value = 0
-      } else if (index === 11) {
-        monthRealityTmp.value.push(value)
-        value = 0
-      }
-      console.log(index, monthReality.value[index])
-    }
-    console.log(monthRealityTmp.value)
+    // let value = 0
+    // for (let index = 0; index < monthReportedAmount.value.length; index++) {
+    //   value += monthReportedAmount.value[index]
+    //   if (index === 2) {
+    //     quarterReportedAmount.value.push(value)
+    //     value = 0
+    //   } else if (index === 5) {
+    //     quarterReportedAmount.value.push(value)
+    //     value = 0
+    //   } else if (index === 8) {
+    //     quarterReportedAmount.value.push(value)
+    //     value = 0
+    //   } else if (index === 11) {
+    //     quarterReportedAmount.value.push(value)
+    //     value = 0
+    //   }
+    // }
     // 统计合计费用
     let sum = 0
-    for (let i = 0; i < monthRealityTmp.value.length; i++) {
-      sum += monthRealityTmp.value[i]
-      totalReality.value.splice(i, 0, sum)
+    for (let i = 0; i < quarterReportedAmount.value.length; i++) {
+      sum += quarterReportedAmount.value[i]
+      quarterTotal.value.splice(i, 0, sum)
     }
   })
 }
@@ -205,9 +191,66 @@ const getCostsPlan = async () => {
     table: 'outsourcingcostsplan',
     data: detailData
   }).then((item) => {
-    costsPlan.value = item[0].reportedAmount
+    console.log(item)
+    if (item.length !== 0) {
+      costsPlan.value = item[0].reportedAmount
+    }
   })
 }
+
+// 将月度费用转换成季度费用
+const convertMonthQuarter = (amount, selectItem) => {
+  let value = 0
+  for (let index = 0; index < amount.length; index++) {
+    value += amount[index]
+    if (index === 2) {
+      if (selectItem === 'Reported') {
+        quarterReportedAmount.value.push(value)
+        value = 0
+      } else if (selectItem === 'Operation') {
+        quarterOperationAmount.value.push(value)
+        value = 0
+      } else if (selectItem === 'Develop') {
+        quarterDevelopAmount.value.push(value)
+        value = 0
+      }
+    } else if (index === 5) {
+      if (selectItem === 'Reported') {
+        quarterReportedAmount.value.push(value)
+        value = 0
+      } else if (selectItem === 'Operation') {
+        quarterOperationAmount.value.push(value)
+        value = 0
+      } else if (selectItem === 'Develop') {
+        quarterDevelopAmount.value.push(value)
+        value = 0
+      }
+    } else if (index === 8) {
+      if (selectItem === 'Reported') {
+        quarterReportedAmount.value.push(value)
+        value = 0
+      } else if (selectItem === 'Operation') {
+        quarterOperationAmount.value.push(value)
+        value = 0
+      } else if (selectItem === 'Develop') {
+        quarterDevelopAmount.value.push(value)
+        value = 0
+      }
+    } else if (index === 11) {
+      if (selectItem === 'Reported') {
+        quarterReportedAmount.value.push(value)
+        value = 0
+      } else if (selectItem === 'Operation') {
+        quarterOperationAmount.value.push(value)
+        value = 0
+      } else if (selectItem === 'Develop') {
+        quarterDevelopAmount.value.push(value)
+        value = 0
+      }
+    }
+  }
+}
+
 // 初始化图表
 let chart
 onMounted(() => {
@@ -245,7 +288,7 @@ const option = {
   },
   // 报表头部显示
   legend: {
-    data: ['季度实际费用', '季度实际累计费用'],
+    data: ['季度总费用', '季度运维费用', '季度研发费用', '季度累计总费用'],
     top: 'bottom'
     // data: ['Evaporation', 'Precipitation', 'Temperature']
   },
@@ -271,7 +314,7 @@ const option = {
       max: costsPlan.value,
       interval: 5000,
       axisLabel: {
-        formatter: '{value} 万'
+        formatter: '{value} 元'
       }
     },
     {
@@ -282,37 +325,61 @@ const option = {
       max: costsPlan.value,
       interval: 5000,
       axisLabel: {
-        formatter: '{value} 万'
+        formatter: '{value} 元'
       }
     }
   ],
   series: [
     {
-      name: '季度实际费用',
+      name: '季度总费用',
       type: 'bar',
       tooltip: {
         valueFormatter: function (value) {
-          return value + ' 万'
+          return value + ' 元'
         }
       },
       // 柱状图数值显示
       // data: [2.0, 4.9, 7.0, 3.2, 5.6, 6.7, 5.6, 2.2, 3.6, 2.0, 6.4, 3.3]
-      data: monthRealityTmp.value
+      data: quarterReportedAmount.value
     },
     {
-      name: '季度实际累计费用',
+      name: '季度运维费用',
+      type: 'bar',
+      tooltip: {
+        valueFormatter: function (value) {
+          return value + ' 元'
+        }
+      },
+      // 柱状图数值显示
+      // data: [2.0, 4.9, 7.0, 3.2, 5.6, 6.7, 5.6, 2.2, 3.6, 2.0, 6.4, 3.3]
+      data: quarterOperationAmount.value
+    },
+    {
+      name: '季度研发费用',
+      type: 'bar',
+      tooltip: {
+        valueFormatter: function (value) {
+          return value + ' 元'
+        }
+      },
+      // 柱状图数值显示
+      // data: [2.0, 4.9, 7.0, 3.2, 5.6, 6.7, 5.6, 2.2, 3.6, 2.0, 6.4, 3.3]
+      data: quarterDevelopAmount.value
+    },
+    {
+      name: '季度累计总费用',
       type: 'line',
       yAxisIndex: 1,
       tooltip: {
         valueFormatter: function (value) {
-          return value + ' 万'
+          return value + ' 元'
         }
       },
       // 折线图数值显示
       // data: [
       //   2.0, 6.9, 13.9, 17.1, 20.3, 26.3, 29.3, 33.4, 35.0, 36.5, 38.0, 39.2
       // ]
-      data: totalReality.value
+      data: quarterTotal.value
     }
   ]
 }
@@ -334,12 +401,20 @@ const show = (chart) => {
       ],
       series: [
         {
-          name: '季度实际费用',
-          data: monthRealityTmp.value
+          name: '季度总费用',
+          data: quarterReportedAmount.value
         },
         {
-          name: '季度实际累计费用',
-          data: totalReality.value
+          name: '季度运维费用',
+          data: quarterOperationAmount.value
+        },
+        {
+          name: '季度研发费用',
+          data: quarterDevelopAmount.value
+        },
+        {
+          name: '季度累计总费用',
+          data: quarterTotal.value
         }
       ]
     })

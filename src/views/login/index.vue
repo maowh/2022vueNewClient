@@ -70,6 +70,7 @@ import { validatePassword } from './rules'
 import { useStore } from 'vuex'
 import LangSelect from '@/components/LangSelect/index'
 import { useI18n } from 'vue-i18n'
+import { ElMessage } from 'element-plus'
 
 // 验证规则
 const i18n = useI18n()
@@ -124,6 +125,7 @@ const handleLogin = () => {
         // TODO:登录后操作
       })
       .catch((err) => {
+        ElMessage.warning('账号密码错误，请重新输入登录！')
         console.log(err)
         loading.value = false
       })

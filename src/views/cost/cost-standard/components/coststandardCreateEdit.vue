@@ -17,6 +17,7 @@
           <el-col :span="12" :offset="0">
             <el-form-item :label="$t('msg.cost.customerName')" prop="customer">
               <el-input
+                readonly
                 @click="customerDialogClick"
                 v-model="detailData.customer"
               >

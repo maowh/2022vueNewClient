@@ -16,12 +16,10 @@ service.interceptors.request.use(
     if (store.getters.token) {
       if (isCheckTimeout()) {
         // 登出，根据客户端时效判断
-        console.log('时间到登出1')
         store.dispatch('user/logout')
-        return Promise.reject(new Error('token失效'))
+        return Promise.reject(new Error('超过登录时长，请重新登录！'))
       } else {
         // 如果token存在 注入token
-        console.log('时间到登出2')
         config.headers.Authorization = `Bearer ${store.getters.token}`
       }
     }
@@ -37,15 +35,19 @@ service.interceptors.response.use(
   // 请求成功
   (response) => {
     const { code, msg, data } = response.data
+    console.log(code, msg, data)
     // 需要判断当前请求是否成功
     if (code === 0) {
       // 成功返回解析后的数据
       return data
-    } else {
+    } else if (code === -2) {
+      // code===-2为服务端的token时间失效，服务端、客户端各设置12个小时
       // 失败（请求成功，业务失败），消息提示
-      ElMessage.error(msg)
+      ElMessage.error('超过登录时长，请重新登录！')
+      store.dispatch('user/logout')
+      // ElMessage.error(msg)
       // 传递服务端返回的错误信息提示
-      return Promise.reject(new Error(msg))
+      // return Promise.reject(new Error(msg))
     }
   },
   // 请求失败

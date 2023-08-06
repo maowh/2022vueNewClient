@@ -10,6 +10,8 @@ import { useStore } from 'vuex'
 import { generateNewStyle, writeNewStyle } from '@/utils/theme'
 // import { watchSwitchLang } from '@/utils/i18n'
 
+// 全局关闭ESC
+
 const store = useStore()
 generateNewStyle(store.getters.mainColor).then((newStyle) => {
   writeNewStyle(newStyle)

@@ -16,6 +16,22 @@ export const getUserInfoApi = () => {
   })
 }
 
+// 判断用户原始密码是否正确
+export const getOriginalPwd = (data) => {
+  return request({
+    url: '/user/originalPwd',
+    params: data
+  })
+}
+
+// 判断用户原始密码是否正确
+export const getUpdatePwd = (data) => {
+  return request({
+    url: '/user/updatePwd',
+    params: data
+  })
+}
+
 // 获取用户分页信息
 export const getUserList = (data) => {
   return request({

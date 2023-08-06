@@ -15,6 +15,23 @@
             <el-input v-model="detailData.name" /> </el-form-item
         ></el-col>
       </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item :label="$t('msg.cost.business')" prop="business">
+            <el-select
+              v-model="detailData.business"
+              class="m-2"
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="item in ListBusiness"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select> </el-form-item
+        ></el-col>
+      </el-row>
 
       <el-form-item>
         <el-button type="primary" @click="onConfirm(ruleFormRef)">{{
@@ -34,6 +51,7 @@ import { costDetail, costCreate, costEdit } from '@/api/cost'
 import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
+import { ListBusiness } from '@/utils/business'
 import store from '@/store'
 import dayjs from 'dayjs'
 
@@ -49,6 +67,7 @@ const props = defineProps({
 
 const formSize = ref('default')
 const ruleFormRef = ref(FormInstance)
+// const business = ref('')
 
 // const validatetext = (rule, value, callback) => {
 //   if (!value && value === '') {
@@ -61,7 +80,8 @@ const ruleFormRef = ref(FormInstance)
 // }
 
 const rules = reactive({
-  name: [{ validator: validatetext, trigger: 'blur' }]
+  name: [{ validator: validatetext, trigger: 'blur' }],
+  business: [{ validator: validatetext, trigger: 'blur' }]
 })
 
 // 确定按钮点击事件
@@ -71,13 +91,15 @@ title.value = i18n.t('msg.cost.add')
 
 // 当前用户角色
 const detailData = ref({})
-// 获取当前用户角色
+// 获取当前用户
 const getCostDetail = async () => {
   const res = await costDetail({
     table: 'personnel',
     id: props.id
   })
+  console.log(res)
   detailData.value = res
+  // business.value = detailData.value.business
 }
 // 从父组件传值，当父组件传过来的userId不为空时候就获取数据库中该用户的角色
 watch(
@@ -105,8 +127,17 @@ const onConfirm = async (ruleFormRef) => {
       validate.value = false
     }
   })
+  // detailData.value.business = ''
+  console.log(detailData.value, Object.keys(detailData.value).length)
+  if (Object.keys(detailData.value).length < 2) {
+    validate.value = false
+  } else {
+    validate.value = true
+  }
+
   console.log(props.id, validate.value)
   if (props.id && validate.value) {
+    // detailData.value.business = business.value
     detailData.value.updateUser = store.getters.userInfo.username
     detailData.value.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataUpdate = await costEdit({
@@ -125,6 +156,7 @@ const onConfirm = async (ruleFormRef) => {
       closed(ruleFormRef)
     }
   } else if (validate.value) {
+    // detailData.value.business = business.value
     detailData.value.createUser = store.getters.userInfo.username
     detailData.value.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataCreate = await costCreate({
@@ -150,6 +182,7 @@ const closed = (ruleFormRef) => {
   if (!ruleFormRef) return
   ruleFormRef.resetFields()
   emits('update:modelValue', false)
+  detailData.value = {}
 }
 </script>
 

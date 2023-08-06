@@ -30,7 +30,9 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('msg.cost.customerName')" prop="customerName">
+          <!-- readonly只能选择不能输入 -->
           <el-input
+            readonly
             @click="customerDialogClick"
             v-model="detailData.customerName"
           >
@@ -44,6 +46,7 @@
           prop="operationManagerName"
         >
           <el-input
+            readonly
             @click="operationManagerDialogClick"
             v-model="detailData.operationManagerName"
           >
@@ -57,6 +60,7 @@
           prop="developManagerName"
         >
           <el-input
+            readonly
             @click="developManagerDialogClick"
             v-model="detailData.developManagerName"
           >
@@ -96,7 +100,7 @@ import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
 import { useRoute, useRouter } from 'vue-router'
 import SystemInfomationDialog from './systemInfomationDialog.vue'
-import { ListBusiness } from './business'
+import { ListBusiness } from '@/utils/business'
 import dayjs from 'dayjs'
 import store from '@/store'
 

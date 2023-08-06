@@ -14,13 +14,21 @@
           :label="$t('msg.cost.name')"
         ></el-table-column>
         <el-table-column
+          prop="startYearMonth"
+          :label="$t('msg.cost.startYearMonth')"
+        ></el-table-column>
+        <el-table-column
+          prop="endYearMonth"
+          :label="$t('msg.cost.endYearMonth')"
+        ></el-table-column>
+        <!-- <el-table-column
           prop="year"
           :label="$t('msg.cost.year')"
         ></el-table-column>
         <el-table-column
           prop="month"
           :label="$t('msg.cost.month')"
-        ></el-table-column>
+        ></el-table-column> -->
         <el-table-column
           prop="SystemName"
           :label="$t('msg.cost.SystemName')"
@@ -138,18 +146,18 @@ const onRemoveClick = (row) => {
 }
 
 const onShowClick = (id) => {
-  router.push(`/outsourcing/personnelloadInfo/${id}`)
+  router.push(`/personnelManage/personnelloadInfo/${id}`)
 }
 
 // 新增记录
 const onAddClick = () => {
   // const id = ''
   // console.log(id)
-  router.push('/outsourcing/personnelloadCreate')
+  router.push('/personnelManage/personnelloadCreate')
 }
 // 编辑记录
 const onEditClick = (id) => {
-  router.push(`/outsourcing/personnelloadEdit/${id}`)
+  router.push(`/personnelManage/personnelloadEdit/${id}`)
 }
 </script>
 

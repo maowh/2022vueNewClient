@@ -3,13 +3,6 @@
     <el-card class="header">
       <div class="dynamic-box">
         <span style="margin-left: 5px">月度：</span>
-        <!-- <el-date-picker
-          clear-icon="CircleClose"
-          v-model="yearValue"
-          style="width: 200px; margin-left: 5px"
-          type="year"
-          placeholder="请选择年份"
-        /> -->
         <el-date-picker
           v-model="monthValue"
           type="monthrange"
@@ -64,62 +57,35 @@
           ><el-icon><Download /></el-icon> 导出</el-button
         >
       </div>
-      <el-table
-        :data="tableData"
-        border
-        style="width: 100%"
-        :summary-method="getSummaries"
-        show-summary
-      >
-        <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
+      <el-table :data="tablePersonloadReport" border style="width: 100%">
+        <!-- <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column> -->
         <el-table-column
-          prop="customer"
-          :label="$t('msg.cost.customerName')"
+          prop="name"
+          :label="$t('msg.cost.name')"
         ></el-table-column>
         <el-table-column
           prop="SystemName"
           :label="$t('msg.cost.SystemName')"
         ></el-table-column>
         <el-table-column
-          prop="businessDivision"
-          :label="$t('msg.cost.businessDivision')"
+          prop="customer"
+          :label="$t('msg.cost.customerName')"
         ></el-table-column>
         <el-table-column
-          prop="businessLines"
-          :label="$t('msg.cost.businessLines')"
+          prop="year"
+          :label="$t('msg.cost.year')"
         ></el-table-column>
         <el-table-column
-          prop="domain"
-          :label="$t('msg.cost.domain')"
+          prop="month"
+          :label="$t('msg.cost.month')"
         ></el-table-column>
         <el-table-column
-          prop="business"
-          :label="$t('msg.cost.business')"
+          prop="load"
+          :label="$t('msg.cost.load')"
         ></el-table-column>
         <el-table-column
-          prop="domainManager"
-          :label="$t('msg.cost.domainManager')"
-        ></el-table-column>
-        <el-table-column
-          v-for="item in ListDisplay"
-          :key="item.id"
-          :label="item.label"
-          :prop="item.prop"
-        >
-        </el-table-column>
-        <el-table-column prop="year" label="年份"></el-table-column>
-        <el-table-column prop="month" label="月份"></el-table-column>
-        <el-table-column
-          prop="totalAmount"
-          label="月上报合计"
-        ></el-table-column>
-        <el-table-column
-          prop="contractAmount"
-          label="月合同价合计"
-        ></el-table-column>
-        <el-table-column
-          prop="taxAmount"
-          label="月不含税合计"
+          prop="operationAmount"
+          :label="$t('msg.cost.loadAmount')"
         ></el-table-column>
       </el-table>
       <el-pagination
@@ -143,7 +109,7 @@ import { costListDisplay, costList, costAllSelectPage } from '@/api/cost'
 // import { useRouter, useRoute } from 'vue-router'
 import {
   USER_RELATIONS,
-  ListDisplay,
+  // ListDisplay,
   lcategorySelect,
   listSelect
 } from './components/Export2ExcelConstants'
@@ -154,6 +120,167 @@ import dayjs from 'dayjs'
 // const router = useRouter()
 // const route = useRoute()
 // const i18n = useI18n()
+
+const tableCosts = ref([])
+const tablePersonload = ref([])
+const tablePersonloadAll = ref([])
+const tablePersonloadAllTmp = ref([])
+const yearMonthList = ref([])
+const tableCostsTmp = ref([])
+
+// 最终报表结果数据
+const tablePersonloadReport = ref([])
+
+// 获取所有费用信息
+const getAllListCosts = async () => {
+  const result = await costListDisplay({
+    table: 'outsourcingcosts'
+    // page: page.value,
+    // size: size.value
+  })
+  tableCostsTmp.value = result.lists
+  // tableData.value = result.list
+  total.value = result.total
+  // tableData.value.map((item) => {})
+
+  tableCostsTmp.value.forEach((tableCostsItemTmp) => {
+    tableCosts.value.push({
+      systemId: tableCostsItemTmp.systemId,
+      SystemName: tableCostsItemTmp.SystemName,
+      customer: tableCostsItemTmp.customer,
+      operationAmount: tableCostsItemTmp.operationAmount,
+      year: tableCostsItemTmp.year,
+      month: tableCostsItemTmp.month,
+      yearMonth: tableCostsItemTmp.year + '-' + tableCostsItemTmp.month
+    })
+  })
+  console.log(
+    'tableCosts',
+    tableCosts.value,
+    'tableCostsTmp',
+    tableCostsTmp.value
+  )
+}
+
+// 获取所有人均负荷信息
+// 循环判断变量
+const load = ref(0)
+const loadId = ref([])
+const loadIs = ref(false)
+const arrId = ref(0)
+const getAllListpersonload = async () => {
+  const result = await costListDisplay({
+    table: 'personnelload'
+    // page: page.value,
+    // size: size.value
+  })
+  tablePersonload.value = result.lists
+  total.value = result.total
+  arrId.value = 0
+  // 根据人均负荷信息分解计算出对应的费用信息
+  tablePersonload.value.forEach((tablePersonloadItem) => {
+    yearMonthList.value = tablePersonloadItem.yearMonth.split(',')
+    yearMonthList.value.forEach((yearMonthListItem) => {
+      tablePersonloadAllTmp.value.push({
+        id: ++arrId.value,
+        name: tablePersonloadItem.name,
+        personnelId: tablePersonloadItem.personnelId,
+        systemId: tablePersonloadItem.systemId,
+        load: tablePersonloadItem.load,
+        yearMonth: yearMonthListItem
+      })
+    })
+  })
+  for (let index = 0; index < tablePersonloadAllTmp.value.length; index++) {
+    loadIs.value = false
+    loadId.value.forEach((loadId) => {
+      if (loadId === tablePersonloadAllTmp.value[index].id) {
+        loadIs.value = true
+      }
+    })
+    if (loadIs.value) {
+      console.log(loadIs.value)
+      continue
+    }
+    load.value = Number(tablePersonloadAllTmp.value[index].load)
+    tablePersonloadAllTmp.value.forEach((iteminner) => {
+      console.log(
+        tablePersonloadAllTmp.value[index].id,
+        iteminner.id,
+        tablePersonloadAllTmp.value[index].id !== iteminner.id,
+        tablePersonloadAllTmp.value[index].personnelId ===
+          iteminner.personnelId,
+        tablePersonloadAllTmp.value[index].systemId === iteminner.systemId,
+        tablePersonloadAllTmp.value[index].yearMonth === iteminner.yearMonth
+      )
+      if (
+        tablePersonloadAllTmp.value[index].id !== iteminner.id &&
+        tablePersonloadAllTmp.value[index].personnelId ===
+          iteminner.personnelId &&
+        tablePersonloadAllTmp.value[index].systemId === iteminner.systemId &&
+        tablePersonloadAllTmp.value[index].yearMonth === iteminner.yearMonth
+      ) {
+        console.log('1')
+        load.value += Number(iteminner.load)
+        loadId.value.push(iteminner.id)
+      }
+    })
+    tablePersonloadAll.value.push({
+      id: tablePersonloadAllTmp.value[index].id,
+      personnelId: tablePersonloadAllTmp.value[index].personnelId,
+      name: tablePersonloadAllTmp.value[index].name,
+      systemId: tablePersonloadAllTmp.value[index].systemId,
+      load: load.value,
+      yearMonth: tablePersonloadAllTmp.value[index].yearMonth
+    })
+  }
+  // tablePersonloadAllTmp.value.forEach((itemout) => {
+
+  // })
+  console.log(
+    'tablePersonloadAll',
+    tablePersonloadAll.value,
+    'tablePersonloadAllTmp',
+    tablePersonloadAllTmp.value
+  )
+}
+getAllListpersonload().then((item) => {
+  getAllListCosts().then((item) => {
+    tablePersonloadAll.value.forEach((tablePersonloadAllItem) => {
+      tableCosts.value.forEach((tableCostsItem) => {
+        console.log(
+          tablePersonloadAllItem.systemId,
+          tableCostsItem.systemId,
+          tablePersonloadAllItem.yearMonth,
+          tableCostsItem.yearMonth,
+          tablePersonloadAllItem.systemId === tableCostsItem.systemId,
+          tablePersonloadAllItem.yearMonth === tableCostsItem.yearMonth
+        )
+        if (
+          tablePersonloadAllItem.systemId === tableCostsItem.systemId &&
+          tablePersonloadAllItem.yearMonth === tableCostsItem.yearMonth
+        ) {
+          tablePersonloadReport.value.push({
+            personnelId: tablePersonloadAllItem.personnelId,
+            name: tablePersonloadAllItem.name,
+            load: tablePersonloadAllItem.load,
+            yearMonth: tablePersonloadAllItem.yearMonth,
+            SystemName: tableCostsItem.SystemName,
+            customer: tableCostsItem.customer,
+            operationAmount: Number(
+              Number(tableCostsItem.operationAmount) *
+                Number(tablePersonloadAllItem.load)
+            ).toFixed(0),
+            year: tableCostsItem.year,
+            month: tableCostsItem.month
+          })
+        }
+      })
+    })
+  })
+  console.log(tablePersonloadReport.value)
+})
+
 // 数据相关
 const inputSearch = ref('')
 const selectType = ref('')
@@ -224,41 +351,41 @@ const handleCurrentChange = (currentPage) => {
 }
 
 // 数据表合计
-const getSummaries = (value) => {
-  // const data = tableDatas.value
-  const { columns } = value
-  let data = []
-  // const { columns, data } = value
-  // console.log(tableDatas.value)
-  if (tableDatas.value.length !== 0) {
-    data = tableDatas.value
-  }
-  console.log(columns, tableDatas.value)
-  const sums = []
-  columns.forEach((column, index) => {
-    if (index === 0) {
-      sums[index] = '合计'
-      return
-    } else if (index === 16 || index === 17) {
-      sums[index] = ''
-      return
-    }
-    const values = data.map((item) => Number(item[column.property]))
-    if (!values.every((value) => Number.isNaN(value))) {
-      sums[index] = `${values.reduce((prev, curr) => {
-        const value = Number(curr)
-        if (!Number.isNaN(value)) {
-          return prev + curr
-        } else {
-          return prev
-        }
-      }, 0)}`
-    } else {
-      sums[index] = ''
-    }
-  })
-  return sums
-}
+// const getSummaries = (value) => {
+//   // const data = tableDatas.value
+//   const { columns } = value
+//   let data = []
+//   // const { columns, data } = value
+//   // console.log(tableDatas.value)
+//   if (tableDatas.value.length !== 0) {
+//     data = tableDatas.value
+//   }
+//   console.log(columns, tableDatas.value)
+//   const sums = []
+//   columns.forEach((column, index) => {
+//     if (index === 0) {
+//       sums[index] = '合计'
+//       return
+//     } else if (index === 16 || index === 17) {
+//       sums[index] = ''
+//       return
+//     }
+//     const values = data.map((item) => Number(item[column.property]))
+//     if (!values.every((value) => Number.isNaN(value))) {
+//       sums[index] = `${values.reduce((prev, curr) => {
+//         const value = Number(curr)
+//         if (!Number.isNaN(value)) {
+//           return prev + curr
+//         } else {
+//           return prev
+//         }
+//       }, 0)}`
+//     } else {
+//       sums[index] = ''
+//     }
+//   })
+//   return sums
+// }
 // }
 
 // 获取数据的方法

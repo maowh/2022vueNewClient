@@ -1,5 +1,11 @@
 <template>
-  <el-dialog :title="title" :model-value="modelValue">
+  <!-- 取消通过点击空白地方关闭dialog:close-on-press-escape="false"、取消通过ESC关闭dialog:close-on-click-modal="false" -->
+  <el-dialog
+    :title="title"
+    :model-value="modelValue"
+    :close-on-press-escape="false"
+    :close-on-click-modal="false"
+  >
     <div v-if="props.tableName === 'domaininformation'">
       <el-table
         ref="singleTableRef"

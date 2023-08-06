@@ -16,6 +16,9 @@
             <el-tab-pane :label="$t('msg.profile.author')" name="author">
               <Author />
             </el-tab-pane>
+            <el-tab-pane :label="$t('msg.profile.changepwd')" name="changepwd">
+              <ChangePwd />
+            </el-tab-pane>
           </el-tabs>
         </el-card>
       </el-col>
@@ -28,6 +31,7 @@ import ProjectCard from './components/ProjectCard.vue'
 // import Chapter from './components/Chapter.vue'
 import Feature from './components/Feature.vue'
 import Author from './components/Author.vue'
+import ChangePwd from './components/ChangePwd.vue'
 import { feature } from '@/api/sys'
 import { ref } from 'vue'
 const activeName = ref('feature')

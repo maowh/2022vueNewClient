@@ -17,7 +17,11 @@
           <el-input disabled v-model="detailData.id" />
         </el-form-item>
         <el-form-item :label="$t('msg.cost.customerName')" prop="customer">
-          <el-input @click="customerDialogClick" v-model="detailData.customer">
+          <el-input
+            @click="customerDialogClick"
+            v-model="detailData.customer"
+            readonly
+          >
             <template #suffix
               ><el-icon style="margin-right: 10px"><Search /></el-icon
             ></template>

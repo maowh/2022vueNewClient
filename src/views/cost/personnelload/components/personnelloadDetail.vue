@@ -13,12 +13,18 @@
           <el-descriptions-item :label="$t('msg.cost.name')">{{
             detailData.name
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.year')">{{
+          <el-descriptions-item :label="$t('msg.cost.startYearMonth')">{{
+            detailData.startYearMonth
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.endYearMonth')">{{
+            detailData.endYearMonth
+          }}</el-descriptions-item>
+          <!-- <el-descriptions-item :label="$t('msg.cost.year')">{{
             detailData.year
           }}</el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.month')">{{
             detailData.month
-          }}</el-descriptions-item>
+          }}</el-descriptions-item> -->
           <el-descriptions-item :label="$t('msg.cost.SystemName')">{{
             detailData.SystemName
           }}</el-descriptions-item>
@@ -61,10 +67,10 @@ const getCostDisplay = async () => {
 getCostDisplay()
 
 const onBackClick = () => {
-  router.push('/outsourcing/personnelload')
+  router.push('/personnelManage/personnelload')
 }
 const onEditClick = () => {
-  router.push(`/outsourcing/personnelloadEdit/${route.params.id}`)
+  router.push(`/personnelManage/personnelloadEdit/${route.params.id}`)
 }
 </script>
 

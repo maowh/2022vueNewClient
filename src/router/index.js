@@ -17,6 +17,7 @@ import personnelRouter from './modules/personnel'
 import personnelloadRouter from './modules/personnelload'
 import costsreportRouter from './modules/costsreport'
 import costsChartRouter from './modules/costschart'
+import personnelLoadReportRouter from './modules/personnelloadreport'
 import store from '../store'
 
 // 私有路由表
@@ -163,18 +164,18 @@ export const privateRoutes = [
   ArticleCreateRouter,
   ArticleRouter,
   // classificationInformationRouter,
-  systemInfomationRouter,
-  coefficientInformationRouter,
   customerInformationRouter,
+  coefficientInformationRouter,
   domainInformationRouter,
+  systemInfomationRouter,
   coststandardRouter,
   personnelRouter,
-
   outsourcingCostsRouter,
   outsourcingPlanRouter,
   personnelloadRouter,
   costsreportRouter,
-  costsChartRouter
+  costsChartRouter,
+  personnelLoadReportRouter
 ]
 
 // 初始化路由表

@@ -6,7 +6,7 @@
           $t('msg.cost.add')
         }}</el-button>
       </div>
-      <el-table :data="tableData" border style="width: 100%">
+      <el-table :data="tableData" border style="width: 100%" fit="false">
         <!-- <el-table-column label="#" type="index"></el-table-column> -->
         <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
         <el-table-column

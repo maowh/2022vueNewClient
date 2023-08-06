@@ -28,6 +28,7 @@ export default {
   actions: {
     login(context, userInfo) {
       const { username, password } = userInfo
+      console.log(userInfo)
       return new Promise((resolve, reject) => {
         // post服务器数据，获取返回数据
         login({

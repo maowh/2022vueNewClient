@@ -1,5 +1,10 @@
 <template>
-  <el-dialog :title="title" :model-value="modelValue">
+  <el-dialog
+    :title="title"
+    :model-value="modelValue"
+    :close-on-press-escape="false"
+    :close-on-click-modal="false"
+  >
     <!-- <div v-if="props.tableName === 'domaininformation'"> -->
     <el-table
       ref="singleTableRef"
@@ -11,6 +16,10 @@
       <el-table-column
         prop="SystemName"
         :label="$t('msg.cost.SystemName')"
+      ></el-table-column>
+      <el-table-column
+        prop="customerName"
+        :label="$t('msg.cost.customerName')"
       ></el-table-column>
       <!-- <el-table-column
           prop="businessLines"
@@ -46,7 +55,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="page"
-      :page-sizes="[5]"
+      :page-sizes="[5, 10]"
       :page-size="size"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
@@ -63,7 +72,7 @@
 
 <script setup>
 import { defineProps, defineEmits, ref } from 'vue'
-import { costList } from '@/api/cost'
+import { costListDisplay } from '@/api/cost'
 import { ElTable, ElMessage } from 'element-plus'
 // import { useI18n } from 'vue-i18n'
 
@@ -93,7 +102,7 @@ const page = ref(1)
 const size = ref(5)
 // 获取数据的方法
 const getListData = async () => {
-  const result = await costList({
+  const result = await costListDisplay({
     table: 'systeminformation',
     page: page.value,
     size: size.value

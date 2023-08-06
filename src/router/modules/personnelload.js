@@ -1,17 +1,17 @@
 import layout from '@/layout'
 
 export default {
-  path: '/outsourcing',
+  path: '/personnelManage',
   component: layout,
-  redirect: '/outsourcing/manage',
+  redirect: '/personnelManage/personnel',
   name: 'personnelload',
   meta: {
-    title: 'personnelload',
+    title: 'personnelManage',
     icon: 'personnel'
   },
   children: [
     {
-      path: '/outsourcing/personnelload',
+      path: '/personnelManage/personnelload',
       name: 'personnelload',
       component: () => import('@/views/cost/personnelload/index'),
       meta: {
@@ -20,7 +20,7 @@ export default {
       }
     },
     {
-      path: '/outsourcing/personnelloadInfo/:id',
+      path: '/personnelManage/personnelloadInfo/:id',
       name: 'personnelloadInfo',
       component: () =>
         import('@/views/cost/personnelload/components/personnelloadDetail'),
@@ -30,7 +30,7 @@ export default {
       }
     },
     {
-      path: '/outsourcing/personnelloadEdit/:id',
+      path: '/personnelManage/personnelloadEdit/:id',
       name: 'personnelloadEdit',
       component: () =>
         import('@/views/cost/personnelload/components/personnelloadCreateEdit'),
@@ -40,7 +40,7 @@ export default {
       }
     },
     {
-      path: '/outsourcing/personnelloadCreate',
+      path: '/personnelManage/personnelloadCreate',
       name: 'personnelloadCreate',
       component: () =>
         import('@/views/cost/personnelload/components/personnelloadCreateEdit'),
