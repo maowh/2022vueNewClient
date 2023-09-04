@@ -1,10 +1,26 @@
 // 数据对应表
 export const USER_RELATIONS = {
-  姓名: 'name',
+  编号: 'id',
+  客户名称: 'customer',
+  系统名称: 'SystemName',
+  事业部: 'businessDivision',
+  业务线: 'businessLines',
+  领域: 'domain',
   业务域: 'business',
-  起始月份: 'startMonth',
-  截止月份: 'endMonth',
-  系统计算负荷金额: 'operationAmount'
+  领域经理: 'domainManager',
+  系统工程师: 'systemEngineer',
+  高级系统工程师: 'seniorSystemEngineer',
+  软件工程师: 'softwareEngineer',
+  高级软件工程师: 'seniorSoftwareEngineer',
+  中级SAP: 'intermediateSap',
+  高级SAP: 'dbaEngineer',
+  DBA: 'dbaEngineer',
+  高级DBA: 'seniorDbaEngineer',
+  年份: 'year',
+  月度: 'month',
+  月上报合计: 'totalAmount',
+  月合同价合计: 'contractAmount',
+  月不含税合计: 'taxAmount'
 }
 
 // 工程师标准对应表

@@ -1,9 +1,11 @@
 // 数据对应表
 export const USER_RELATIONS = {
   姓名: 'name',
-  业务域: 'business',
-  起始月份: 'startMonth',
-  截止月份: 'endMonth',
+  系统名称: 'SystemName',
+  客户名称: 'customer',
+  年份: 'year',
+  月份: 'month',
+  系统负荷系数: 'load',
   系统计算负荷金额: 'operationAmount'
 }
 

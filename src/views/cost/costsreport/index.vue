@@ -339,16 +339,6 @@ const evil = (fn) => {
 }
 const selectData = ref({})
 const onSearch = async () => {
-  console.log(
-    '原始：',
-    monthValue,
-    '解析值：',
-    monthValue.value,
-    // undefined
-    // value1.value[0]
-    dayjs(monthValue.value[0]).format('MM'),
-    dayjs(monthValue.value[1]).format('YYYYMM')
-  )
   if (
     lcategoryValue.value === '' &&
     // yearValue.value === '' &&
@@ -361,25 +351,38 @@ const onSearch = async () => {
   } else if (selectType.value === '' && inputSearch.value.trim() !== '') {
     ElMessage.warning('请选择自定义查询项目！')
   } else if (selectType.value === '' && inputSearch.value.trim() === '') {
-    const test = `{ 'classification':'${lcategoryValue.value}',
+    console.log(dayjs(monthValue.value[0]))
+    let test = ''
+    if (monthValue.value === '') {
+      test = `{ 'classification':'${lcategoryValue.value}'}`
+    } else {
+      test = `{ 'classification':'${lcategoryValue.value}',
     'startmonth':'${dayjs(monthValue.value[0]).format('YYYYMM')}',
     'endmonth':'${dayjs(monthValue.value[1]).format('YYYYMM')}',
    }`
+    }
     selectData.value = evil(test)
     console.log(test, selectData.value)
     getSearchListData()
     console.log('data', selectData, typeof selectData.value)
   } else {
-    const test = `{ ${selectType.value}:'${
-      inputSearch.value
-    }','classification':'${lcategoryValue.value}',
+    let test = ''
+    if (monthValue.value === '') {
+      test = `{ ${selectType.value}:'${inputSearch.value}','classification':'${lcategoryValue.value}'
+  }`
+    } else {
+      test = `{ ${selectType.value}:'${inputSearch.value}','classification':'${
+        lcategoryValue.value
+      }',
     'startmonth':'${dayjs(monthValue.value[0]).format('YYYYMM')}',
     'endmonth':'${dayjs(monthValue.value[1]).format('YYYYMM')}',
   }`
+    }
     selectData.value = evil(test)
     console.log(test, selectData.value)
     getSearchListData()
     console.log('data', selectData, typeof selectData.value)
+    console.log(dayjs(monthValue.value[0]), monthValue.value)
   }
   isSearch.value = true
 }
@@ -390,6 +393,7 @@ const onRefresh = () => {
   selectType.value = ''
   yearValue.value = ''
   lcategoryValue.value = ''
+  monthValue.value = ''
   getListData()
   isSearch.value = false
 }

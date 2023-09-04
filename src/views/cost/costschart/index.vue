@@ -78,7 +78,24 @@ const getCostSelect = (item) => {
 const systemDialogClick = () => {
   systemInformationVisible.value = true
   tableName.value = 'systeminformation'
+  yearMonth.value = ''
+  // detailData.value = {}
+  // costsPlan.value = 0
   // selectId.value = route.params.id
+  // 定义月度实际和月度累计实际
+  monthReportedAmount.value = []
+  monthOperationAmount.value = []
+  monthDevelopAmount.value = []
+  // 定义季度实际
+  quarterReportedAmount.value = []
+  quarterOperationAmount.value = []
+  quarterDevelopAmount.value = []
+  quarterTotal.value = []
+  // 定义计划
+  costsPlan.value = 0
+  costsPlanQuarter.value = []
+  costsPlanOperationQuarter.value = []
+  costsPlanDevelopQuarter.value = []
 }
 
 const pickerSelect = async (val) => {
@@ -116,6 +133,11 @@ const onCostsChart = async () => {
       quarterTotal.value.length !== 0 &&
       costsPlan.value !== 0
     ) {
+      console.log(
+        monthReportedAmount.value,
+        quarterTotal.value.length,
+        costsPlan.value
+      )
       init(chart)
       show(chart)
       resize(chart)
@@ -131,7 +153,12 @@ const quarterReportedAmount = ref([])
 const quarterOperationAmount = ref([])
 const quarterDevelopAmount = ref([])
 const quarterTotal = ref([])
+// 定义计划
 const costsPlan = ref(0)
+const costsPlanQuarter = ref([])
+const costsPlanOperationQuarter = ref([])
+const costsPlanDevelopQuarter = ref([])
+
 // 获取月度实际费用
 const getCostsReality = async () => {
   monthReportedAmount.value = []
@@ -159,24 +186,6 @@ const getCostsReality = async () => {
     convertMonthQuarter(monthOperationAmount.value, 'Operation')
     convertMonthQuarter(monthDevelopAmount.value, 'Develop')
 
-    // 将费用月份转换为季度
-    // let value = 0
-    // for (let index = 0; index < monthReportedAmount.value.length; index++) {
-    //   value += monthReportedAmount.value[index]
-    //   if (index === 2) {
-    //     quarterReportedAmount.value.push(value)
-    //     value = 0
-    //   } else if (index === 5) {
-    //     quarterReportedAmount.value.push(value)
-    //     value = 0
-    //   } else if (index === 8) {
-    //     quarterReportedAmount.value.push(value)
-    //     value = 0
-    //   } else if (index === 11) {
-    //     quarterReportedAmount.value.push(value)
-    //     value = 0
-    //   }
-    // }
     // 统计合计费用
     let sum = 0
     for (let i = 0; i < quarterReportedAmount.value.length; i++) {
@@ -185,15 +194,25 @@ const getCostsReality = async () => {
     }
   })
 }
-// 获取年度计划费用
+// 获取年度计划费用、月度计划费用
 const getCostsPlan = async () => {
   await costAllSelect({
     table: 'outsourcingcostsplan',
     data: detailData
   }).then((item) => {
-    console.log(item)
     if (item.length !== 0) {
       costsPlan.value = item[0].reportedAmount
+      for (let index = 0; index < 4; index++) {
+        costsPlanQuarter.value.push(
+          Number(item[0].reportedAmount / 4).toFixed(0)
+        )
+        costsPlanOperationQuarter.value.push(
+          Number(item[0].operationAmount / 4).toFixed(0)
+        )
+        costsPlanDevelopQuarter.value.push(
+          Number(item[0].developAmount / 4).toFixed(0)
+        )
+      }
     }
   })
 }
@@ -288,7 +307,15 @@ const option = {
   },
   // 报表头部显示
   legend: {
-    data: ['季度总费用', '季度运维费用', '季度研发费用', '季度累计总费用'],
+    data: [
+      '季度计划总费用',
+      '季度实际总费用',
+      '季度计划运维费用',
+      '季度实际运维费用',
+      '季度计划研发费用',
+      '季度实际研发费用',
+      '季度实际累计总费用'
+    ],
     top: 'bottom'
     // data: ['Evaporation', 'Precipitation', 'Temperature']
   },
@@ -312,7 +339,7 @@ const option = {
       min: 0,
       // 最大值显示，包括间隔
       max: costsPlan.value,
-      interval: 5000,
+      interval: 10000,
       axisLabel: {
         formatter: '{value} 元'
       }
@@ -323,7 +350,7 @@ const option = {
       position: 'left',
       min: 0,
       max: costsPlan.value,
-      interval: 5000,
+      interval: 10000,
       axisLabel: {
         formatter: '{value} 元'
       }
@@ -331,7 +358,19 @@ const option = {
   ],
   series: [
     {
-      name: '季度总费用',
+      name: '季度计划总费用',
+      type: 'bar',
+      tooltip: {
+        valueFormatter: function (value) {
+          return value + ' 元'
+        }
+      },
+      // 柱状图数值显示
+      // data: [2.0, 4.9, 7.0, 3.2, 5.6, 6.7, 5.6, 2.2, 3.6, 2.0, 6.4, 3.3]
+      data: costsPlanQuarter.value
+    },
+    {
+      name: '季度实际总费用',
       type: 'bar',
       tooltip: {
         valueFormatter: function (value) {
@@ -343,7 +382,19 @@ const option = {
       data: quarterReportedAmount.value
     },
     {
-      name: '季度运维费用',
+      name: '季度计划运维费用',
+      type: 'bar',
+      tooltip: {
+        valueFormatter: function (value) {
+          return value + ' 元'
+        }
+      },
+      // 柱状图数值显示
+      // data: [2.0, 4.9, 7.0, 3.2, 5.6, 6.7, 5.6, 2.2, 3.6, 2.0, 6.4, 3.3]
+      data: costsPlanOperationQuarter.value
+    },
+    {
+      name: '季度实际运维费用',
       type: 'bar',
       tooltip: {
         valueFormatter: function (value) {
@@ -355,7 +406,19 @@ const option = {
       data: quarterOperationAmount.value
     },
     {
-      name: '季度研发费用',
+      name: '季度计划研发费用',
+      type: 'bar',
+      tooltip: {
+        valueFormatter: function (value) {
+          return value + ' 元'
+        }
+      },
+      // 柱状图数值显示
+      // data: [2.0, 4.9, 7.0, 3.2, 5.6, 6.7, 5.6, 2.2, 3.6, 2.0, 6.4, 3.3]
+      data: costsPlanDevelopQuarter.value
+    },
+    {
+      name: '季度实际研发费用',
       type: 'bar',
       tooltip: {
         valueFormatter: function (value) {
@@ -366,8 +429,9 @@ const option = {
       // data: [2.0, 4.9, 7.0, 3.2, 5.6, 6.7, 5.6, 2.2, 3.6, 2.0, 6.4, 3.3]
       data: quarterDevelopAmount.value
     },
+
     {
-      name: '季度累计总费用',
+      name: '季度实际累计总费用',
       type: 'line',
       yAxisIndex: 1,
       tooltip: {
@@ -401,19 +465,31 @@ const show = (chart) => {
       ],
       series: [
         {
-          name: '季度总费用',
+          name: '季度计划总费用',
+          data: costsPlanQuarter.value
+        },
+        {
+          name: '季度实际总费用',
           data: quarterReportedAmount.value
         },
         {
-          name: '季度运维费用',
+          name: '季度计划运维费用',
+          data: costsPlanOperationQuarter.value
+        },
+        {
+          name: '季度实际运维费用',
           data: quarterOperationAmount.value
         },
         {
-          name: '季度研发费用',
+          name: '季度计划研发费用',
+          data: costsPlanDevelopQuarter.value
+        },
+        {
+          name: '季度实际研发费用',
           data: quarterDevelopAmount.value
         },
         {
-          name: '季度累计总费用',
+          name: '季度实际累计总费用',
           data: quarterTotal.value
         }
       ]

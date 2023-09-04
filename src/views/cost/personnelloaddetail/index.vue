@@ -2,41 +2,9 @@
   <div class="article-ranking-container">
     <el-card class="header">
       <div class="dynamic-box">
-        <span style="margin-left: 5px">客户：</span>
-        <el-input
-          v-model="inputCustomer"
-          style="width: 200px; margin-left: 5px"
-          class="w-50 m-2"
-          placeholder="请输入客户查询"
-        />
-        <span style="margin-left: 5px">月度：</span>
-        <!-- <el-date-picker
-          clear-icon="CircleClose"
-          v-model="yearValue"
-          style="width: 200px; margin-left: 5px"
-          type="year"
-          placeholder="请选择年份"
-        /> -->
-        <el-date-picker
-          v-model="yearMonth"
-          type="monthrange"
-          style="width: 200px; margin-left: 5px"
-          start-placeholder="开始月份"
-          end-placeholder="截止月份"
-          @change="pickerSelect($event)"
-        />
-        <span style="margin-left: 5px">业务域：</span>
-        <el-select v-model="inputBusiness" class="m-2" placeholder="请选择">
-          <el-option
-            v-for="item in ListBusiness"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
         <span style="margin-left: 5px">姓名：</span>
         <el-input
-          v-model="inputName"
+          v-model="inputSearch"
           style="width: 200px; margin-left: 5px"
           class="w-50 m-2"
           placeholder="请输入姓名查询"
@@ -54,28 +22,30 @@
           ><el-icon><Download /></el-icon> 导出</el-button
         >
       </div>
-      <el-table
-        :data="tablePersonloadReport"
-        border
-        style="width: 100%"
-        :summary-method="getSummaries"
-        show-summary
-      >
+      <el-table :data="tablePersonloadReport" border style="width: 100%">
         <el-table-column
           prop="name"
           :label="$t('msg.cost.name')"
         ></el-table-column>
         <el-table-column
-          prop="business"
-          :label="$t('msg.cost.business')"
+          prop="SystemName"
+          :label="$t('msg.cost.SystemName')"
         ></el-table-column>
         <el-table-column
-          prop="startMonth"
-          :label="$t('msg.cost.startYearMonth')"
+          prop="customer"
+          :label="$t('msg.cost.customerName')"
         ></el-table-column>
         <el-table-column
-          prop="endMonth"
-          :label="$t('msg.cost.endYearMonth')"
+          prop="year"
+          :label="$t('msg.cost.year')"
+        ></el-table-column>
+        <el-table-column
+          prop="month"
+          :label="$t('msg.cost.month')"
+        ></el-table-column>
+        <el-table-column
+          prop="load"
+          :label="$t('msg.cost.load')"
         ></el-table-column>
         <el-table-column
           prop="operationAmount"
@@ -98,14 +68,18 @@
 </template>
 
 <script setup>
-import { ref, toRaw } from 'vue'
+import { ref, toRaw, onMounted } from 'vue'
 // import { costListDisplay } from '@/api/cost'
 import { USER_RELATIONS } from './components/Export2ExcelConstants'
 import { ElMessage } from 'element-plus'
-import { getMonthBetween } from '@/utils/monthbetween'
-import { ListBusiness } from '@/utils/business'
 import { getPersonnelLoadList, getPaging } from '@/utils/personnelload.js'
-import dayjs from 'dayjs'
+
+// const tableCosts = ref([])
+// const tablePersonload = ref([])
+// const tablePersonloadAll = ref([])
+// const tablePersonloadAllTmp = ref([])
+// const yearMonthList = ref([])
+// const tableCostsTmp = ref([])
 
 // 最终报表结果数据
 const tablePersonloadReport = ref([])
@@ -116,45 +90,26 @@ const total = ref(0)
 
 const page = ref(1)
 const size = ref(5)
-// 根据月度区间获取年月
-const yearMonth = ref('')
-const inputCustomer = ref('')
-const inputBusiness = ref('')
-const inputName = ref('')
 
-// 月份区间
-const betweenMonth = ref([])
-// 负荷总值
-const loadAll = ref(0)
-
-getPersonnelLoadList().then((item) => {
-  // 数组深拷贝slice()和concat()这两个方法，仅适用于对不包含引用对象的一维数组的深拷贝
-  // 由于数组内部属性值为引用对象，因此使用slice和concat对对象数组的拷贝，整个拷贝还是浅拷贝，拷贝之后数组各个值的指针还是指向相同的存储地址
-  // tablePersonloadReport.value = item
-  tablePersonloadReportTemp.value = item
-  console.log(item, 'tmp:', tablePersonloadReportTemp.value)
-  total.value = JSON.parse(
-    JSON.stringify(toRaw(tablePersonloadReportTemp.value)).length
-  )
+onMounted(() => {
+  getPersonnelLoadList().then((item) => {
+    tablePersonloadReportTemp.value = item
+    tablePersonloadReport.value = item
+    total.value = JSON.parse(
+      JSON.stringify(toRaw(tablePersonloadReportTemp.value)).length
+    )
+  })
 })
 
-const pickerSelect = (val) => {
-  betweenMonth.value = []
-  console.log(
-    dayjs(yearMonth.value[0]).format('YYYY-MM'),
-    dayjs(yearMonth.value[1]).format('YYYY-MM')
-  )
-  if (yearMonth.value !== null) {
-    getMonthBetween(
-      dayjs(yearMonth.value[0]).format('YYYY-MM'),
-      dayjs(yearMonth.value[1]).format('YYYY-MM')
-    ).map((item) => {
-      console.log(item)
-      betweenMonth.value.push(item)
-    })
-    console.log(betweenMonth.value)
-  }
-}
+// watch(tablePersonloadReportTemp.value, (val) => {
+//   if (val) {
+//     console.log(
+//       toRaw(tablePersonloadReportTemp.value).length,
+//       toRaw(tablePersonloadReportTemp.value)
+//     )
+//     console.log(val)
+//   }
+// })
 
 // getPersonnelLoadList().then((item) => {
 //   tablePersonloadReportTemp.value = item
@@ -179,7 +134,7 @@ const pickerSelect = (val) => {
 // tablePersonloadReport.value = await getPersonnelLoadList()
 
 // 分页临时数据
-// const tablePersonloadReportTmp = ref([])
+const tablePersonloadReportTmp = ref([])
 
 // 获取所有费用信息
 // const getAllListCosts = async () => {
@@ -339,7 +294,7 @@ const pickerSelect = (val) => {
 // })
 
 // 数据相关
-// const inputSearch = ref('')
+const inputSearch = ref('')
 
 // 分页相关，size改变触发
 const handleSizeChange = (currentSize) => {
@@ -354,101 +309,26 @@ const handleCurrentChange = (currentPage) => {
 }
 
 // 计算表达式的值，将string转换成object
-const test = ref([])
 const onSearch = () => {
-  // tablePersonloadReport.value = tablePersonloadReportTemp.value
-  // 深拷贝
-  tablePersonloadReport.value = []
-  tablePersonloadReport.value = JSON.parse(
-    JSON.stringify(tablePersonloadReportTemp.value)
-  )
-  if (yearMonth.value === null || yearMonth.value === '') {
-    ElMessage.warning('起始截止月份为必填项，请选择！')
+  console.log(tablePersonloadReport.value, tablePersonloadReportTmp.value)
+  if (inputSearch.value.trim() === '') {
+    ElMessage.warning('请选择查询人员信息！')
   } else {
-    test.value = []
-    console.log(tablePersonloadReport.value)
-    tablePersonloadReport.value.forEach((item) => {
-      if (
-        betweenMonth.value.includes(item.yearMonth) &&
-        item.name.indexOf(inputName.value) !== -1 &&
-        item.customer.indexOf(inputCustomer.value) !== -1 &&
-        item.business.indexOf(inputBusiness.value) !== -1
-      ) {
-        item.startMonth = betweenMonth.value[0]
-        item.endMonth = betweenMonth.value.slice(-1)
-        test.value.push(item)
+    tablePersonloadReport.value = tablePersonloadReportTemp.value.filter(
+      (item) => {
+        console.log(item.name, inputSearch.value.trim())
+        return item.name.includes(inputSearch.value.trim())
       }
-    })
-    test.value.forEach((item) => {
-      loadAll.value += item.load
-      console.log(loadAll.value)
-    })
-    // 根据姓名累加
-    tablePersonloadReport.value = test.value.reduce((total, cur, index) => {
-      var hasValue = total.findIndex((current) => {
-        return current.name === cur.name
-      })
-      hasValue === -1 && total.push(cur)
-      hasValue !== -1 &&
-        (total[hasValue].operationAmount =
-          total[hasValue].operationAmount + cur.operationAmount)
-      return total
-    }, [])
-    console.log(tablePersonloadReport.value)
+    )
   }
 }
 
 // 重置
 const onRefresh = () => {
-  yearMonth.value = ''
-  inputCustomer.value = ''
-  inputBusiness.value = ''
-  inputName.value = ''
-  console.log(tablePersonloadReportTemp.value)
-  tablePersonloadReport.value = []
-  // tablePersonloadReport.value = tablePersonloadReportTemp.value
+  inputSearch.value = ''
+  console.log(tablePersonloadReportTmp.value)
+  tablePersonloadReport.value = tablePersonloadReportTemp.value
 }
-
-// 数据表合计
-const getSummaries = (value) => {
-  // const data = tableDatas.value
-  const { columns } = value
-  let data = []
-  // const { columns, data } = value
-  // console.log(tableDatas.value)
-  if (tablePersonloadReport.value.length !== 0) {
-    data = tablePersonloadReport.value
-  }
-  console.log(columns, tablePersonloadReport.value)
-  const sums = []
-  columns.forEach((column, index) => {
-    if (index === 0) {
-      sums[index] = '平均产值'
-      return
-    } else if (index === 16 || index === 17) {
-      sums[index] = ''
-      return
-    }
-    const values = data.map((item) => Number(item[column.property]))
-    if (!values.every((value) => Number.isNaN(value))) {
-      sums[index] =
-        `${values.reduce((prev, curr) => {
-          const value = Number(curr)
-          if (!Number.isNaN(value)) {
-            return prev + curr
-          } else {
-            return prev
-          }
-          // 这里计算有问题
-        }, 0)}` / loadAll.value
-    } else {
-      sums[index] = ''
-    }
-  })
-  return sums
-}
-// }
-
 // 将数组转换为二维数组
 const formatJson = (headers, rows) => {
   // 首先遍历数组

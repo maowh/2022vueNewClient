@@ -11,6 +11,7 @@ export function getMonthBetween(start, end) {
   min.setFullYear(s[0], s[1])
   max.setFullYear(e[0], e[1])
   var curr = min
+  console.log(s, s[0], s[1], min.setFullYear(s[0], s[1]))
   // eslint-disable-next-line no-unmodified-loop-condition
   while (curr <= max) {
     var month = curr.getMonth()
@@ -24,6 +25,7 @@ export function getMonthBetween(start, end) {
     }
     result.push(str)
     curr.setMonth(month + 1)
+    // curr.setMonth(month)
   }
   return result
 }

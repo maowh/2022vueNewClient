@@ -23,4 +23,18 @@ generateNewStyle(store.getters.mainColor).then((newStyle) => {
 // })
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+:deep(.el-table .cell) {
+  text-align: center !important;
+}
+:deep(.el-table tr th) {
+  background-color: #d3d2d2;
+  color: black;
+}
+// :deep(.el-table thead tr th:first-child, tbody tr td:first-child) {
+//   width: 8em;
+//   min-width: 8em;
+//   max-width: 8em;
+//   word-break: break-all;
+// }
+</style>
