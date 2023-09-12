@@ -165,12 +165,12 @@ export const getPaging = (val, page, size) => {
       var b = JSON.parse(a)
       console.log(b, b.splice(0, size))
       console.log(val)
-      // return val.splice(0, size)
-      return val
+      return val.splice(0, size)
+      // return val
     } else {
       // console.log(val.splice((page - 1) * size, size))
-      // return val.splice((page - 1) * size, size)
-      return val
+      return val.splice((page - 1) * size, size)
+      // return val
       // return data.value
     }
   }

@@ -29,3 +29,19 @@ export function getMonthBetween(start, end) {
   }
   return result
 }
+
+// 获取指定日期范围内的月份数量
+export function monthNumber(startDate, endDate) {
+  const dateOne = new Date(startDate)
+  const dateTwo = new Date(endDate)
+  // 第一个日期的年和月
+  const yearOne = dateOne.getFullYear()
+  const monthOne = dateOne.getMonth() + 1
+  // 第二个日期的年和月
+  const yearTwo = dateTwo.getFullYear()
+  const monthTwo = dateTwo.getMonth() + 1
+  // 两个日期的月份数
+  const oneMonthNum = yearOne * 12 + monthOne
+  const twoMonthNum = yearTwo * 12 + monthTwo
+  return Math.abs(oneMonthNum - twoMonthNum)
+}

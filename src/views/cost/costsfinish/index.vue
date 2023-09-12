@@ -126,6 +126,8 @@ import { ref } from 'vue'
 import { costListDisplay } from '@/api/cost'
 // import { useRouter, useRoute } from 'vue-router'
 import { USER_RELATIONS } from './components/Export2ExcelConstants'
+import { ListBusiness } from '@/utils/business'
+import { getPaging } from '@/utils/personnelload.js'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 // import { useI18n } from 'vue-i18n'
@@ -135,8 +137,10 @@ import dayjs from 'dayjs'
 // const i18n = useI18n()
 // 数据相关
 const tableData = ref([])
+// 临时数据
+const tableDataTmp = ref([])
 // tableDatas获取所有的记录用于统计
-const tableDatas = ref([])
+// const tableDatas = ref([])
 // const standardValue = ref([])
 const total = ref(0)
 const page = ref(1)
@@ -358,21 +362,13 @@ const pickerSelect = () => {
 // 分页相关，size改变触发
 const handleSizeChange = (currentSize) => {
   size.value = currentSize
-  // if (isSearch.value) {
-  //   getSearchListData()
-  // } else {
-  //   getListData()
-  // }
+  getPaging(tableData.value, page, size)
 }
 
 // 页码改变触发
 const handleCurrentChange = (currentPage) => {
   page.value = currentPage
-  // if (isSearch.value) {
-  //   getSearchListData()
-  // } else {
-  //   getListData()
-  // }
+  getPaging(tableData.value, page, size)
 }
 
 // 将数组转换为二维数组
@@ -398,7 +394,7 @@ const formatJson = (headers, rows) => {
 const loading = ref(false)
 const onToExcelClick = async () => {
   loading.value = true
-  const allUser = await tableDatas.value
+  const allUser = tableData.value
   // 导入工具包
   const excel = await import('@/utils/Export2Excel')
   const data = formatJson(USER_RELATIONS, allUser)
@@ -419,7 +415,9 @@ const onToExcelClick = async () => {
 }
 
 const onSearch = async () => {
+  tableDataTmp.value = []
   tableData.value = []
+  // tableData.value = []
   console.log(costsPlan.value, costsReality.value)
   costsReality.value.map((item) => {
     costsPlan.value.forEach((itemPlan) => {
@@ -429,7 +427,7 @@ const onSearch = async () => {
         itemPlan.systemId === item.systemId
       )
       if (itemPlan.systemId === item.systemId) {
-        tableData.value.push({
+        tableDataTmp.value.push({
           customer: item.customer,
           quarterStart: startYear.value + '年' + quarterStart.value + '季度',
           quarterEnd: endYear.value + '年' + quarterEnd.value + '季度',
@@ -461,11 +459,36 @@ const onSearch = async () => {
       }
     })
   })
-  console.log(tableData.value)
+
+  // tableData.value = JSON.parse(JSON.stringify(tableDataTmp.value))
+  if (yearMonth.value === null || yearMonth.value === '') {
+    ElMessage.warning('起始截止月份为必填项，请选择！')
+  } else {
+    console.log(tableDataTmp.value)
+    tableDataTmp.value.forEach((item) => {
+      if (
+        item.customer.indexOf(inputCustomer.value) !== -1 &&
+        item.business.indexOf(inputBusiness.value) !== -1 &&
+        item.SystemName.indexOf(inputName.value) !== -1
+      ) {
+        console.log(item)
+        tableData.value.push(item)
+      }
+    })
+  }
+  total.value = tableData.value.length
+  getPaging(tableData.value, page, size)
 }
 
 // 重置
 const onRefresh = () => {
+  yearMonth.value = ''
+  inputCustomer.value = ''
+  inputBusiness.value = ''
+  inputName.value = ''
+  tableData.value = []
+  total.value = tableData.value.length
+  getPaging(tableData.value, page, size)
   // getListData()
 }
 

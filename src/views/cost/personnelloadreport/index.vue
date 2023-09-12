@@ -81,6 +81,10 @@
           prop="operationAmount"
           :label="$t('msg.cost.loadAmount')"
         ></el-table-column>
+        <el-table-column
+          prop="monthAverage"
+          :label="$t('msg.cost.monthAverage')"
+        ></el-table-column>
       </el-table>
       <el-pagination
         class="pagination"
@@ -102,7 +106,7 @@ import { ref, toRaw } from 'vue'
 // import { costListDisplay } from '@/api/cost'
 import { USER_RELATIONS } from './components/Export2ExcelConstants'
 import { ElMessage } from 'element-plus'
-import { getMonthBetween } from '@/utils/monthbetween'
+import { getMonthBetween, monthNumber } from '@/utils/monthbetween'
 import { ListBusiness } from '@/utils/business'
 import { getPersonnelLoadList, getPaging } from '@/utils/personnelload.js'
 import dayjs from 'dayjs'
@@ -344,13 +348,13 @@ const pickerSelect = (val) => {
 // 分页相关，size改变触发
 const handleSizeChange = (currentSize) => {
   size.value = currentSize
-  getPaging(tablePersonloadReport.value)
+  getPaging(tablePersonloadReport.value, page, size)
 }
 
 // 页码改变触发
 const handleCurrentChange = (currentPage) => {
   page.value = currentPage
-  getPaging(tablePersonloadReport.value)
+  getPaging(tablePersonloadReport.value, page, size)
 }
 
 // 计算表达式的值，将string转换成object
@@ -376,6 +380,20 @@ const onSearch = () => {
       ) {
         item.startMonth = betweenMonth.value[0]
         item.endMonth = betweenMonth.value.slice(-1)
+        item.monthAverage = Math.round(
+          (Number(
+            item.operationAmount /
+              (monthNumber(item.startMonth, item.endMonth[0]) + 1)
+          ) *
+            100) /
+            100
+        )
+        console.log(
+          item.operationAmount,
+          monthNumber(item.startMonth, item.endMonth[0]) + 1,
+          item.operationAmount /
+            (monthNumber(item.startMonth, item.endMonth[0]) + 1)
+        )
         test.value.push(item)
       }
     })
@@ -391,11 +409,17 @@ const onSearch = () => {
       hasValue === -1 && total.push(cur)
       hasValue !== -1 &&
         (total[hasValue].operationAmount =
-          total[hasValue].operationAmount + cur.operationAmount)
+          total[hasValue].operationAmount + cur.operationAmount) &&
+        (total[hasValue].monthAverage =
+          total[hasValue].monthAverage + cur.monthAverage)
       return total
     }, [])
+    // 累加计算月人均产值
+    total.value = tablePersonloadReport.value.length
     console.log(tablePersonloadReport.value)
   }
+  total.value = tablePersonloadReport.value.length
+  getPaging(tablePersonloadReport.value, page, size)
 }
 
 // 重置
@@ -406,6 +430,8 @@ const onRefresh = () => {
   inputName.value = ''
   console.log(tablePersonloadReportTemp.value)
   tablePersonloadReport.value = []
+  total.value = tablePersonloadReport.value.length
+  getPaging(tablePersonloadReport.value, page, size)
   // tablePersonloadReport.value = tablePersonloadReportTemp.value
 }
 
@@ -425,7 +451,7 @@ const getSummaries = (value) => {
     if (index === 0) {
       sums[index] = '平均产值'
       return
-    } else if (index === 16 || index === 17) {
+    } else if (index === 4 || index === 4) {
       sums[index] = ''
       return
     }
@@ -440,7 +466,7 @@ const getSummaries = (value) => {
             return prev
           }
           // 这里计算有问题
-        }, 0)}` / loadAll.value
+        }, 0)}` / total.value
     } else {
       sums[index] = ''
     }

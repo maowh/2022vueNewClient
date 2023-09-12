@@ -1,26 +1,19 @@
 // 数据对应表
 export const USER_RELATIONS = {
-  编号: 'id',
   客户名称: 'customer',
-  系统名称: 'SystemName',
-  事业部: 'businessDivision',
-  业务线: 'businessLines',
-  领域: 'domain',
+  开始季度: 'quarterStart',
+  结束季度: 'quarterEnd',
   业务域: 'business',
-  领域经理: 'domainManager',
-  系统工程师: 'systemEngineer',
-  高级系统工程师: 'seniorSystemEngineer',
-  软件工程师: 'softwareEngineer',
-  高级软件工程师: 'seniorSoftwareEngineer',
-  中级SAP: 'intermediateSap',
-  高级SAP: 'dbaEngineer',
-  DBA: 'dbaEngineer',
-  高级DBA: 'seniorDbaEngineer',
-  年份: 'year',
-  月度: 'month',
-  月上报合计: 'totalAmount',
-  月合同价合计: 'contractAmount',
-  月不含税合计: 'taxAmount'
+  系统名称: 'SystemName',
+  季度计划总额: 'reportedAmountPlan',
+  季度实绩总额: 'reportedAmount',
+  总额完成百分比: 'reportedAmountPercentage',
+  季度计划运维: 'operationAmountPlan',
+  季度实绩运维: 'operationAmount',
+  运维完成百分比: 'operationAmountPercentage',
+  季度计划研发: 'developAmountPlan',
+  季度实绩研发: 'developAmount',
+  研发完成百分比: 'developAmountPercentage'
 }
 
 // 工程师标准对应表

@@ -9,6 +9,22 @@
           class="w-50 m-2"
           placeholder="请输入姓名查询"
         />
+        <span style="margin-left: 5px">月度：</span>
+        <!-- <el-date-picker
+          clear-icon="CircleClose"
+          v-model="yearValue"
+          style="width: 200px; margin-left: 5px"
+          type="year"
+          placeholder="请选择年份"
+        /> -->
+        <el-date-picker
+          v-model="yearMonth"
+          type="monthrange"
+          style="width: 200px; margin-left: 5px"
+          start-placeholder="开始月份"
+          end-placeholder="截止月份"
+          @change="pickerSelect($event)"
+        />
         <el-button type="primary" style="margin-left: 5px" @click="onSearch"
           ><el-icon><Search /></el-icon> 查询</el-button
         >
@@ -73,6 +89,8 @@ import { ref, toRaw, onMounted } from 'vue'
 import { USER_RELATIONS } from './components/Export2ExcelConstants'
 import { ElMessage } from 'element-plus'
 import { getPersonnelLoadList, getPaging } from '@/utils/personnelload.js'
+import { getMonthBetween } from '@/utils/monthbetween'
+import dayjs from 'dayjs'
 
 // const tableCosts = ref([])
 // const tablePersonload = ref([])
@@ -90,6 +108,10 @@ const total = ref(0)
 
 const page = ref(1)
 const size = ref(5)
+// 根据月度区间获取年月
+const yearMonth = ref('')
+// 月份区间
+const betweenMonth = ref([])
 
 onMounted(() => {
   getPersonnelLoadList().then((item) => {
@@ -296,38 +318,86 @@ const tablePersonloadReportTmp = ref([])
 // 数据相关
 const inputSearch = ref('')
 
+const pickerSelect = (val) => {
+  betweenMonth.value = []
+  console.log(
+    dayjs(yearMonth.value[0]).format('YYYY-MM'),
+    dayjs(yearMonth.value[1]).format('YYYY-MM')
+  )
+  if (yearMonth.value !== null) {
+    getMonthBetween(
+      dayjs(yearMonth.value[0]).format('YYYY-MM'),
+      dayjs(yearMonth.value[1]).format('YYYY-MM')
+    ).map((item) => {
+      console.log(item)
+      betweenMonth.value.push(item)
+    })
+    console.log(betweenMonth.value)
+  }
+}
+
 // 分页相关，size改变触发
 const handleSizeChange = (currentSize) => {
   size.value = currentSize
-  getPaging(tablePersonloadReport.value)
+  getPaging(tablePersonloadReport.value, page, size)
 }
 
 // 页码改变触发
 const handleCurrentChange = (currentPage) => {
   page.value = currentPage
-  getPaging(tablePersonloadReport.value)
+  getPaging(tablePersonloadReport.value, page, size)
 }
 
 // 计算表达式的值，将string转换成object
 const onSearch = () => {
+  tablePersonloadReport.value = []
   console.log(tablePersonloadReport.value, tablePersonloadReportTmp.value)
-  if (inputSearch.value.trim() === '') {
-    ElMessage.warning('请选择查询人员信息！')
-  } else {
+  if (
+    inputSearch.value.trim() === '' &&
+    (yearMonth.value === null || yearMonth.value === '')
+  ) {
+    ElMessage.warning('请输入查询条件！')
+  } else if (
+    inputSearch.value.trim() !== '' &&
+    (yearMonth.value === null || yearMonth.value === '')
+  ) {
     tablePersonloadReport.value = tablePersonloadReportTemp.value.filter(
       (item) => {
-        console.log(item.name, inputSearch.value.trim())
         return item.name.includes(inputSearch.value.trim())
       }
     )
+  } else if (
+    inputSearch.value.trim() === '' &&
+    (yearMonth.value !== null || yearMonth.value !== '')
+  ) {
+    tablePersonloadReport.value = tablePersonloadReportTemp.value.filter(
+      (item) => {
+        return betweenMonth.value.includes(item.yearMonth)
+      }
+    )
+  } else {
+    tablePersonloadReport.value = tablePersonloadReportTemp.value.filter(
+      (item) => {
+        return (
+          item.name.includes(inputSearch.value.trim()) &&
+          betweenMonth.value.includes(item.yearMonth)
+        )
+      }
+    )
   }
+  console.log(tablePersonloadReport.value)
+  total.value = tablePersonloadReport.value.length
+  getPaging(tablePersonloadReport.value, page, size)
 }
 
 // 重置
 const onRefresh = () => {
   inputSearch.value = ''
+  yearMonth.value = ''
   console.log(tablePersonloadReportTmp.value)
   tablePersonloadReport.value = tablePersonloadReportTemp.value
+  total.value = tablePersonloadReport.value.length
+  getPaging(tablePersonloadReport.value, page, size)
 }
 // 将数组转换为二维数组
 const formatJson = (headers, rows) => {
