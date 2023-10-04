@@ -94,13 +94,13 @@
 
 <script setup>
 import { ref, reactive, watch, onActivated } from 'vue'
-import { costCreate, costEdit, costDisplay } from '@/api/cost'
+import { costCreate, costEdit, costDisplay, costList } from '@/api/cost'
 import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
 import { useRoute, useRouter } from 'vue-router'
 import SystemInfomationDialog from './systemInfomationDialog.vue'
-import { ListBusiness } from '@/utils/business'
+// import { ListBusiness } from '@/utils/business'
 import dayjs from 'dayjs'
 import store from '@/store'
 
@@ -121,6 +121,23 @@ const rules = reactive({
 const i18n = useI18n()
 const title = ref()
 const costInformationId = route.params.id
+
+// 获取业务域信息
+const ListBusiness = ref([])
+const getListBusiness = async () => {
+  const result = await costList({
+    table: 'businessdomain',
+    page: 1,
+    size: 100
+  })
+  result.list.forEach((item) => {
+    ListBusiness.value.push({
+      value: item.businessName,
+      label: item.businessName
+    })
+  })
+}
+getListBusiness()
 
 // 数据相关
 const detailData = ref({})

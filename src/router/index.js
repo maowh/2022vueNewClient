@@ -20,6 +20,7 @@ import costsChartRouter from './modules/costschart'
 import costsFinishRouter from './modules/costsfinish'
 import personnelLoadReportRouter from './modules/personnelloadreport'
 import personnelloaddetailRouter from './modules/personnelloaddetail'
+import businessDomainRouter from './modules/businessDomain'
 import store from '../store'
 
 // 私有路由表
@@ -179,7 +180,8 @@ export const privateRoutes = [
   costsChartRouter,
   costsFinishRouter,
   personnelLoadReportRouter,
-  personnelloaddetailRouter
+  personnelloaddetailRouter,
+  businessDomainRouter
 ]
 
 // 初始化路由表

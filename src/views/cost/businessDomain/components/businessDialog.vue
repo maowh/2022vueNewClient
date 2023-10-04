@@ -1,5 +1,9 @@
 <template>
-  <el-dialog :title="title" :model-value="modelValue">
+  <el-dialog
+    :title="title"
+    :model-value="modelValue"
+    :before-close="handleClose"
+  >
     <el-form
       ref="ruleFormRef"
       :model="detailData"
@@ -9,30 +13,14 @@
       :size="formSize"
       status-icon
     >
-      <el-row>
-        <el-col :span="12"
-          ><el-form-item :label="$t('msg.cost.name')" prop="name">
-            <el-input v-model="detailData.name" /> </el-form-item
-        ></el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item :label="$t('msg.cost.business')" prop="business">
-            <el-select
-              v-model="detailData.business"
-              class="m-2"
-              placeholder="请选择"
-            >
-              <el-option
-                v-for="item in ListBusiness"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select> </el-form-item
-        ></el-col>
-      </el-row>
-
+      <el-form-item
+        :label="$t('msg.cost.businessDomainName')"
+        prop="businessName"
+      >
+        <el-col :span="20">
+          <el-input style="width: 100%" v-model="detailData.businessName" />
+        </el-col>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onConfirm(ruleFormRef)">{{
           $t('msg.universal.confirm')
@@ -46,12 +34,19 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, watch, reactive } from 'vue'
-import { costDetail, costCreate, costEdit, costList } from '@/api/cost'
+import {
+  defineProps,
+  defineEmits,
+  ref,
+  watch,
+  reactive
+  // onActivated
+} from 'vue'
+import { costDetail, costCreate, costEdit } from '@/api/cost'
 import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
-// import { ListBusiness } from '@/utils/business'
+// import { userName, currentTime } from '@/utils/userTime.js'
 import store from '@/store'
 import dayjs from 'dayjs'
 
@@ -67,21 +62,9 @@ const props = defineProps({
 
 const formSize = ref('default')
 const ruleFormRef = ref(FormInstance)
-// const business = ref('')
-
-// const validatetext = (rule, value, callback) => {
-//   if (!value && value === '') {
-//     callback(new Error('请输入内容'))
-//   } else if (value.length > 25) {
-//     callback(new Error('输入内容需要小于25个字符'))
-//   } else {
-//     callback()
-//   }
-// }
 
 const rules = reactive({
-  name: [{ validator: validatetext, trigger: 'blur' }],
-  business: [{ validator: validatetext, trigger: 'blur' }]
+  businessName: [{ validator: validatetext, trigger: 'blur' }]
 })
 
 // 确定按钮点击事件
@@ -89,35 +72,17 @@ const i18n = useI18n()
 const title = ref()
 title.value = i18n.t('msg.cost.add')
 
-// 获取业务域信息
-const ListBusiness = ref([])
-const getListBusiness = async () => {
-  const result = await costList({
-    table: 'businessdomain',
-    page: 1,
-    size: 100
-  })
-  result.list.forEach((item) => {
-    ListBusiness.value.push({
-      value: item.businessName,
-      label: item.businessName
-    })
-  })
-}
-getListBusiness()
-
 // 当前用户角色
 const detailData = ref({})
-// 获取当前用户
+// 获取当前用户角色
 const getCostDetail = async () => {
   const res = await costDetail({
-    table: 'personnel',
+    table: 'businessdomain',
     id: props.id
   })
-  console.log(res)
   detailData.value = res
-  // business.value = detailData.value.business
 }
+
 // 从父组件传值，当父组件传过来的userId不为空时候就获取数据库中该用户的角色
 watch(
   () => props.id,
@@ -136,6 +101,7 @@ const emits = defineEmits(['update:modelValue', 'updateRole'])
 // 确定按钮点击事件
 const validate = ref(false)
 const onConfirm = async (ruleFormRef) => {
+  console.log(ruleFormRef)
   ruleFormRef.validate((valid) => {
     console.log(valid)
     if (valid) {
@@ -144,21 +110,11 @@ const onConfirm = async (ruleFormRef) => {
       validate.value = false
     }
   })
-  // detailData.value.business = ''
-  console.log(detailData.value, Object.keys(detailData.value).length)
-  if (Object.keys(detailData.value).length < 2) {
-    validate.value = false
-  } else {
-    validate.value = true
-  }
-
-  console.log(props.id, validate.value)
   if (props.id && validate.value) {
-    // detailData.value.business = business.value
     detailData.value.updateUser = store.getters.userInfo.username
     detailData.value.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataUpdate = await costEdit({
-      table: 'personnel',
+      table: 'businessdomain',
       data: detailData
     })
     if (dataUpdate === '更新数据成功') {
@@ -173,33 +129,38 @@ const onConfirm = async (ruleFormRef) => {
       closed(ruleFormRef)
     }
   } else if (validate.value) {
-    // detailData.value.business = business.value
     detailData.value.createUser = store.getters.userInfo.username
     detailData.value.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
-    const dataCreate = await costCreate({
-      table: 'personnel',
-      data: detailData
-    })
-    if (dataCreate === '新增数据成功') {
-      ElMessage.success(i18n.t('msg.cost.addSuccess'))
-      // 数据更新成功
-      emits('updateList')
-      closed(ruleFormRef)
-    } else if (dataCreate === '数据已存在不能重复') {
-      ElMessage.warning(i18n.t('msg.cost.existsSuccess'))
-      // 数据更新成功
-      emits('updateList')
-      closed(ruleFormRef)
+    if (detailData.value.businessName !== null) {
+      const dataCreate = await costCreate({
+        table: 'businessdomain',
+        data: detailData
+      })
+      if (dataCreate === '新增数据成功') {
+        ElMessage.success(i18n.t('msg.cost.addSuccess'))
+        // 数据更新成功
+        emits('updateList')
+        closed(ruleFormRef)
+      } else if (dataCreate === '数据已存在不能重复') {
+        ElMessage.warning(i18n.t('msg.cost.existsSuccess'))
+        // 数据更新成功
+        emits('updateList')
+        closed(ruleFormRef)
+      }
     }
   }
 }
-
 // 关闭
 const closed = (ruleFormRef) => {
   if (!ruleFormRef) return
   ruleFormRef.resetFields()
   emits('update:modelValue', false)
-  detailData.value = {}
+}
+
+const handleClose = () => {
+  // if (!ruleFormRef) return
+  // ruleFormRef.resetFields()
+  emits('update:modelValue', false)
 }
 </script>
 

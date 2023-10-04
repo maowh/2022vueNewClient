@@ -6,7 +6,7 @@ export default {
   redirect: '/outsourcing/manage',
   name: 'outsourcingplan',
   meta: {
-    title: 'outsourcingplan',
+    title: 'outsourcing',
     icon: 'personnel'
   },
   children: [

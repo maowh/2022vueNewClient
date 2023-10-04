@@ -71,7 +71,7 @@
         :summary-method="getSummaries"
         show-summary
       >
-        <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
+        <!-- <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column> -->
         <el-table-column
           prop="customer"
           :label="$t('msg.cost.customerName')"
@@ -139,6 +139,7 @@
 
 <script setup>
 import { ref, onActivated } from 'vue'
+// import { renderHeader } from '@/prototype'
 import { costListDisplay, costList, costAllSelectPage } from '@/api/cost'
 // import { useRouter, useRoute } from 'vue-router'
 import {
@@ -167,12 +168,22 @@ const standardArrange = ref([])
 // const standardValue = ref([])
 const total = ref(0)
 const page = ref(1)
-const size = ref(5)
+const size = ref(10)
 // 判断是否查询
 const isSearch = ref(false)
 
 // 测试日期选择
 const monthValue = ref('')
+
+// const labelHsead = ({ column, $index }) => {
+//   console.log(column)
+//   var l = column.label.length
+//   var f = 12
+//   column.minWidth = f * (l + 2) // 加上一个文字长度
+//   return (
+//     'div', { class: 'table-head', style: { width: '100%' } }, [column.label]
+//   )
+// }
 
 // 获取初始数据的方法
 const getListData = async () => {

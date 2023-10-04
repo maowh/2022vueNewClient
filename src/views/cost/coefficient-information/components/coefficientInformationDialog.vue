@@ -4,6 +4,7 @@
     :model-value="modelValue"
     :close-on-press-escape="false"
     :close-on-click-modal="false"
+    @close="closed"
   >
     <div v-if="props.tableName === 'domaininformation'">
       <el-table
@@ -102,7 +103,7 @@ const title = ref()
 const tableData = ref([])
 const total = ref(0)
 const page = ref(1)
-const size = ref(5)
+const size = ref(10)
 // 获取数据的方法
 const getListData = async () => {
   if (props.tableName) {

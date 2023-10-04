@@ -107,7 +107,7 @@ const tablePersonloadReportTemp = ref([])
 const total = ref(0)
 
 const page = ref(1)
-const size = ref(5)
+const size = ref(10)
 // 根据月度区间获取年月
 const yearMonth = ref('')
 // 月份区间

@@ -115,7 +115,7 @@ const i18n = useI18n()
 const tableData = ref([])
 const total = ref(0)
 const page = ref(1)
-const size = ref(5)
+const size = ref(10)
 // 获取数据的方法
 const getListData = async () => {
   const result = await getUserList({

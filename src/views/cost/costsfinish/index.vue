@@ -123,10 +123,10 @@
 
 <script setup>
 import { ref } from 'vue'
-import { costListDisplay } from '@/api/cost'
+import { costListDisplay, costList } from '@/api/cost'
 // import { useRouter, useRoute } from 'vue-router'
 import { USER_RELATIONS } from './components/Export2ExcelConstants'
-import { ListBusiness } from '@/utils/business'
+// import { ListBusiness } from '@/utils/business'
 import { getPaging } from '@/utils/personnelload.js'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
@@ -144,7 +144,7 @@ const tableDataTmp = ref([])
 // const standardValue = ref([])
 const total = ref(0)
 const page = ref(1)
-const size = ref(5)
+const size = ref(10)
 
 // 日期区间选择
 const yearMonth = ref('')
@@ -167,6 +167,23 @@ const costsPlan = ref([])
 const costsReality = ref([])
 // const costsPlanOperationQuarter = ref([])
 // const costsPlanDevelopQuarter = ref([])
+
+// 获取业务域信息
+const ListBusiness = ref([])
+const getListBusiness = async () => {
+  const result = await costList({
+    table: 'businessdomain',
+    page: 1,
+    size: 100
+  })
+  result.list.forEach((item) => {
+    ListBusiness.value.push({
+      value: item.businessName,
+      label: item.businessName
+    })
+  })
+}
+getListBusiness()
 
 // 获取月度实际费用
 const getCostsReality = async () => {

@@ -102,12 +102,13 @@
 </template>
 
 <script setup>
-import { ref, toRaw } from 'vue'
+import { ref } from 'vue'
 // import { costListDisplay } from '@/api/cost'
 import { USER_RELATIONS } from './components/Export2ExcelConstants'
+import { costList } from '@/api/cost'
 import { ElMessage } from 'element-plus'
 import { getMonthBetween, monthNumber } from '@/utils/monthbetween'
-import { ListBusiness } from '@/utils/business'
+// import { ListBusiness } from '@/utils/business'
 import { getPersonnelLoadList, getPaging } from '@/utils/personnelload.js'
 import dayjs from 'dayjs'
 
@@ -119,7 +120,7 @@ const tablePersonloadReportTemp = ref([])
 const total = ref(0)
 
 const page = ref(1)
-const size = ref(5)
+const size = ref(10)
 // 根据月度区间获取年月
 const yearMonth = ref('')
 const inputCustomer = ref('')
@@ -131,15 +132,32 @@ const betweenMonth = ref([])
 // 负荷总值
 const loadAll = ref(0)
 
+// 获取业务域信息
+const ListBusiness = ref([])
+const getListBusiness = async () => {
+  const result = await costList({
+    table: 'businessdomain',
+    page: 1,
+    size: 100
+  })
+  result.list.forEach((item) => {
+    ListBusiness.value.push({
+      value: item.businessName,
+      label: item.businessName
+    })
+  })
+}
+getListBusiness()
+
 getPersonnelLoadList().then((item) => {
   // 数组深拷贝slice()和concat()这两个方法，仅适用于对不包含引用对象的一维数组的深拷贝
   // 由于数组内部属性值为引用对象，因此使用slice和concat对对象数组的拷贝，整个拷贝还是浅拷贝，拷贝之后数组各个值的指针还是指向相同的存储地址
   // tablePersonloadReport.value = item
   tablePersonloadReportTemp.value = item
   console.log(item, 'tmp:', tablePersonloadReportTemp.value)
-  total.value = JSON.parse(
-    JSON.stringify(toRaw(tablePersonloadReportTemp.value)).length
-  )
+  // total.value = JSON.parse(
+  //   JSON.stringify(toRaw(tablePersonloadReportTemp.value)).length
+  // )
 })
 
 const pickerSelect = (val) => {
@@ -363,12 +381,12 @@ const onSearch = () => {
   // tablePersonloadReport.value = tablePersonloadReportTemp.value
   // 深拷贝
   tablePersonloadReport.value = []
-  tablePersonloadReport.value = JSON.parse(
-    JSON.stringify(tablePersonloadReportTemp.value)
-  )
   if (yearMonth.value === null || yearMonth.value === '') {
     ElMessage.warning('起始截止月份为必填项，请选择！')
   } else {
+    tablePersonloadReport.value = JSON.parse(
+      JSON.stringify(tablePersonloadReportTemp.value)
+    )
     test.value = []
     console.log(tablePersonloadReport.value)
     tablePersonloadReport.value.forEach((item) => {
@@ -415,7 +433,6 @@ const onSearch = () => {
       return total
     }, [])
     // 累加计算月人均产值
-    total.value = tablePersonloadReport.value.length
     console.log(tablePersonloadReport.value)
   }
   total.value = tablePersonloadReport.value.length

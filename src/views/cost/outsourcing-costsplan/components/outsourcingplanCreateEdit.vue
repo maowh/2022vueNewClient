@@ -805,6 +805,7 @@ const confirmDel = (row) => {
 const onCancel = () => {
   // closed(ruleFormRef)
   detailData.value = {}
+  yearMonth.value = ''
   router.push('/outsourcing/outsourcingplan')
 }
 
@@ -916,8 +917,8 @@ const pickerSelect = async (val) => {
 
 <style lang="scss" scoped>
 .user-info-box {
-  width: 1000px;
-  margin: 0 auto;
+  // width: 1000px;
+  margin: 0 50px;
   .title {
     text-align: center;
     margin-bottom: 10px;

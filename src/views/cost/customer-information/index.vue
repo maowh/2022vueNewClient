@@ -8,7 +8,7 @@
       </div>
       <el-table :data="tableData" border style="width: 100%" fit="false">
         <!-- <el-table-column label="#" type="index"></el-table-column> -->
-        <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column>
+        <!-- <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column> -->
         <el-table-column
           prop="customer"
           :label="$t('msg.cost.customerName')"
@@ -63,7 +63,7 @@ const i18n = useI18n()
 const tableData = ref([])
 const total = ref(0)
 const page = ref(1)
-const size = ref(5)
+const size = ref(10)
 // 获取数据的方法
 const getListData = async () => {
   const result = await costList({

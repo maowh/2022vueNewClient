@@ -39,6 +39,8 @@ export default {
     systemInfomationCreate: '系统信息创建',
     domainInformationList: '领域信息管理',
     customerInformationList: '客户信息管理',
+    businessDomainList: '业务域管理',
+    businessDomain: '业务域信息',
     coststandardList: '费用标准信息管理',
     coststandardInfo: '费用标准信息管理',
     coststandardEdit: '费用标准信息管理',
@@ -279,6 +281,7 @@ export default {
     taxIncluded: '税率',
     name: '姓名',
     load: '负荷系数',
-    business: '业务域'
+    business: '业务域',
+    businessDomainName: '业务域名称'
   }
 }

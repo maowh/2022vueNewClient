@@ -39,6 +39,8 @@ export default {
     systemInfomationCreate: 'systemInfomationCreate',
     domainInformationList: 'domainInformationList',
     customerInformationList: 'customerInformationList',
+    businessDomainList: 'businessDomainList',
+    businessDomain: 'businessDomain',
     coststandardList: 'coststandardList',
     coststandardInfo: 'coststandardInfo',
     coststandardEdit: 'coststandardEdit',
@@ -270,6 +272,7 @@ export default {
     totalManpower: 'totalManpower',
     name: 'name',
     load: 'load',
-    business: 'business'
+    business: 'business',
+    businessDomainName: 'businessDomainName'
   }
 }

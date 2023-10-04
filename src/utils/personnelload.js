@@ -14,7 +14,7 @@ const tablePersonloadReportTemp = ref([])
 const totalAll = ref(0)
 // const total = ref(0)
 // const page = ref(1)
-// const size = ref(5)
+// const size = ref(10)
 
 // 获取所有费用信息
 const getAllListCosts = async () => {
