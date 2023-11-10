@@ -594,7 +594,11 @@ const confirmEdit = async (row, index) => {
     totalAmount.value = 0
     contractAmount.value = 0
     taxAmount.value = 0
-
+    console.log(
+      '测试：',
+      Number(moneyData.value[index].systemEngineer),
+      Number(moneyData.value[index].seniorSystemEngineer)
+    )
     row.totalAmount = Number(
       (Number(moneyData.value[index].systemEngineer) *
         CostStandard.value.systemEngineer +
@@ -739,6 +743,11 @@ const confirmDel = (row) => {
           if (moneyData.value.length > 0) {
             for (let index = 0; index < moneyData.value.length; index++) {
               // const element = moneyData.value[index]
+              console.log(
+                '测试1：',
+                Number(moneyData.value[index].systemEngineer),
+                Number(moneyData.value[index].seniorSystemEngineer)
+              )
               row.totalAmount = Number(
                 (Number(moneyData.value[index].systemEngineer) *
                   CostStandard.value.systemEngineer +
