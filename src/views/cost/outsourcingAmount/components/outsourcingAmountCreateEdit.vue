@@ -16,10 +16,10 @@
         <el-form-item :label="$t('msg.cost.id')" prop="id">
           <el-input disabled v-model="detailData.id" />
         </el-form-item>
-        <el-form-item :label="$t('msg.cost.customerName')" prop="customer">
+        <el-form-item :label="$t('msg.cost.projectName')" prop="projectName">
           <el-input
             @click="customerDialogClick"
-            v-model="detailData.customer"
+            v-model="detailData.projectName"
             readonly
           >
             <template #suffix
@@ -27,23 +27,41 @@
             ></template>
           </el-input>
         </el-form-item>
-        <el-form-item
-          :label="$t('msg.cost.contractPrice')"
-          prop="contractPrice"
-        >
-          <el-input v-model="detailData.contractPrice" />
-        </el-form-item>
-        <el-form-item :label="$t('msg.cost.taxIncluded')" prop="taxIncluded">
-          <el-input v-model="detailData.taxIncluded" />
-        </el-form-item>
         <el-form-item :label="$t('msg.cost.year')" prop="year">
           <el-date-picker
             v-model="detailData.year"
             clear-icon="CircleClose"
-            @change="pickerSelect($event)"
             type="year"
+            disabled="true"
           />
         </el-form-item>
+        <el-form-item :label="$t('msg.cost.category')" prop="category">
+          <el-select
+            v-model="detailData.category"
+            class="m-2"
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in ListBusiness"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          :label="$t('msg.cost.PurchaseAmount')"
+          prop="PurchaseAmount"
+        >
+          <el-input v-model="detailData.PurchaseAmount" />
+        </el-form-item>
+        <el-form-item
+          :label="$t('msg.cost.NonPurchaseAmount')"
+          prop="NonPurchaseAmount"
+        >
+          <el-input v-model="detailData.NonPurchaseAmount" />
+        </el-form-item>
+
         <el-form-item>
           <el-button type="primary" @click="onConfirm(ruleFormRef)">{{
             $t('msg.universal.confirm')
@@ -54,13 +72,13 @@
         </el-form-item>
       </el-form>
 
-      <CoefficientInformationDialog
+      <OutsourcingAmountDialog
         v-model="systemInformationVisible"
         :tableName="tableName"
         :id="selectId"
         @costSelect="getCostSelect"
       >
-      </CoefficientInformationDialog>
+      </OutsourcingAmountDialog>
     </div>
     <!-- </el-card> -->
   </div>
@@ -69,12 +87,12 @@
 
 <script setup>
 import { ref, reactive, watch, onActivated } from 'vue'
-import { costCreate, costEdit, costDisplay } from '@/api/cost'
+import { costCreate, costEdit, costDisplay, costList } from '@/api/cost'
 import { ElMessage, FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { validatetext } from '@/utils/validate'
 import { useRoute, useRouter } from 'vue-router'
-import CoefficientInformationDialog from './coefficientInformationDialog.vue'
+import OutsourcingAmountDialog from './outsourcingAmountDialog.vue'
 import dayjs from 'dayjs'
 import store from '@/store'
 
@@ -86,7 +104,7 @@ const router = useRouter()
 const rules = reactive({
   taxIncluded: [{ validator: validatetext, trigger: 'blur' }],
   contractPrice: [{ validator: validatetext, trigger: 'blur' }],
-  customer: [{ validator: validatetext, trigger: 'blur' }],
+  projectName: [{ validator: validatetext, trigger: 'blur' }],
   year: [{ validator: validatetext, trigger: 'blur' }]
 })
 
@@ -99,11 +117,11 @@ const costInformationId = route.params.id
 const detailData = ref({})
 const getCostDisplay = async () => {
   detailData.value = await costDisplay({
-    table: 'coefficientinformation',
+    table: 'outsourcingamount',
     id: route.params.id
   })
   detailData.value = detailData.value[0]
-  // detailData.value.year = dayjs().format('YYYY')
+  // detailData.value.year = dayjs().set('year', detailData.value.year)
   console.log(detailData.value.year)
 }
 onActivated(() => {
@@ -114,6 +132,23 @@ onActivated(() => {
     title.value = i18n.t('msg.cost.add')
   }
 })
+
+// 获取类别信息
+const ListBusiness = ref([])
+const getListBusiness = async () => {
+  const result = await costList({
+    table: 'businessdomain',
+    page: 1,
+    size: 100
+  })
+  result.list.forEach((item) => {
+    ListBusiness.value.push({
+      value: item.businessName,
+      label: item.businessName
+    })
+  })
+}
+getListBusiness()
 
 // 确定按钮点击事件
 const validate = ref(false)
@@ -135,12 +170,14 @@ const onConfirm = async (ruleFormRef) => {
   }
   console.log(validate.value, detailData.value)
   if (route.params.id && validate.value) {
-    delete detailData.value.customer
+    delete detailData.value.projectName
+    detailData.value.year = dayjs(detailData.value.year).format('YYYY')
+    // delete detailData.value.year
     detailData.value.updateUser = store.getters.userInfo.username
     detailData.value.updateTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     console.log('edit', detailData.value)
     const dataUpdate = await costEdit({
-      table: 'coefficientinformation',
+      table: 'outsourcingamount',
       data: detailData
     })
     if (dataUpdate === '更新数据成功') {
@@ -154,12 +191,14 @@ const onConfirm = async (ruleFormRef) => {
     }
   } else if (validate.value) {
     console.log('create', detailData.value)
-    delete detailData.value.customer
+    delete detailData.value.projectName
+    detailData.value.year = dayjs(detailData.value.year).format('YYYY')
+    // delete detailData.value.year
     // delete detailData.value.domainManagerName
     detailData.value.createUser = store.getters.userInfo.username
     detailData.value.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     const dataCreate = await costCreate({
-      table: 'coefficientinformation',
+      table: 'outsourcingamount',
       data: detailData
     })
     if (dataCreate) {
@@ -177,7 +216,7 @@ const onConfirm = async (ruleFormRef) => {
 const closed = (ruleFormRef) => {
   if (!ruleFormRef) return
   ruleFormRef.resetFields()
-  router.push('/basics/coefficientInformation')
+  router.push('/outsourcing/outsourcingAmount')
 }
 
 // 关闭
@@ -191,7 +230,7 @@ const tableName = ref('')
 
 const customerDialogClick = () => {
   systemInformationVisible.value = true
-  tableName.value = 'customerinformation'
+  tableName.value = 'project'
   selectId.value = route.params.id
 }
 
@@ -208,16 +247,17 @@ const getCostSelect = (item) => {
     //   detailData.value.domainManagerName = item.domainManager
     //   console.log('domainManager', detailData.value, item)
     // } else {
-    detailData.value.customerId = item.id
-    detailData.value.customer = item.customer
+    detailData.value.projectId = item.id
+    detailData.value.projectName = item.projectName
+    detailData.value.year = item.year
     console.log('customer', detailData.value, item)
     // }
   }
 }
 
-const pickerSelect = (val) => {
-  detailData.value.year = dayjs(val).format('YYYY')
-}
+// const pickerSelect = (val) => {
+//   detailData.value.year = dayjs(val).format('YYYY')
+// }
 // getCostSelect()
 </script>
 

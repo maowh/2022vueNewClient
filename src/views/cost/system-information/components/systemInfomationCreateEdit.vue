@@ -55,7 +55,7 @@
             ></template>
           </el-input>
         </el-form-item>
-        <el-form-item
+        <!-- <el-form-item
           :label="$t('msg.cost.developManager')"
           prop="developManagerName"
         >
@@ -68,7 +68,7 @@
               ><el-icon style="margin-right: 10px"><Search /></el-icon
             ></template>
           </el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item>
           <el-button type="primary" @click="onConfirm(ruleFormRef)">{{
             $t('msg.universal.confirm')
@@ -210,7 +210,7 @@ const onConfirm = async (ruleFormRef) => {
       table: 'systeminformation',
       data: detailData
     })
-    if (dataCreate === '新增数据成功') {
+    if (dataCreate) {
       ElMessage.success(i18n.t('msg.cost.addSuccess'))
       // 数据更新成功
       closed(ruleFormRef)
@@ -254,12 +254,12 @@ const operationManagerDialogClick = () => {
   selectId.value = route.params.id
   isOperationDevelop.value = 'operation'
 }
-const developManagerDialogClick = () => {
-  systemInformationVisible.value = true
-  tableName.value = 'domaininformation'
-  selectId.value = route.params.id
-  isOperationDevelop.value = 'develop'
-}
+// const developManagerDialogClick = () => {
+//   systemInformationVisible.value = true
+//   tableName.value = 'domaininformation'
+//   selectId.value = route.params.id
+//   isOperationDevelop.value = 'develop'
+// }
 
 // 关闭dialog时重置selectUserId
 watch(systemInformationVisible, (val) => {

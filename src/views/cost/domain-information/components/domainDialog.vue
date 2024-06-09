@@ -154,7 +154,7 @@ const onConfirm = async (ruleFormRef) => {
       table: 'domaininformation',
       data: detailData
     })
-    if (dataCreate === '新增数据成功') {
+    if (dataCreate) {
       ElMessage.success(i18n.t('msg.cost.addSuccess'))
       // 数据更新成功
       emits('updateList')

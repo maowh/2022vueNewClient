@@ -10,25 +10,25 @@
         <!-- <el-table-column label="#" type="index"></el-table-column> -->
         <!-- <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column> -->
         <el-table-column
-          prop="SystemName"
-          :label="$t('msg.cost.SystemName')"
+          prop="projectName"
+          :label="$t('msg.cost.projectName')"
         ></el-table-column>
         <el-table-column
-          prop="customerName"
-          :label="$t('msg.cost.customerName')"
+          prop="year"
+          :label="$t('msg.cost.year')"
         ></el-table-column>
         <el-table-column
-          prop="business"
-          :label="$t('msg.cost.business')"
+          prop="category"
+          :label="$t('msg.cost.category')"
         ></el-table-column>
         <el-table-column
-          prop="operationManagerName"
-          :label="$t('msg.cost.operationManager')"
+          prop="PurchaseAmount"
+          :label="$t('msg.cost.PurchaseAmount')"
         ></el-table-column>
-        <!-- <el-table-column
-          prop="developManagerName"
-          :label="$t('msg.cost.developManager')"
-        ></el-table-column> -->
+        <el-table-column
+          prop="NonPurchaseAmount"
+          :label="$t('msg.cost.NonPurchaseAmount')"
+        ></el-table-column>
         <el-table-column
           :label="$t('msg.cost.action')"
           fixed="right"
@@ -83,7 +83,7 @@ const size = ref(10)
 // 获取数据的方法
 const getListData = async () => {
   const result = await costListDisplay({
-    table: 'systeminformation',
+    table: 'outsourcingamount',
     page: page.value,
     size: size.value
   })
@@ -129,7 +129,7 @@ const onRemoveClick = (row) => {
     { type: 'warning' }
   )
     .then(async () => {
-      await costDel({ table: 'systeminformation', id: row.id })
+      await costDel({ table: 'outsourcingamount', id: row.id })
       ElMessage.success(i18n.t('msg.excel.removeSuccess'))
       // 重新渲染数据
       getListData()
@@ -138,18 +138,18 @@ const onRemoveClick = (row) => {
 }
 
 const onShowClick = (id) => {
-  router.push(`/basics/systemInfomationInfo/${id}`)
+  router.push(`/outsourcing/outsourcingAmountInfo/${id}`)
 }
 
 // 新增记录
 const onAddClick = () => {
   // const id = ''
   // console.log(id)
-  router.push('/basics/systemInfomationCreate')
+  router.push('/outsourcing/outsourcingAmountCreate')
 }
 // 编辑记录
 const onEditClick = (id) => {
-  router.push(`/basics/systemInfomationCreateEdit/${id}`)
+  router.push(`/outsourcing/outsourcingAmountEdit/${id}`)
 }
 </script>
 

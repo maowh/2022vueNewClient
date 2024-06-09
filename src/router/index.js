@@ -21,6 +21,12 @@ import costsFinishRouter from './modules/costsfinish'
 import personnelLoadReportRouter from './modules/personnelloadreport'
 import personnelloaddetailRouter from './modules/personnelloaddetail'
 import businessDomainRouter from './modules/businessDomain'
+import projectInfomationRouter from './modules/projectInfomation'
+import projectcostsRouter from './modules/projectcosts'
+import projectcostsreportRouter from './modules/projectcostsreport'
+import outsourcingAmountRouter from './modules/outsourcingAmount'
+import manpowerInputRouter from './modules/manpowerInput'
+
 import store from '../store'
 
 // 私有路由表
@@ -181,7 +187,12 @@ export const privateRoutes = [
   costsFinishRouter,
   personnelLoadReportRouter,
   personnelloaddetailRouter,
-  businessDomainRouter
+  businessDomainRouter,
+  projectInfomationRouter,
+  projectcostsRouter,
+  projectcostsreportRouter,
+  outsourcingAmountRouter,
+  manpowerInputRouter
 ]
 
 // 初始化路由表

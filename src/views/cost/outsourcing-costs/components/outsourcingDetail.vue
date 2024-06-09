@@ -59,29 +59,8 @@
             {{ item.classification }}
             <!-- </div> -->
           </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.systemEngineer')">
-            {{ item.systemEngineer }}
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.seniorSystemEngineer')">
-            {{ item.seniorSystemEngineer }}
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.softwareEngineer')">
-            {{ item.softwareEngineer }}
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.seniorSoftwareEngineer')">
-            {{ item.seniorSoftwareEngineer }}
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.intermediateSap')">
-            {{ item.intermediateSap }}
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.seniorSap')">
-            {{ item.seniorSap }}
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.dbaEngineer')">
-            {{ item.dbaEngineer }}
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.seniorDbaEngineer')">
-            {{ item.seniorDbaEngineer }}
+          <el-descriptions-item>
+            {{ item.totalAmount }}
           </el-descriptions-item>
         </el-descriptions>
       </div>
@@ -90,9 +69,6 @@
         <el-descriptions direction="vertical" :column="3" border>
           <el-descriptions-item :label="$t('msg.cost.totalAmount')">
             {{ totalAmount }}
-          </el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.totalManpower')">
-            {{ totalManpower }}
           </el-descriptions-item>
         </el-descriptions>
       </div>

@@ -100,13 +100,7 @@
           prop="domainManager"
           :label="$t('msg.cost.domainManager')"
         ></el-table-column>
-        <el-table-column
-          v-for="item in ListDisplay"
-          :key="item.id"
-          :label="item.label"
-          :prop="item.prop"
-        >
-        </el-table-column>
+
         <el-table-column prop="year" label="年份"></el-table-column>
         <el-table-column prop="month" label="月份"></el-table-column>
         <el-table-column
@@ -144,7 +138,7 @@ import { costListDisplay, costList, costAllSelectPage } from '@/api/cost'
 // import { useRouter, useRoute } from 'vue-router'
 import {
   USER_RELATIONS,
-  ListDisplay,
+  // ListDisplay,
   lcategorySelect,
   listSelect
 } from './components/Export2ExcelConstants'

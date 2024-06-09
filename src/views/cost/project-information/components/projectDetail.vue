@@ -2,7 +2,7 @@
   <div class="user-info-container">
     <div class="user-info-box" id="userInfoBox">
       <!-- 标题 -->
-      <h2 class="title">{{ $t('msg.route.systemInfomationInfo') }}</h2>
+      <h2 class="title">{{ $t('msg.route.projectInfomationInfo') }}</h2>
 
       <div class="header">
         <!-- 头部渲染表格 -->
@@ -10,14 +10,14 @@
           <el-descriptions-item :label="$t('msg.cost.id')">{{
             detailData.id
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.SystemName')">{{
-            detailData.SystemName
+          <el-descriptions-item :label="$t('msg.cost.year')">{{
+            detailData.year
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.projectName')">{{
+            detailData.projectName
           }}</el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.customerName')">{{
             detailData.customerName
-          }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.business')">{{
-            detailData.business
           }}</el-descriptions-item>
           <el-descriptions-item :label="$t('msg.cost.operationManager')">{{
             detailData.operationManagerName
@@ -27,7 +27,10 @@
           }}</el-descriptions-item> -->
         </el-descriptions>
       </div>
-
+      <el-table :data="detailDataS" stripe style="width: 100%">
+        <el-table-column prop="SystemName" label="系统名称" />
+        <el-table-column prop="business" label="类别" />
+      </el-table>
       <!-- 尾部签名 -->
       <div class="foot">
         <el-button type="text" class="edit" @click="onBackClick">{{
@@ -51,20 +54,35 @@ const route = useRoute()
 const router = useRouter()
 // 数据相关
 const detailData = ref({})
+// 系统信息数据
+const detailDataSTmp = ref({})
+const detailDataS = ref([])
 const getCostDisplay = async () => {
   detailData.value = await costDisplay({
-    table: 'systeminformation',
+    table: 'project',
+    id: route.params.id
+  })
+  detailDataSTmp.value = await costDisplay({
+    table: 'systeminformationP',
     id: route.params.id
   })
   detailData.value = detailData.value[0]
+  detailDataS.value = []
+  detailDataSTmp.value.forEach((item) => {
+    detailDataS.value.push({
+      SystemName: item.SystemName,
+      business: item.business
+    })
+  })
+  console.log('detailDataS', detailDataS.value)
 }
 getCostDisplay()
 
 const onBackClick = () => {
-  router.push('/basics/systemInfomation')
+  router.push('/basics/projectInfomation')
 }
 const onEditClick = () => {
-  router.push(`/basics/systemInfomationCreateEdit/${route.params.id}`)
+  router.push(`/basics/projectInfomationCreateEdit/${route.params.id}`)
 }
 </script>
 

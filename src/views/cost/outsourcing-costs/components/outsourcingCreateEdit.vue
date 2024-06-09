@@ -143,88 +143,19 @@
                   }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="系统工程师" align="center">
+              <el-table-column label="金额" align="center">
                 <template #default="{ row }">
                   <template v-if="row.edit">
-                    <el-input v-model="row.systemEngineer" />
+                    <el-input v-model="row.totalAmount" />
                   </template>
                   <span @dblclick="row.edit = !row.edit" v-else>{{
-                    row.systemEngineer
+                    row.totalAmount
                   }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="高级系统工程师" align="center">
-                <template #default="{ row }">
-                  <template v-if="row.edit">
-                    <el-input v-model="row.seniorSystemEngineer" />
-                  </template>
-                  <span @dblclick="row.edit = !row.edit" v-else>{{
-                    row.seniorSystemEngineer
-                  }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column label="软件工程师" align="center">
-                <template #default="{ row }">
-                  <template v-if="row.edit">
-                    <el-input v-model="row.softwareEngineer" />
-                  </template>
-                  <span @dblclick="row.edit = !row.edit" v-else>{{
-                    row.softwareEngineer
-                  }}</span>
-                </template></el-table-column
-              >
-              <el-table-column label="高级软件工程师" align="center">
-                <template #default="{ row }">
-                  <template v-if="row.edit">
-                    <el-input v-model="row.seniorSoftwareEngineer" />
-                  </template>
-                  <span @dblclick="row.edit = !row.edit" v-else>{{
-                    row.seniorSoftwareEngineer
-                  }}</span>
-                </template></el-table-column
-              >
-              <el-table-column label="中级SAP" align="center">
-                <template #default="{ row }">
-                  <template v-if="row.edit">
-                    <el-input v-model="row.intermediateSap" />
-                  </template>
-                  <span @dblclick="row.edit = !row.edit" v-else>{{
-                    row.intermediateSap
-                  }}</span>
-                </template></el-table-column
-              >
-              <el-table-column label="高级SAP" align="center">
-                <template #default="{ row }">
-                  <template v-if="row.edit">
-                    <el-input v-model="row.seniorSap" />
-                  </template>
-                  <span @dblclick="row.edit = !row.edit" v-else>{{
-                    row.seniorSap
-                  }}</span>
-                </template></el-table-column
-              >
-              <el-table-column label="DBA" align="center">
-                <template #default="{ row }">
-                  <template v-if="row.edit">
-                    <el-input v-model="row.dbaEngineer" />
-                  </template>
-                  <span @dblclick="row.edit = !row.edit" v-else>{{
-                    row.dbaEngineer
-                  }}</span>
-                </template></el-table-column
-              >
-              <el-table-column label="高级DBA" align="center">
-                <template #default="{ row }">
-                  <template v-if="row.edit">
-                    <el-input v-model="row.seniorDbaEngineer" />
-                  </template>
-                  <span @dblclick="row.edit = !row.edit" v-else>{{
-                    row.seniorDbaEngineer
-                  }}</span>
-                </template></el-table-column
-              >
+
               <el-table-column
-                width="150px"
+                width="300px"
                 label="操作"
                 prop="desc"
                 align="center"
@@ -269,11 +200,6 @@
               <el-descriptions-item :label="$t('msg.cost.totalAmount')">
                 <div v-if="totalAmount">
                   {{ totalAmount }}
-                </div>
-              </el-descriptions-item>
-              <el-descriptions-item :label="$t('msg.cost.totalManpower')">
-                <div v-if="totalManpower">
-                  {{ totalManpower }}
                 </div>
               </el-descriptions-item>
             </el-descriptions></el-col
@@ -342,11 +268,11 @@ const rules = reactive({
 const options = [
   {
     // value: '运维',
-    label: '运维'
+    label: '本领域'
   },
   {
     // value: '开发',
-    label: '开发'
+    label: '外部门'
   }
 ]
 // 确定按钮点击事件
@@ -358,7 +284,7 @@ const title = ref()
 const isAddMoney = ref(false)
 // 判断合计人力和合计金额临时
 const tmpTotalAmount = ref(0)
-const tmpTotalManpower = ref(0)
+// const tmpTotalManpower = ref(0)
 const tmpContractAmount = ref(0)
 const tmpTaxAmount = ref(0)
 // 统计费用明细合计人力和合计金额
@@ -367,7 +293,7 @@ const contractAmount = ref(0)
 const taxAmount = ref(0)
 const totalManpower = ref(0)
 
-// 分别统计运维和研发金额
+// 分别统计本领域和外部门
 const operationAmount = ref(0)
 const developAmount = ref(0)
 
@@ -403,10 +329,10 @@ const getCostMoneyList = async (id) => {
     totalAmount.value += item.totalAmount
     contractAmount.value += item.contractAmount
     taxAmount.value += item.taxAmount
-    totalManpower.value += item.totalManpower
+    // totalManpower.value += item.totalManpower
     console.log(totalManpower.value)
   })
-  totalManpower.value = Number(totalManpower.value).toFixed(2)
+  // totalManpower.value = Number(totalManpower.value).toFixed(2)
   console.log(moneyData.value)
 }
 
@@ -525,9 +451,9 @@ const updateDisplay = async () => {
     updateDetail.taxAmount = 0
   } else {
     moneyData.value.forEach((item) => {
-      if (item.classification === '运维') {
+      if (item.classification === '本领域') {
         operationAmount.value = item.totalAmount
-      } else if (item.classification === '开发') {
+      } else if (item.classification === '外部门') {
         developAmount.value = item.totalAmount
       }
       console.log(item.totalAmount)
@@ -569,12 +495,10 @@ const confirmEdit = async (row, index) => {
   // getCostStandard()
   // getCostCoefficient()
   if (
-    CostStandard.value === undefined ||
     costCoefficient.value === undefined ||
-    Object.keys(CostStandard.value).length === 0 ||
     Object.keys(costCoefficient.value).length === 0
   ) {
-    ElMessage.error('客户年度费用标准未维护或客户年度费用系数未维护！')
+    ElMessage.error('客户年度费用系数未维护！')
     // getCostMoneyList(isEditCreatId.value)
     // isAddMoney.value = false
     // if (moneyData.value.length > 1) {
@@ -584,10 +508,10 @@ const confirmEdit = async (row, index) => {
     row.edit = false
 
     row.originalTitle = row.title
-    row.totalAmount = 0
+    // row.totalAmount = 0
     row.contractAmount = 0
     row.taxAmount = 0
-    row.totalManpower = 0
+    // row.totalManpower = 0
     delete row.edit
     updateDetail.id = isEditCreatId.value
 
@@ -599,25 +523,8 @@ const confirmEdit = async (row, index) => {
       Number(moneyData.value[index].systemEngineer),
       Number(moneyData.value[index].seniorSystemEngineer)
     )
-    row.totalAmount = Number(
-      (Number(moneyData.value[index].systemEngineer) *
-        CostStandard.value.systemEngineer +
-        Number(moneyData.value[index].seniorSap) *
-          CostStandard.value.seniorSap +
-        Number(moneyData.value[index].seniorSoftwareEngineer) *
-          CostStandard.value.seniorSoftwareEngineer +
-        Number(moneyData.value[index].dbaEngineer) *
-          CostStandard.value.dbaEngineer +
-        Number(moneyData.value[index].seniorSystemEngineer) *
-          CostStandard.value.seniorSystemEngineer +
-        Number(moneyData.value[index].intermediateSap) *
-          CostStandard.value.intermediateSap +
-        Number(moneyData.value[index].seniorDbaEngineer) *
-          CostStandard.value.seniorDbaEngineer +
-        Number(moneyData.value[index].softwareEngineer) *
-          CostStandard.value.softwareEngineer) /
-        176
-    ).toFixed(0)
+    console.log(moneyData.value)
+    row.totalAmount = Number(moneyData.value[index].totalAmount).toFixed(0)
     row.contractAmount = Number(
       row.totalAmount * costCoefficient.value.contractPrice
     ).toFixed(0)
@@ -625,18 +532,6 @@ const confirmEdit = async (row, index) => {
       (row.totalAmount * costCoefficient.value.contractPrice) /
         costCoefficient.value.taxIncluded
     ).toFixed(0)
-    row.totalManpower = Number(
-      (Number(moneyData.value[index].systemEngineer) +
-        Number(moneyData.value[index].seniorSap) +
-        Number(moneyData.value[index].seniorSoftwareEngineer) +
-        Number(moneyData.value[index].dbaEngineer) +
-        Number(moneyData.value[index].seniorSystemEngineer) +
-        Number(moneyData.value[index].intermediateSap) +
-        Number(moneyData.value[index].seniorDbaEngineer) +
-        Number(moneyData.value[index].softwareEngineer)) /
-        176
-    ).toFixed(2)
-    // }
 
     console.log(
       '原始数据',
@@ -705,17 +600,18 @@ const confirmEdit = async (row, index) => {
 
 const confirmAdd = async () => {
   const row = {
-    totalManpower: 0,
+    // totalManpower: 0,
     // contractAmount: 0,
     // taxAmount: 0,
-    systemEngineer: 0,
-    seniorSap: 0,
-    seniorSoftwareEngineer: 0,
-    dbaEngineer: 0,
-    seniorSystemEngineer: 0,
-    intermediateSap: 0,
-    seniorDbaEngineer: 0,
-    softwareEngineer: 0,
+    totalAmount: 0,
+    // systemEngineer: 0,
+    // seniorSap: 0,
+    // seniorSoftwareEngineer: 0,
+    // dbaEngineer: 0,
+    // seniorSystemEngineer: 0,
+    // intermediateSap: 0,
+    // seniorDbaEngineer: 0,
+    // softwareEngineer: 0,
     outsourcingCostsId: isEditCreatId.value,
     updateUser: '',
     updateTime: '',
@@ -749,23 +645,7 @@ const confirmDel = (row) => {
                 Number(moneyData.value[index].seniorSystemEngineer)
               )
               row.totalAmount = Number(
-                (Number(moneyData.value[index].systemEngineer) *
-                  CostStandard.value.systemEngineer +
-                  Number(moneyData.value[index].seniorSap) *
-                    CostStandard.value.seniorSap +
-                  Number(moneyData.value[index].seniorSoftwareEngineer) *
-                    CostStandard.value.seniorSoftwareEngineer +
-                  Number(moneyData.value[index].dbaEngineer) *
-                    CostStandard.value.dbaEngineer +
-                  Number(moneyData.value[index].seniorSystemEngineer) *
-                    CostStandard.value.seniorSystemEngineer +
-                  Number(moneyData.value[index].intermediateSap) *
-                    CostStandard.value.intermediateSap +
-                  Number(moneyData.value[index].seniorDbaEngineer) *
-                    CostStandard.value.seniorDbaEngineer +
-                  Number(moneyData.value[index].softwareEngineer) *
-                    CostStandard.value.softwareEngineer) /
-                  176
+                moneyData.value[index].totalAmount
               ).toFixed(0)
               row.contractAmount = Number(
                 row.totalAmount * costCoefficient.value.contractPrice
@@ -784,33 +664,16 @@ const confirmDel = (row) => {
                   tmpContractAmount.value + row.contractAmount
                 row.taxAmount = tmpTaxAmount.value + row.taxAmount
               }
-              row.totalManpower = Number(
-                (Number(moneyData.value[index].systemEngineer) +
-                  Number(moneyData.value[index].seniorSap) +
-                  Number(moneyData.value[index].seniorSoftwareEngineer) +
-                  Number(moneyData.value[index].dbaEngineer) +
-                  Number(moneyData.value[index].seniorSystemEngineer) +
-                  Number(moneyData.value[index].intermediateSap) +
-                  Number(moneyData.value[index].seniorDbaEngineer) +
-                  Number(moneyData.value[index].softwareEngineer)) /
-                  176
-              ).toFixed(2)
-              if (index === 0) {
-                tmpTotalManpower.value = row.totalManpower
-              } else {
-                row.totalManpower = tmpTotalManpower.value + row.totalManpower
-              }
-              console.log(row.totalAmount, row.totalManpower)
             }
             totalAmount.value = row.totalAmount
             contractAmount.value = row.contractAmount
             taxAmount.value = row.taxAmount
-            totalManpower.value = row.totalManpower
+            // totalManpower.value = row.totalManpower
           } else {
             totalAmount.value = 0
             contractAmount.value = 0
             taxAmount.value = 0
-            totalManpower.value = 0
+            // totalManpower.value = 0
           }
           updateDisplay()
         })

@@ -30,4 +30,17 @@ defineProps({
 })
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.el-menu-item {
+  height: 40px;
+  line-height: 40px;
+}
+.el-sub-menu .el-menu-item {
+  height: 40px;
+  line-height: 40px;
+}
+.el-sub-menu__title {
+  height: 40px;
+  line-height: 40px;
+}
+</style>

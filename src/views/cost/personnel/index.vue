@@ -17,6 +17,10 @@
           prop="business"
           :label="$t('msg.cost.business')"
         ></el-table-column>
+        <el-table-column
+          prop="attribute"
+          :label="$t('msg.cost.attribute')"
+        ></el-table-column>
 
         <el-table-column
           :label="$t('msg.cost.action')"

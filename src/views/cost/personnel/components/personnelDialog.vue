@@ -32,6 +32,23 @@
             </el-select> </el-form-item
         ></el-col>
       </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item :label="$t('msg.cost.attribute')" prop="attribute">
+            <el-select
+              v-model="detailData.attribute"
+              class="m-2"
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="item in ListAttribute"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select> </el-form-item
+        ></el-col>
+      </el-row>
 
       <el-form-item>
         <el-button type="primary" @click="onConfirm(ruleFormRef)">{{
@@ -89,7 +106,13 @@ const i18n = useI18n()
 const title = ref()
 title.value = i18n.t('msg.cost.add')
 
-// 获取业务域信息
+// 获取属性信息
+const ListAttribute = ref([
+  { value: '正式', label: '正式' },
+  { value: '外包', label: '外包' }
+])
+
+// 获取类别信息
 const ListBusiness = ref([])
 const getListBusiness = async () => {
   const result = await costList({
@@ -180,7 +203,7 @@ const onConfirm = async (ruleFormRef) => {
       table: 'personnel',
       data: detailData
     })
-    if (dataCreate === '新增数据成功') {
+    if (dataCreate) {
       ElMessage.success(i18n.t('msg.cost.addSuccess'))
       // 数据更新成功
       emits('updateList')

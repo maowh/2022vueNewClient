@@ -10,25 +10,29 @@
         <!-- <el-table-column label="#" type="index"></el-table-column> -->
         <!-- <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column> -->
         <el-table-column
-          prop="SystemName"
-          :label="$t('msg.cost.SystemName')"
-        ></el-table-column>
-        <el-table-column
           prop="customerName"
           :label="$t('msg.cost.customerName')"
         ></el-table-column>
         <el-table-column
-          prop="business"
-          :label="$t('msg.cost.business')"
+          prop="projectName"
+          :label="$t('msg.cost.projectName')"
         ></el-table-column>
         <el-table-column
-          prop="operationManagerName"
-          :label="$t('msg.cost.operationManager')"
+          prop="categoryName"
+          :label="$t('msg.cost.categoryName')"
         ></el-table-column>
-        <!-- <el-table-column
-          prop="developManagerName"
-          :label="$t('msg.cost.developManager')"
-        ></el-table-column> -->
+        <el-table-column
+          prop="year"
+          :label="$t('msg.cost.year')"
+        ></el-table-column>
+        <el-table-column
+          prop="TotalPurchaseAmount"
+          :label="$t('msg.cost.TotalPurchaseAmount')"
+        ></el-table-column>
+        <el-table-column
+          prop="capitaIncome"
+          :label="$t('msg.cost.capitaIncome')"
+        ></el-table-column>
         <el-table-column
           :label="$t('msg.cost.action')"
           fixed="right"
@@ -83,11 +87,13 @@ const size = ref(10)
 // 获取数据的方法
 const getListData = async () => {
   const result = await costListDisplay({
-    table: 'systeminformation',
+    table: 'projectcosts',
     page: page.value,
     size: size.value
   })
+  // console.log(result)
   tableData.value = result.list
+  console.log(tableData.value)
   total.value = result.total
 }
 getListData()
@@ -129,7 +135,7 @@ const onRemoveClick = (row) => {
     { type: 'warning' }
   )
     .then(async () => {
-      await costDel({ table: 'systeminformation', id: row.id })
+      await costDel({ table: 'projectcosts', id: row.id })
       ElMessage.success(i18n.t('msg.excel.removeSuccess'))
       // 重新渲染数据
       getListData()
@@ -137,19 +143,20 @@ const onRemoveClick = (row) => {
     .catch((error) => error)
 }
 
+// 查看记录
 const onShowClick = (id) => {
-  router.push(`/basics/systemInfomationInfo/${id}`)
+  router.push(`/outsourcing/projectcostsInfo/${id}`)
 }
 
 // 新增记录
 const onAddClick = () => {
   // const id = ''
   // console.log(id)
-  router.push('/basics/systemInfomationCreate')
+  router.push('/outsourcing/projectcostsCreate')
 }
 // 编辑记录
 const onEditClick = (id) => {
-  router.push(`/basics/systemInfomationCreateEdit/${id}`)
+  router.push(`/outsourcing/projectcostsEdit/${id}`)
 }
 </script>
 

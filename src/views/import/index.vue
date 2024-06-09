@@ -17,7 +17,7 @@ const i18n = useI18n()
 // 数据解析成功后的回调
 const onSuccess = async ({ header, results }) => {
   const updateData = generateData(results)
-  await userImport(updateData)
+  await userImport({ table: 'user', data: updateData })
   ElMessage.success({
     message: results.length + i18n.t('msg.excel.importSuccess'),
     // message: results.length,

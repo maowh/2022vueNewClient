@@ -2,7 +2,7 @@
   <div class="user-info-container">
     <div class="user-info-box" id="userInfoBox">
       <!-- 标题 -->
-      <h2 class="title">{{ $t('msg.route.systemInfomationInfo') }}</h2>
+      <h2 class="title">{{ $t('msg.route.manpowerInputInfo') }}</h2>
 
       <div class="header">
         <!-- 头部渲染表格 -->
@@ -10,21 +10,21 @@
           <el-descriptions-item :label="$t('msg.cost.id')">{{
             detailData.id
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.SystemName')">{{
-            detailData.SystemName
+          <el-descriptions-item :label="$t('msg.cost.projectName')">{{
+            detailData.projectName
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.customerName')">{{
-            detailData.customerName
+          <el-descriptions-item :label="$t('msg.cost.year')">{{
+            detailData.year
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.business')">{{
-            detailData.business
+          <el-descriptions-item :label="$t('msg.cost.category')">{{
+            detailData.category
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.operationManager')">{{
-            detailData.operationManagerName
+          <el-descriptions-item :label="$t('msg.cost.PurchaseAmount')">{{
+            detailData.PurchaseAmount
           }}</el-descriptions-item>
-          <!-- <el-descriptions-item :label="$t('msg.cost.developManager')">{{
-            detailData.developManagerName
-          }}</el-descriptions-item> -->
+          <el-descriptions-item :label="$t('msg.cost.NonPurchaseAmount')">{{
+            detailData.NonPurchaseAmount
+          }}</el-descriptions-item>
         </el-descriptions>
       </div>
 
@@ -53,7 +53,7 @@ const router = useRouter()
 const detailData = ref({})
 const getCostDisplay = async () => {
   detailData.value = await costDisplay({
-    table: 'systeminformation',
+    table: 'outsourcingamount',
     id: route.params.id
   })
   detailData.value = detailData.value[0]
@@ -61,10 +61,10 @@ const getCostDisplay = async () => {
 getCostDisplay()
 
 const onBackClick = () => {
-  router.push('/basics/systemInfomation')
+  router.push('/outsourcing/outsourcingAmount')
 }
 const onEditClick = () => {
-  router.push(`/basics/systemInfomationCreateEdit/${route.params.id}`)
+  router.push(`/outsourcing/outsourcingAmountEdit/${route.params.id}`)
 }
 </script>
 

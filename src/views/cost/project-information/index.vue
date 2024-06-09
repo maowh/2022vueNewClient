@@ -10,17 +10,21 @@
         <!-- <el-table-column label="#" type="index"></el-table-column> -->
         <!-- <el-table-column prop="id" :label="$t('msg.cost.id')"></el-table-column> -->
         <el-table-column
-          prop="SystemName"
-          :label="$t('msg.cost.SystemName')"
+          prop="year"
+          :label="$t('msg.cost.year')"
+        ></el-table-column>
+        <el-table-column
+          prop="projectName"
+          :label="$t('msg.cost.projectName')"
         ></el-table-column>
         <el-table-column
           prop="customerName"
           :label="$t('msg.cost.customerName')"
         ></el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           prop="business"
           :label="$t('msg.cost.business')"
-        ></el-table-column>
+        ></el-table-column> -->
         <el-table-column
           prop="operationManagerName"
           :label="$t('msg.cost.operationManager')"
@@ -83,7 +87,7 @@ const size = ref(10)
 // 获取数据的方法
 const getListData = async () => {
   const result = await costListDisplay({
-    table: 'systeminformation',
+    table: 'project',
     page: page.value,
     size: size.value
   })
@@ -129,7 +133,7 @@ const onRemoveClick = (row) => {
     { type: 'warning' }
   )
     .then(async () => {
-      await costDel({ table: 'systeminformation', id: row.id })
+      await costDel({ table: 'project', id: row.id })
       ElMessage.success(i18n.t('msg.excel.removeSuccess'))
       // 重新渲染数据
       getListData()
@@ -138,18 +142,19 @@ const onRemoveClick = (row) => {
 }
 
 const onShowClick = (id) => {
-  router.push(`/basics/systemInfomationInfo/${id}`)
+  router.push(`/basics/projectInfomationInfo/${id}`)
 }
 
 // 新增记录
 const onAddClick = () => {
   // const id = ''
   // console.log(id)
-  router.push('/basics/systemInfomationCreate')
+  router.push('/basics/projectInfomationCreate')
 }
 // 编辑记录
 const onEditClick = (id) => {
-  router.push(`/basics/systemInfomationCreateEdit/${id}`)
+  console.log(id)
+  router.push(`/basics/projectInfomationCreateEdit/${id}`)
 }
 </script>
 
