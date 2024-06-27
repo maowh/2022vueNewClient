@@ -261,12 +261,12 @@ const rules = reactive({
 // 确定费用选择项目
 const options = [
   {
-    // value: '运维',
-    label: '运维'
+    // value: '本领域',
+    label: '本领域'
   },
   {
-    // value: '开发',
-    label: '开发'
+    // value: '外部门',
+    label: '外部门'
   }
 ]
 // 确定按钮点击事件
@@ -434,9 +434,9 @@ const updateDisplay = async () => {
     updateDetail.taxAmount = 0
   } else {
     moneyData.value.forEach((item) => {
-      if (item.classification === '运维') {
+      if (item.classification === '本领域') {
         operationAmount.value = item.totalAmount
-      } else if (item.classification === '开发') {
+      } else if (item.classification === '外部门') {
         developAmount.value = item.totalAmount
       }
       totalAmount.value += Number(item.totalAmount)

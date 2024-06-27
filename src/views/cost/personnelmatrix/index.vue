@@ -14,41 +14,17 @@
           :label="$t('msg.cost.name')"
         ></el-table-column>
         <el-table-column
-          prop="attribute"
-          :label="$t('msg.cost.attribute')"
+          prop="year"
+          :label="$t('msg.cost.year')"
         ></el-table-column>
         <el-table-column
-          prop="station"
-          :label="$t('msg.cost.station')"
+          prop="SystemName"
+          :label="$t('msg.cost.SystemName')"
         ></el-table-column>
         <el-table-column
-          prop="business"
-          :label="$t('msg.cost.business')"
+          prop="load"
+          :label="$t('msg.cost.load')"
         ></el-table-column>
-        <el-table-column
-          prop="officelocation"
-          :label="$t('msg.cost.officelocation')"
-        ></el-table-column>
-        <el-table-column
-          prop="domainsplit"
-          :label="$t('msg.cost.domainsplit')"
-        ></el-table-column>
-        <el-table-column
-          prop="domain"
-          :label="$t('msg.cost.domain')"
-        ></el-table-column>
-        <el-table-column
-          prop="customer"
-          :label="$t('msg.cost.customerName')"
-        ></el-table-column>
-        <el-table-column
-          prop="region"
-          :label="$t('msg.cost.region')"
-        ></el-table-column>
-        <!-- <el-table-column
-          prop="developManagerName"
-          :label="$t('msg.cost.developManager')"
-        ></el-table-column> -->
         <el-table-column
           :label="$t('msg.cost.action')"
           fixed="right"
@@ -103,7 +79,7 @@ const size = ref(10)
 // 获取数据的方法
 const getListData = async () => {
   const result = await costListDisplay({
-    table: 'personnel',
+    table: 'personnelmatrix',
     page: page.value,
     size: size.value
   })
@@ -149,7 +125,7 @@ const onRemoveClick = (row) => {
     { type: 'warning' }
   )
     .then(async () => {
-      await costDel({ table: 'personnel', id: row.id })
+      await costDel({ table: 'personnelmatrix', id: row.id })
       ElMessage.success(i18n.t('msg.excel.removeSuccess'))
       // 重新渲染数据
       getListData()
@@ -158,18 +134,18 @@ const onRemoveClick = (row) => {
 }
 
 const onShowClick = (id) => {
-  router.push(`/personnelManage/personnelDetail/${id}`)
+  router.push(`/personnelManage/personnelmatrixInfo/${id}`)
 }
 
 // 新增记录
 const onAddClick = () => {
   // const id = ''
   // console.log(id)
-  router.push('/personnelManage/personnelCreate')
+  router.push('/personnelManage/personnelmatrixCreate')
 }
 // 编辑记录
 const onEditClick = (id) => {
-  router.push(`/personnelManage/personnelCreateEdit/${id}`)
+  router.push(`/personnelManage/personnelmatrixEdit/${id}`)
 }
 </script>
 

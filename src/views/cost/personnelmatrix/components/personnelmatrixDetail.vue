@@ -2,7 +2,7 @@
   <div class="user-info-container">
     <div class="user-info-box" id="userInfoBox">
       <!-- 标题 -->
-      <h2 class="title">{{ $t('msg.route.projectInfomationInfo') }}</h2>
+      <h2 class="title">{{ $t('msg.route.coefficientInformationInfo') }}</h2>
 
       <div class="header">
         <!-- 头部渲染表格 -->
@@ -10,30 +10,29 @@
           <el-descriptions-item :label="$t('msg.cost.id')">{{
             detailData.id
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.year')">{{
+          <el-descriptions-item :label="$t('msg.cost.name')">{{
+            detailData.name
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.startYearMonth')">{{
+            detailData.startYearMonth
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.endYearMonth')">{{
+            detailData.endYearMonth
+          }}</el-descriptions-item>
+          <!-- <el-descriptions-item :label="$t('msg.cost.year')">{{
             detailData.year
           }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.projectName')">{{
-            detailData.projectName
-          }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.customerName')">{{
-            detailData.customerName
-          }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('msg.cost.operationManager')">{{
-            detailData.operationManagerName
-          }}</el-descriptions-item>
-          <!-- <el-descriptions-item :label="$t('msg.cost.developManager')">{{
-            detailData.developManagerName
+          <el-descriptions-item :label="$t('msg.cost.month')">{{
+            detailData.month
           }}</el-descriptions-item> -->
+          <el-descriptions-item :label="$t('msg.cost.SystemName')">{{
+            detailData.SystemName
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.load')">{{
+            detailData.load
+          }}</el-descriptions-item>
         </el-descriptions>
       </div>
-      <div v-if="isShow">
-        <el-table :data="detailDataS" stripe style="width: 100%">
-          <el-table-column prop="SystemName" label="系统名称" />
-          <el-table-column prop="business" label="类别" />
-        </el-table>
-      </div>
-      <div v-else>未设置项目对应的系统信息</div>
 
       <!-- 尾部签名 -->
       <div class="foot">
@@ -58,40 +57,20 @@ const route = useRoute()
 const router = useRouter()
 // 数据相关
 const detailData = ref({})
-const isShow = ref(true)
-// 系统信息数据
-const detailDataSTmp = ref({})
-const detailDataS = ref([])
 const getCostDisplay = async () => {
   detailData.value = await costDisplay({
-    table: 'project',
-    id: route.params.id
-  })
-  detailDataSTmp.value = await costDisplay({
-    table: 'systeminformationP',
+    table: 'personnelload',
     id: route.params.id
   })
   detailData.value = detailData.value[0]
-  detailDataS.value = []
-  detailDataSTmp.value.forEach((item) => {
-    detailDataS.value.push({
-      SystemName: item.SystemName,
-      business: item.business
-    })
-  })
-  if (detailDataS.value[0].SystemName !== null) {
-    isShow.value = true
-  } else {
-    isShow.value = false
-  }
 }
 getCostDisplay()
 
 const onBackClick = () => {
-  router.push('/basics/projectInfomation')
+  router.push('/personnelManage/personnelmatrix')
 }
 const onEditClick = () => {
-  router.push(`/basics/projectInfomationCreateEdit/${route.params.id}`)
+  router.push(`/personnelManage/personnelmatrixEdit/${route.params.id}`)
 }
 </script>
 

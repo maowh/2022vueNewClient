@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { costListDisplay } from '@/api/cost'
+import { costListDisplay, costAllSelect } from '@/api/cost'
 
 const tableCosts = ref([])
 const tablePersonload = ref([])
@@ -15,6 +15,42 @@ const totalAll = ref(0)
 // const total = ref(0)
 // const page = ref(1)
 // const size = ref(10)
+
+// 获取所有人员的矩阵系数信息
+const personnelmatrixAll = ref([])
+export const getPersonnelmatrixAll = async (yearObj) => {
+  await costAllSelect({
+    table: 'personnelmatrixAll',
+    data: yearObj
+  }).then((result) => {
+    personnelmatrixAll.value = result
+  })
+  return personnelmatrixAll.value
+}
+
+// 获取所有项目的系数信息
+const projectmatrixAll = ref([])
+export const getProjectmatrixAll = async (yearObj) => {
+  await costAllSelect({
+    table: 'projectmatrixAll',
+    data: yearObj
+  }).then((result) => {
+    projectmatrixAll.value = result
+  })
+  return projectmatrixAll.value
+}
+
+// 获取项目费用信息
+const projectcostsAll = ref([])
+export const getProjectcostsAll = async (yearObj) => {
+  await costAllSelect({
+    table: 'projectcostsAll',
+    data: yearObj
+  }).then((result) => {
+    projectcostsAll.value = result
+  })
+  return projectcostsAll.value
+}
 
 // 获取所有费用信息
 const getAllListCosts = async () => {
@@ -158,18 +194,20 @@ export const getPersonnelLoadList = async () => {
 
 export const getPaging = (val, page, size) => {
   if (val) {
+    var a = JSON.stringify(val)
+    var b = JSON.parse(a)
     if (page === 1) {
       // 获取Proxy原始数据
-      console.log(val, page, size, val.splice(0, size))
-      var a = JSON.stringify(val)
-      var b = JSON.parse(a)
-      console.log(b, b.splice(0, size))
-      console.log(val)
-      return val.splice(0, size)
+      // console.log('第1页显示分页数据：', val, page, size, val.splice(0, size))
+
+      // console.log(b, b.splice(0, size))
+      // console.log(val)
+      return b.splice(0, size)
       // return val
     } else {
+      console.log('后续页面显示分页数据：', b, 'page:', page, 'size:', size)
       // console.log(val.splice((page - 1) * size, size))
-      return val.splice((page - 1) * size, size)
+      return b.splice((page - 1) * size, size)
       // return val
       // return data.value
     }

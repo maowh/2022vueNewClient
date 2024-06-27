@@ -26,6 +26,8 @@ import projectcostsRouter from './modules/projectcosts'
 import projectcostsreportRouter from './modules/projectcostsreport'
 import outsourcingAmountRouter from './modules/outsourcingAmount'
 import manpowerInputRouter from './modules/manpowerInput'
+import personnelmatrixRouter from './modules/personnelmatrix'
+import personnelmatrixreportRouter from './modules/personnelmatrixreport'
 
 import store from '../store'
 
@@ -192,7 +194,9 @@ export const privateRoutes = [
   projectcostsRouter,
   projectcostsreportRouter,
   outsourcingAmountRouter,
-  manpowerInputRouter
+  manpowerInputRouter,
+  personnelmatrixRouter,
+  personnelmatrixreportRouter
 ]
 
 // 初始化路由表

@@ -107,14 +107,21 @@
 </template>
 
 <script setup>
-import { ref, onActivated, watch } from 'vue'
+import { ref, watch } from 'vue'
 // import { renderHeader } from '@/prototype'
-import { costListDisplay, costList, costAllSelectPage } from '@/api/cost'
+import {
+  costList
+  // costAllSelectPage
+} from '@/api/cost'
 // import { useRouter, useRoute } from 'vue-router'
 import {
   USER_RELATIONS
   // ListDisplay,
 } from './components/Export2ExcelConstants'
+import {
+  getProjectcostsAll,
+  getProjectmatrixAll
+} from '@/utils/personnelload.js'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 // import { useI18n } from 'vue-i18n'
@@ -134,7 +141,7 @@ const total = ref(0)
 const page = ref(1)
 const size = ref(10)
 // 判断是否查询
-const isSearch = ref(false)
+// const isSearch = ref(false)
 
 // 测试日期选择
 // const monthValue = ref('')
@@ -182,19 +189,36 @@ const tempData = (val1, val2, val3) => {
         item.NonPurchaseAmount = item2.NonPurchaseAmount
       }
     })
+    console.log('val3原始值：', val3)
+    item.RegularEmployees = Number(0).toFixed(2)
+    item.OutsourcedEmployees = Number(0).toFixed(2)
     val3.forEach((item3) => {
       if (
-        item.id === item3.projectId &&
-        item.business === item3.category &&
+        item.id === item3.id &&
+        item.business === item3.business &&
         item.year === item3.year
       ) {
-        item.RegularEmployees = item3.RegularEmployees
-        item.OutsourcedEmployees = item3.OutsourcedEmployees
+        console.log('item3:', item3)
+        if (item3.attribute === '正式') {
+          console.log('正式:', item3.worktotal)
+          item.RegularEmployees = Number(item3.worktotal).toFixed(2)
+        } else if (item3.attribute === '外包') {
+          console.log('外包:', item3.worktotal)
+          item.OutsourcedEmployees = Number(item3.worktotal).toFixed(2)
+        }
       }
     })
-    item.outsourcingAmountToal = item.PurchaseAmount + item.NonPurchaseAmount
+    // if (item.RegularEmployees === '' || item.RegularEmployees === null) {
+    //   item.RegularEmployees = 0
+    // }
+    // if (item.OutsourcedEmployees === '' || item.OutsourcedEmployees === null) {
+    //   item.OutsourcedEmployees = 0
+    // }
+    item.outsourcingAmountToal =
+      Number(item.PurchaseAmount) + Number(item.NonPurchaseAmount)
     item.manpowerInputAvg = Number(
-      (item.incomeAmount / (item.RegularEmployees + item.OutsourcedEmployees)) *
+      (Number(item.incomeAmount) /
+        (Number(item.RegularEmployees) + Number(item.OutsourcedEmployees))) *
         12
     ).toFixed(2)
   })
@@ -205,37 +229,66 @@ watch(
   [IncomeAmount, manpowerInput, outsourcingAmount],
   (newCount, oldCount) => {
     tempData(IncomeAmount.value, outsourcingAmount.value, manpowerInput.value)
-    console.log('projectReportVal', projectReportVal.value)
     total.value = projectReportVal.value.length
   },
   { immediate: true }
 )
 
 // 获取初始数据的方法
-const getListData = async () => {
-  const result = await costListDisplay({
-    table: 'projectcostsAll',
-    page: page.value,
-    size: size.value
+const yearObj = ref({})
+const getIncomeAmount = () => {
+  // 设置报表显示的年份
+  if (yearValue.value === null || yearValue.value === '') {
+    yearValue.value = dayjs().format('YYYY')
+  } else {
+    yearValue.value = dayjs(yearValue.value).format('YYYY')
+  }
+  yearObj.value.yearValue = yearValue.value
+  getProjectcostsAll(yearObj).then((res) => {
+    IncomeAmount.value = res
   })
-  console.log(result)
-  IncomeAmount.value = result.lists
-  // tableDatas.value = result.lists
-  // tableData.value = result.list
-  // total.value = result.total
 }
-getListData()
+getIncomeAmount()
 
-const getManpowerInput = async () => {
-  const result = await costList({
-    table: 'manpowerinput',
-    page: page.value,
-    size: size.value
+// const getListData = async () => {
+//   const result = await costListDisplay({
+//     table: 'projectcostsAll',
+//     page: page.value,
+//     size: size.value
+//   })
+//   console.log(result)
+//   IncomeAmount.value = result.lists
+//   // tableDatas.value = result.lists
+//   // tableData.value = result.list
+//   // total.value = result.total
+// }
+// getListData()
+
+// const getManpowerInput = async () => {
+//   const result = await costList({
+//     table: 'manpowerinput',
+//     page: page.value,
+//     size: size.value
+//   })
+//   manpowerInput.value = result.lists
+//   console.log('manpowerInput', manpowerInput.value)
+// }
+
+const getManpowerInput = () => {
+  // 设置报表显示的年份
+  if (yearValue.value === null || yearValue.value === '') {
+    yearValue.value = dayjs().format('YYYY')
+  } else {
+    yearValue.value = dayjs(yearValue.value).format('YYYY')
+  }
+  yearObj.value.yearValue = yearValue.value
+  console.log('yearValue.value:', yearObj.value)
+  getProjectmatrixAll(yearObj).then((res) => {
+    manpowerInput.value = res
   })
-  manpowerInput.value = result.lists
-  console.log('manpowerInput', manpowerInput.value)
 }
 getManpowerInput()
+
 const getOutsourcingAmount = async () => {
   const result = await costList({
     table: 'outsourcingAmount',
@@ -248,19 +301,19 @@ const getOutsourcingAmount = async () => {
 getOutsourcingAmount()
 
 // 获取查询数据的方法
-const getSearchListData = async () => {
-  await costAllSelectPage({
-    table: 'projectcostsSearch',
-    data: selectData,
-    page: page.value,
-    size: size.value
-  }).then((result) => {
-    IncomeAmount.value = result.lists
-    // tableDatas.value = result.lists
-    // tableData.value = result.list
-    // total.value = result.total
-  })
-}
+// const getSearchListData = async () => {
+//   await costAllSelectPage({
+//     table: 'projectcostsSearch',
+//     data: selectData,
+//     page: page.value,
+//     size: size.value
+//   }).then((result) => {
+//     IncomeAmount.value = result.lists
+//     // tableDatas.value = result.lists
+//     // tableData.value = result.list
+//     // total.value = result.total
+//   })
+// }
 
 // 分页相关，size改变触发
 const handleSizeChange = (currentSize) => {
@@ -350,7 +403,7 @@ const handleCurrentChange = (currentPage) => {
 // }
 // getListStandardData()
 
-onActivated(getListData)
+// onActivated(getListData)
 
 // 监听当前路由
 // watch(
@@ -407,24 +460,31 @@ const onToExcelClick = async () => {
   // closed()
 }
 
-const selectData = ref({})
+// const selectData = ref({})
+
 const onSearch = async () => {
-  if (yearValue.value === '') {
-    ElMessage.warning('请选择查询年份！')
-  } else {
-    selectData.value = dayjs(yearValue.value).format('YYYY')
-    getSearchListData()
-    console.log('data', selectData, typeof selectData.value)
-    console.log(dayjs(yearValue.value[0]), yearValue.value)
-  }
-  isSearch.value = true
+  getIncomeAmount()
+  getManpowerInput()
 }
+// if (yearValue.value === '' || yearValue.value === null) {
+//   ElMessage.warning('请选择查询年份！')
+// } else {
+//   selectData.value = dayjs(yearValue.value).format('YYYY')
+//   getSearchListData()
+//   console.log('data', selectData, typeof selectData.value)
+//   console.log(dayjs(yearValue.value[0]), yearValue.value)
+// }
+// isSearch.value = true
 
 // 重置
 const onRefresh = () => {
   yearValue.value = ''
-  getListData()
-  isSearch.value = false
+  getIncomeAmount()
+  getManpowerInput()
+  // getProjectcostsAll().then((res) => {
+  //   IncomeAmount.value = res
+  // })
+  // isSearch.value = false
 }
 
 // const i18n = useI18n()

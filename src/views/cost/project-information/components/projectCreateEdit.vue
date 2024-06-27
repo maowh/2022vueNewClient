@@ -110,7 +110,7 @@ import {
   costCreate,
   costEdit,
   costDisplay,
-  // costList,
+  costList,
   costDel
 } from '@/api/cost'
 import { userImport } from '@/api/sys'
@@ -175,6 +175,17 @@ const projectSystem = async () => {
     })
   }
 }
+
+// 获取项目id对应的系统信息
+// const projectSystemList = ref([])
+const isSystem = ref(true)
+const getProjectSystem = async () => {
+  const result = await costList({
+    table: 'projectsystem',
+    id: projectId.value
+  })
+  return result
+}
 const handleSelectionChange = (val) => {
   // 清空选择框
   multipleSelection.value = []
@@ -188,11 +199,38 @@ const handleSelectionChange = (val) => {
     item.projectId = projectId.value
     delete item.SystemName
     delete item.business
+    item.year = detailData.value.year
     item.createUser = store.getters.userInfo.username
     item.createTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
     multipleSelection.value.push(item)
   })
-  projectSystem()
+  console.log('multipleSelection', multipleSelection.value)
+  getProjectSystem().then((result) => {
+    result.lists.forEach((item) => {
+      multipleSelection.value.forEach((mul) => {
+        if (item.systemId === mul.systemId && item.year === mul.year) {
+          isSystem.value = false
+          ElMessage({
+            message: item.year + '年度系统已被项目选择，不能再次选择！',
+            type: 'warning'
+          })
+        }
+      })
+    })
+    console.log(
+      'isSystem',
+      isSystem.value,
+      'result',
+      result.lists,
+      'projectSystemList',
+      multipleSelection.value
+    )
+  })
+
+  if (isSystem.value) {
+    projectSystem()
+  }
+  console.log(multipleSelection.value)
   console.log('列表数据：', ListInformation.value)
 }
 

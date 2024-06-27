@@ -14,6 +14,10 @@
           :label="$t('msg.cost.SystemName')"
         ></el-table-column>
         <el-table-column
+          prop="business"
+          :label="$t('msg.cost.business')"
+        ></el-table-column>
+        <el-table-column
           prop="year"
           :label="$t('msg.cost.year')"
         ></el-table-column>
@@ -27,20 +31,20 @@
         ></el-table-column>
         <el-table-column
           prop="operationAmount"
-          :label="$t('msg.cost.operationAmount')"
+          :label="$t('msg.cost.area')"
         ></el-table-column>
         <el-table-column
           prop="developAmount"
-          :label="$t('msg.cost.developAmount')"
+          :label="$t('msg.cost.gate')"
         ></el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           prop="contractAmount"
           :label="$t('msg.cost.contractAmount')"
         ></el-table-column>
         <el-table-column
           prop="taxAmount"
           :label="$t('msg.cost.taxAmount')"
-        ></el-table-column>
+        ></el-table-column> -->
         <el-table-column
           :label="$t('msg.cost.action')"
           fixed="right"

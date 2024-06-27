@@ -59,7 +59,7 @@
             {{ item.classification }}
             <!-- </div> -->
           </el-descriptions-item>
-          <el-descriptions-item>
+          <el-descriptions-item :label="$t('msg.cost.amount')">
             {{ item.totalAmount }}
           </el-descriptions-item>
         </el-descriptions>
