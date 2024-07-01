@@ -19,7 +19,7 @@
           @change="pickerSelect($event)"
         /> -->
         <div>
-          <span style="margin-left: 5px">执行率预警查询：</span>
+          <span style="margin-left: 5px">执行率预警百分比选项：</span>
           <el-select v-model="inputBusiness" class="m-2" placeholder="请选择">
             <el-option
               v-for="item in ListBusiness"
@@ -28,6 +28,8 @@
               :value="item.value"
             />
           </el-select>
+          <span style="margin-left: 5px">执行率预警值：</span>
+          <el-input-number v-model="num" :step="5" />
         </div>
         <!-- <span style="margin-left: 5px">系统名称：</span>
         <el-input
@@ -140,7 +142,7 @@ import { ElMessage } from 'element-plus'
 // const route = useRoute()
 // const i18n = useI18n()
 // 数据相关
-const tableData = ref([])
+// const tableData = ref([])
 // 临时数据
 // const tableDataTmp = ref([])
 // tableDatas获取所有的记录用于统计
@@ -174,10 +176,12 @@ const costsPlan = ref([])
 // const costsReality = ref([])
 // const costsPlanOperationQuarter = ref([])
 // const costsPlanDevelopQuarter = ref([])
+// 预警初始值
+const num = ref(80)
 
 // 获取业务域信息
 const ListBusiness = ref([
-  { value: '全部', label: '全部' },
+  { value: '总额', label: '总额' },
   { value: '本领域', label: '本领域' },
   { value: '外部门', label: '外部门' }
 ])
@@ -329,7 +333,6 @@ const getCostsPlan = async () => {
               '%'
           }
         })
-        console.log('实际和计划费用列表：', quarterAll.value)
 
         // if (item.year === startYear.value) {
         //   item.reportedAmount = Math.round(
@@ -346,15 +349,7 @@ const getCostsPlan = async () => {
       })
     }
     total.value = quarterAll.value.length
-    console.log('第一次显示数据：', QuarterAllP.value, page.value, size.value)
     QuarterAllP.value = getPaging(quarterAll.value, page.value, size.value)
-    console.log(
-      '第二次显示数据：',
-      quarterAll.value,
-      QuarterAllP.value,
-      page.value,
-      size.value
-    )
   })
 }
 
@@ -414,7 +409,6 @@ const getCostsPlan = async () => {
 getCostsReality().then(() => {
   getCostsPlan()
 })
-console.log(quarterAll.value)
 
 // 获取月度区间
 // 获取起始年份和截止年份（判断是否同一年份，并且获取年份数据）、起始月份（计算起始季度和截止季度）
@@ -524,7 +518,7 @@ const formatJson = (headers, rows) => {
 const loading = ref(false)
 const onToExcelClick = async () => {
   loading.value = true
-  const allUser = tableData.value
+  const allUser = QuarterAllP.value
   // 导入工具包
   const excel = await import('@/utils/Export2Excel')
   const data = formatJson(USER_RELATIONS, allUser)
@@ -610,15 +604,68 @@ const onToExcelClick = async () => {
 //   // getPaging(tableData.value, page, size)
 // }
 
+const onSearch = () => {
+  console.log('onsearch全部前:', quarterAll.value)
+  console.log('选择框内容：', inputBusiness.value === '')
+  if (inputBusiness.value !== '') {
+    const reportedAmountPercentage = ref(0)
+    const operationAmountPercentage = ref(0)
+    const developAmountPercentage = ref(0)
+    QuarterAllP.value = quarterAll.value.filter((item) => {
+      console.log(
+        '类型：',
+        typeof item.reportedAmountPercentage,
+        item.reportedAmountPercentage
+      )
+      if (
+        inputBusiness.value === '总额' &&
+        typeof item.reportedAmountPercentage === 'string'
+      ) {
+        console.log('总额：', item.reportedAmountPercentage.split('%')[0])
+        reportedAmountPercentage.value = Number(
+          item.reportedAmountPercentage.split('%')[0]
+        ).toFixed(2)
+        return reportedAmountPercentage.value < num.value
+      } else if (
+        inputBusiness.value === '本领域' &&
+        typeof item.operationAmountPercentage === 'string'
+      ) {
+        operationAmountPercentage.value = Number(
+          item.operationAmountPercentage.split('%')[0]
+        ).toFixed(2)
+        return operationAmountPercentage.value < num.value
+      } else if (
+        inputBusiness.value === '外部门' &&
+        typeof item.developAmountPercentage === 'string'
+      ) {
+        developAmountPercentage.value = Number(
+          item.developAmountPercentage.split('%')[0]
+        ).toFixed(2)
+        return developAmountPercentage.value < num.value
+      }
+    })
+    total.value = QuarterAllP.value.length
+    getPaging(QuarterAllP.value, page.value, size.value)
+  } else {
+    ElMessage.warning('执行率预警百分比选项不能为空！')
+  }
+  console.log('onsearch全部后:', QuarterAllP.value)
+}
+
 // 重置
 const onRefresh = () => {
   yearMonth.value = ''
   inputCustomer.value = ''
   inputBusiness.value = ''
+  num.value = 80
   inputName.value = ''
-  tableData.value = []
-  total.value = tableData.value.length
-  getPaging(tableData.value, page, size)
+  // tableData.value = []
+  // total.value = tableData.value.length
+  getCostsReality().then(() => {
+    getCostsPlan()
+  })
+  getPaging(QuarterAllP.value, page.value, size.value)
+  console.log('重置：:', QuarterAllP.value)
   // getListData()
 }
 

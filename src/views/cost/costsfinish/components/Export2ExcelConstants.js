@@ -1,19 +1,19 @@
 // 数据对应表
 export const USER_RELATIONS = {
   客户名称: 'customer',
-  开始季度: 'quarterStart',
-  结束季度: 'quarterEnd',
-  业务域: 'business',
+  年份: 'year',
+  季度: 'quarter',
+  类别: 'business',
   系统名称: 'SystemName',
   季度计划总额: 'reportedAmountPlan',
   季度实绩总额: 'reportedAmount',
   总额完成百分比: 'reportedAmountPercentage',
   季度计划运维: 'operationAmountPlan',
   季度实绩运维: 'operationAmount',
-  运维完成百分比: 'operationAmountPercentage',
+  本领域完成百分比: 'operationAmountPercentage',
   季度计划研发: 'developAmountPlan',
   季度实绩研发: 'developAmount',
-  研发完成百分比: 'developAmountPercentage'
+  外部门完成百分比: 'developAmountPercentage'
 }
 
 // 工程师标准对应表
